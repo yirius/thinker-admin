@@ -1,0 +1,33 @@
+{
+    "name": "yirius/thinkphp-admin",
+    "description": "use five line php code to create an administrator view",
+    "version": "1.0.0",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "yirius",
+            "email": "2951979767@qq.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-4": {
+            "Yirius\\Admin\\": "src/"
+        },
+        "files": [
+            "src/helper.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\Controller\\": "tests/controllers"
+        }
+    },
+    "require": {},
+    "extra": {
+        "think-config": {
+            "icesadmin": "src/config/config.php",
+            "captcha": "src/config/captcha.php"
+        }
+    }
+}
