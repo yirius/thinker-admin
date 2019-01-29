@@ -56,13 +56,13 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="gitiginore" value="8" />
+          <entry key="gitiginore" value="9" />
           <entry key="json" value="103" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="8" />
+          <entry key="PLAIN_TEXT" value="9" />
           <entry key="composer.json" value="103" />
         </counts>
       </usages-collector>
@@ -189,12 +189,12 @@
       <option name="presentableId" value="Default" />
       <updated>1548779829164</updated>
       <workItem from="1548779830450" duration="310000" />
-      <workItem from="1548780154180" duration="1374000" />
+      <workItem from="1548780154180" duration="1426000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="1684000" />
+    <option name="totallyTimeSpent" value="1736000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1680" y="0" width="1920" height="1080" extended-state="0" />
