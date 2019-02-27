@@ -125,7 +125,7 @@ class PageView extends Layout
     {
         if ($cards instanceof \Closure) {
             $cardView = new Card();
-            call_user_func($cards, $cardView);
+            call($cards, [$cardView]);
             $this->setLayout($cardView);
         } else {
             $this->setLayout(new Card(null, $cards));

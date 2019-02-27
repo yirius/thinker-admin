@@ -10,6 +10,7 @@ namespace Yirius\Admin\controller;
 
 
 use think\Controller;
+use think\facade\Route;
 
 class AdminController extends Controller
 {
@@ -41,14 +42,34 @@ class AdminController extends Controller
             $this->sendError(lang("no authority to access"));
         });
 
-        //judge if member have permission to request
+        //get path, check resource restful url
+        $currentPath = $this->getCurrentPath();
+        //if check error, sendError
+        if(!\Yirius\Admin\Admin::auth()->check($currentPath, $this->getToken('id'), $this->checkType)){
+            $this->sendError(lang("do not have authority to access", ['url' => $currentPath]), 0);
+        }
+    }
+
+    /**
+     * @title getCurrentPath
+     * @description get this request's path
+     * @createtime 2019/2/27 下午3:44
+     */
+    protected function getCurrentPath()
+    {
         $currentPath = $this->request->path();
         //if there no prev fix '/', make it
         if(substr($currentPath, 0, 1) != "/") $currentPath = "/" . $currentPath;
-        //if check error, sendError
-        if(!\Yirius\Admin\Admin::auth()->check($currentPath, $this->getToken('id'), $this->checkType)){
-            $this->sendError(lang("do not have authority to access", ['url' => $currentPath]));
+
+        //check resource like
+        $paths = explode("/", $currentPath);
+        foreach($paths as $i => $v){
+            if(is_numeric($v) && $i == (count($paths) - 1)){
+                unset($paths[$i]);
+            }
         }
+
+        return join("/", $paths);
     }
 
     /**
@@ -83,11 +104,12 @@ class AdminController extends Controller
         if($this->returnJsonError){
             \Yirius\Admin\Admin::tools()->jsonSend([], $code, $msg);
         }else{
+            $logout = $code == 1001 ? 'layui.session.logout();' : '';
             response(<<<HTML
 <script>
 layui.layer.alert("{$msg}", {title: "温馨提示"}, function(index){
-    layer.close(index);
-    layui.session.logout();
+    layer.closeAll();
+    {$logout}
 });
 </script>
 HTML

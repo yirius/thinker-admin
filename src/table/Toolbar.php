@@ -11,6 +11,7 @@ namespace Yirius\Admin\table;
 
 use Yirius\Admin\Admin;
 use Yirius\Admin\Layout;
+use \Yirius\Admin\table\events\Toolbar as ToolbarEvent;
 
 class Toolbar extends Layout
 {
@@ -20,9 +21,9 @@ class Toolbar extends Layout
     protected $table;
 
     /**
-     * @var string
+     * @var ToolbarEvent
      */
-    protected $event = '';
+    protected $event = null;
 
     /**
      * @var string
@@ -96,95 +97,15 @@ class Toolbar extends Layout
     /**
      * @title event
      * @description
-     * @createtime 2019/2/26 下午10:56
-     * @param $eventName
-     * @param $callback
-     * @return $this
+     * @createtime 2019/2/27 下午12:05
+     * @param \Closure|null $callback
+     * @return ToolbarEvent
      */
-    public function event($eventName, $callback)
+    public function event(\Closure $callback = null)
     {
-        $this->event .= <<<HTML
-if(obj.event === "{$eventName}"){
-    {$callback}
-}
-HTML;
+        $this->event = (new ToolbarEvent($this->table, $callback));
 
-        return $this;
-    }
-
-    /**
-     * @title eventAdd
-     * @description
-     * @createtime 2019/2/27 上午1:20
-     * @param $view
-     * @param string $title
-     * @param array $area
-     * @param null $id
-     * @param array $data
-     * @return Toolbar
-     */
-    public function eventAdd($view, $title = '添加信息',array $area = ['60%', '60%'], $id = null, array $data = [])
-    {
-        if(is_null($id)) $id = $this->table->getName() . "_adddialog";
-
-        $area = json_encode($area);
-
-        $data = json_encode($data);
-
-        return $this->event("add", <<<HTML
-layui.view.dialog({
-    title: '{$title}',
-    area: {$area},
-    id: '{$id}',
-    success: function(layero, index){
-        layui.view.init("#" + this.id).render(
-            layui.tools.getCorrectUrl('{$view}', obj.data), {$data}
-        ).done(function(){});
-    }
-});
-HTML
-        );
-    }
-
-    /**
-     * @title eventDelete
-     * @description
-     * @createtime 2019/2/27 上午1:20
-     * @param $url
-     * @param null $tableName
-     * @param array $sendData
-     * @param null $afterDelete
-     * @return Toolbar
-     */
-    public function eventDelete($url, $tableName = null, array $sendData = [], $afterDelete = null)
-    {
-        if(is_null($afterDelete))
-        {
-            $afterDelete = '';
-
-            if(!is_null($tableName)) $afterDelete .= 'table.reload("'. $tableName .'")';
-
-            $afterDelete .= "layer.msg(res.msg || '已删除')";
-        }
-
-        $sendData = json_encode($sendData);
-
-        return $this->event("delete", <<<HTML
-var checkStatus = layui.table.checkStatus(obj.config.id);
-if(checkStatus.data.length == 0){
-    layui.layer.alert("您尚未选择任何条目");
-    return;
-}
-layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
-    layer.close(index);
-    layer.confirm('确定删除吗？', function(index) {
-        layui.http.delete('{$url}', $.extend({password: value, data: checkStatus.data}, {$sendData}), function(res){
-            {$afterDelete}
-        });
-    });
-});
-HTML
-        );
+        return $this->event;
     }
 
     /**
@@ -195,13 +116,9 @@ HTML
      */
     public function render()
     {
-        Admin::script(<<<HTML
-//toolbar's event
-layui.table.on('toolbar({$this->table->getName()})', function(obj){
-{$this->event}
-});
-HTML
-        );
+        if(!is_null($this->event)){
+            Admin::script($this->event->render());
+        }
 
         return <<<HTML
 <script type="text/html" id="{$this->table->getName()}_toolbar">

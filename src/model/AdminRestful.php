@@ -6,7 +6,7 @@
  * Time: 下午3:59
  */
 
-namespace Yirius\Admin\model\restful;
+namespace Yirius\Admin\model;
 
 use Yirius\Admin\controller\AdminController;
 

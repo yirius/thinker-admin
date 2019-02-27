@@ -2,26 +2,62 @@
 /**
  * Created by PhpStorm.
  * User: yangyuance
- * Date: 2019/2/26
- * Time: 下午3:59
+ * Date: 2019/2/27
+ * Time: 下午2:16
  */
 
 namespace Yirius\Admin\model\restful;
 
+
+use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
 
-class AdminMember extends AdminRestful
+class AdminMenu extends AdminRestful
 {
     /**
      * @title index
      * @description
-     * @createtime 2019/2/26 下午4:01
+     * @createtime 2019/2/27 下午2:24
+     * @return mixed|void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
     public function index()
     {
-        $result = \Yirius\Admin\model\table\AdminMember::adminList()->getResult();
 
-        $this->send($result);
+        $allMenus = \Yirius\Admin\model\table\AdminMenu::all()->toArray();
+
+        $result = Admin::tools()->tree($allMenus);
+
+        $this->send(count($allMenus), $this->getMenusTree($result));
+    }
+
+    /**
+     * @title getMenusTree
+     * @description
+     * @createtime 2019/2/27 下午5:10
+     * @param $trees
+     * @param string $prev
+     * @return array
+     */
+    protected function getMenusTree($trees, $prev = '')
+    {
+        $result = [];
+
+        foreach($trees as $i => $tree){
+            $tree['title'] = $prev . $tree['title'];
+            if(!empty($tree['list'])){
+                $list = $tree['list'];
+                $tree['list'] = [];
+                $result[] = $tree;
+                $result = array_merge($result, $this->getMenusTree($list, empty($prev) ? "|--" : $prev . "--"));
+            }else{
+                $result[] = $tree;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -82,4 +118,5 @@ class AdminMember extends AdminRestful
     {
         // TODO: Implement deleteall() method.
     }
+
 }

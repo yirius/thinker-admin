@@ -9,6 +9,9 @@
 defined("DS") or define("DS", DIRECTORY_SEPARATOR);//目录分割的缩写
 defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包的地址
 
+//load lang
+\think\facade\Lang::load(dirname(__DIR__) . DS . "lang" . DS . \think\facade\Lang::detect() . ".php");
+
 //登录等非restful api能使用的
 \think\facade\Route::alias("thinkeradmin", "\\Yirius\\Admin\\controller\\Admin", ['deny_ext' => 'php|.htacess']);
 //System's Controller
@@ -18,6 +21,8 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 \think\facade\Route::rest("deleteall", ['delete', '', 'deleteall']);
 
 //restful api
+\think\facade\Route::resource("restful/adminmenu", "\\Yirius\\Admin\\model\\restful\\AdminMenu");
+\think\facade\Route::resource("restful/adminrule", "\\Yirius\\Admin\\model\\restful\\AdminRule");
 \think\facade\Route::resource("restful/adminmember", "\\Yirius\\Admin\\model\\restful\\AdminMember");
 
 
@@ -25,5 +30,3 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 \think\Console::addDefaultCommands([
     "Yirius\\Admin\\command\\Cache"
 ]);
-
-\think\facade\Lang::load(dirname(__DIR__) . DS . "lang" . DS . \think\facade\Lang::detect() . ".php");

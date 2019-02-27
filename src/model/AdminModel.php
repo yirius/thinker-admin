@@ -10,6 +10,8 @@ namespace Yirius\Admin\model;
 
 
 use think\Model;
+use Yirius\Admin\model\model\Delete;
+use Yirius\Admin\model\model\Lists;
 
 class AdminModel extends Model
 {
@@ -24,15 +26,21 @@ class AdminModel extends Model
 
     /**
      * @title adminList
-     * @description get list class
-     * @createtime 2019/2/20 下午7:59
-     * @return ModelList
+     * @description
+     * @createtime 2019/2/27 下午2:22
+     * @return Lists
      */
     public static function adminList(){
-        return (new ModelList(new static()));
+        return (new Lists(new static()));
     }
 
+    /**
+     * @title adminDelete
+     * @description
+     * @createtime 2019/2/27 下午2:22
+     * @return Delete
+     */
     public static function adminDelete(){
-        return (new ModelDelete(new static()));
+        return (new Delete(new static()));
     }
 }

@@ -6,9 +6,11 @@
  * Time: 下午11:45
  */
 
-namespace Yirius\Admin\model;
+namespace Yirius\Admin\model\model;
 
-class ModelDelete extends AdminModelBase
+use Yirius\Admin\model\AdminModelBase;
+
+class Delete extends AdminModelBase
 {
     public function getResult(){
 

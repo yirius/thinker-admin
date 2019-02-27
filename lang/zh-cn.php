@@ -8,7 +8,7 @@
 return [
     //access_token
     "no access_token to access" => "您暂无授权",
-    "no authority to access" => "您访问{:url}的授权已过期或无法使用",
+    "no authority to access" => "您的授权已过期或无法使用",
     "do not have authority to access" => "您暂无访问{:url}的授权",
 
     //jwt

@@ -11,7 +11,7 @@ namespace Yirius\Admin\model;
 
 use think\Model;
 
-class AdminModelBase
+abstract class AdminModelBase
 {
 
     /**

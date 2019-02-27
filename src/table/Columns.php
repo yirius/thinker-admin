@@ -129,9 +129,6 @@ HTML;
     {
         $this->tool .= $html;
 
-        //if set tool, default set right
-        $this->setFixed('right');
-
         return $this;
     }
 
@@ -147,6 +144,8 @@ HTML;
      */
     public function button($text, $event, $icon, $class)
     {
+        $this->setWidth(150);
+
         return $this->tool('<a class="layui-btn layui-btn-xs '. $class .'" lay-event="'. $event .'"><i class="layui-icon layui-icon-'. $icon .'"></i>'. $text .'</a>');
     }
 
@@ -173,6 +172,18 @@ HTML;
     }
 
     /**
+     * @title expend
+     * @description expend this row
+     * @createtime 2019/2/27 下午4:11
+     */
+    public function expend()
+    {
+        $this->setWidth(55);
+
+        return $this->tool('<a class="layui-btn layui-btn-xs" lay-event="expend" style="width: 20px;height: 20px;border-radius: 10px;line-height: 20px;cursor: pointer;padding: 0 0 0 3px;"><i class="layui-icon layui-icon-add-1"></i></a>');
+    }
+
+    /**
      * @title __call
      * @description
      * @createtime 2019/2/26 下午5:25
@@ -183,7 +194,8 @@ HTML;
     public function __call($name, $arguments)
     {
         $operateType = substr($name, 0, 3);
-        $name = strtolower(substr($name, 3));
+        $firstChar = substr($name, 3, 1);
+        $name = strtolower($firstChar) . substr($name, 4);
 
         //if it is set
         if($operateType === "set"){

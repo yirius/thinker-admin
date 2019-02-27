@@ -63,7 +63,7 @@ layui.form.on("submit({$this->form->getName()}-submit)", function (obj) {
     layui.http.request({
         method: 'POST',
         url: "{$url}",
-        data: obj.field,
+        data: layui.http._beforeAjax(obj.field),
         success: function (res) {
             {$doneCall}
         }

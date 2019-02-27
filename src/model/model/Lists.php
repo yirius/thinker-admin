@@ -6,11 +6,11 @@
  * Time: 下午5:24
  */
 
-namespace Yirius\Admin\model;
+namespace Yirius\Admin\model\model;
 
-use think\Model;
+use Yirius\Admin\model\AdminModelBase;
 
-class ModelList extends AdminModelBase
+class Lists extends AdminModelBase
 {
     /**
      * @var int
@@ -55,10 +55,11 @@ class ModelList extends AdminModelBase
     /**
      * @title setOrder
      * @description
-     * @createtime 2019/2/20 下午5:50
+     * @createtime 2019/2/27 下午2:21
      * @param $field
-     * @param $order
+     * @param null $order
      * @return $this
+     * @throws \Exception
      */
     public function setOrder($field, $order = null)
     {
@@ -76,10 +77,10 @@ class ModelList extends AdminModelBase
 
     /**
      * @title checkOrderInject
-     * @description check is there has sql inject
-     * @createtime 2019/2/20 下午5:58
+     * @description
+     * @createtime 2019/2/27 下午2:21
      * @param $order
-     * @throws AdminModelException
+     * @throws \Exception
      */
     protected function checkOrderInject($order)
     {
@@ -93,13 +94,13 @@ class ModelList extends AdminModelBase
             if (strpos($order, " ")) {
                 $orderExploded = explode(" ", $order);
                 if (!in_array($orderExploded[0], $this->modelFields)) {
-                    throw new AdminModelException("order field like 'id' not exsit in this table");
+                    throw new \Exception("order field like 'id' not exsit in this table");
                 }
                 if (!in_array($orderExploded[1], ['asc', 'desc'])) {
-                    throw new AdminModelException("order's order is not asc/desc");
+                    throw new \Exception("order's order is not asc/desc");
                 }
             } else {
-                throw new AdminModelException("order info is not full");
+                throw new \Exception("order info is not full");
             }
         }
     }

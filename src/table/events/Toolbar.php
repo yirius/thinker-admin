@@ -2,8 +2,8 @@
 /**
  * Created by PhpStorm.
  * User: yangyuance
- * Date: 2019/2/26
- * Time: 下午10:54
+ * Date: 2019/2/27
+ * Time: 下午12:02
  */
 
 namespace Yirius\Admin\table\events;
@@ -12,7 +12,7 @@ namespace Yirius\Admin\table\events;
 use Yirius\Admin\Layout;
 use Yirius\Admin\table\Table;
 
-class Tool extends Layout
+class Toolbar extends Layout
 {
     /**
      * @var Table
@@ -58,27 +58,27 @@ HTML;
     }
 
     /**
-     * @title edit
+     * @title eventAdd
      * @description
-     * @createtime 2019/2/26 下午10:57
+     * @createtime 2019/2/27 上午1:20
      * @param $view
      * @param string $title
      * @param array $area
      * @param null $id
      * @param array $data
-     * @return Tool
+     * @return Toolbar
      */
-    public function edit($view = null, $title = '编辑信息',array $area = ['80%', '80%'], $id = null, array $data = [])
+    public function add($view = null, $title = '添加信息',array $area = ['80%', '80%'], $id = null, array $data = [])
     {
-        if(is_null($view)) $view = $this->table->getEditPath() . "/{{d.id}}";
+        if(is_null($view)) $view = $this->table->getEditPath();
 
-        if(is_null($id)) $id = $this->table->getName() . "_dialog";
+        if(is_null($id)) $id = $this->table->getName() . "_adddialog";
 
         $area = json_encode($area);
 
         $data = json_encode($data);
 
-        return $this->event("edit", <<<HTML
+        return $this->event("add", <<<HTML
 layui.view.dialog({
     title: '{$title}',
     area: {$area},
@@ -94,18 +94,18 @@ HTML
     }
 
     /**
-     * @title delete
+     * @title eventDelete
      * @description
-     * @createtime 2019/2/26 下午11:46
+     * @createtime 2019/2/27 上午1:20
      * @param $url
      * @param null $tableName
      * @param array $sendData
      * @param null $afterDelete
-     * @return Tool
+     * @return Toolbar
      */
     public function delete($url = null, $tableName = null, array $sendData = [], $afterDelete = null)
     {
-        if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}";
+        if(is_null($url)) $url = $this->table->getRestfulUrl();
 
         if(is_null($afterDelete))
         {
@@ -119,39 +119,19 @@ HTML
         $sendData = json_encode($sendData);
 
         return $this->event("delete", <<<HTML
+var checkStatus = layui.table.checkStatus(obj.config.id);
+if(checkStatus.data.length == 0){
+    layui.layer.alert("您尚未选择任何条目");
+    return;
+}
 layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
     layer.close(index);
     layer.confirm('确定删除吗？', function(index) {
-        var url = layui.laytpl('{$url}').render(obj.data);
-        layui.http.delete(url, $.extend({password: value}, {$sendData}), function(res){
+        layui.http.delete('{$url}', $.extend({password: value, data: checkStatus.data}, {$sendData}), function(res){
             {$afterDelete}
         });
     });
 });
-HTML
-        );
-    }
-
-    /**
-     * @title expend
-     * @description
-     * @createtime 2019/2/27 下午4:40
-     * @param $html
-     * @return Tool
-     */
-    public function expend($html)
-    {
-        return $this->event("expend", <<<HTML
-var _this = $(this), tr = _this.parents('tr'), trIndex = tr.data('index');
-if($(this).find("i").hasClass('layui-icon-add-1')){
-    $(this).find("i").removeClass('layui-icon-add-1').addClass('layui-icon-fonts-del');
-    var tableId = 'tableOut_tableIn_' + trIndex;
-    var _html = layui.laytpl('<tr class="table-item">{$html}</tr>').render(obj.data);
-    tr.after(_html);
-}else{
-    $(this).find("i").addClass('layui-icon-add-1').removeClass('layui-icon-fonts-del');
-    tr.next().remove();
-}
 HTML
         );
     }
@@ -165,8 +145,8 @@ HTML
     public function render()
     {
         return <<<HTML
-//tool's event
-layui.table.on('tool({$this->table->getName()})', function(obj){
+//toolbar's event
+layui.table.on('toolbar({$this->table->getName()})', function(obj){
 {$this->event}
 });
 HTML;

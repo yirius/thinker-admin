@@ -184,15 +184,17 @@ class Form extends Layout
     /**
      * @title inline
      * @description set inline or not inline
-     * @createtime 2019/2/24 下午6:08
+     * @createtime 2019/2/27 下午12:22
      * @param \Closure $inline
-     * @return $this
+     * @return \Closure|Inline
      */
     public function inline(\Closure $inline)
     {
-        $this->assemblys[] = (new Inline($this, $inline));
+        $inline = (new Inline($this, $inline));
 
-        return $this;
+        $this->assemblys[] = $inline;
+
+        return $inline;
     }
 
     /**

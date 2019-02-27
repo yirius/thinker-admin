@@ -49,6 +49,13 @@ class Tools
                 'topindex' => 0,
                 'sublist' => "list"
             ];
+        }else{
+            $config = array_merge([
+                'parentid' => "pid",
+                'id' => "id",
+                'topindex' => 0,
+                'sublist' => "list"
+            ], $config);
         }
 
         //first, add all data to array and set key = pid
