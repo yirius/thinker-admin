@@ -23,10 +23,12 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 //restful api
 \think\facade\Route::resource("restful/adminmenu", "\\Yirius\\Admin\\model\\restful\\AdminMenu");
 \think\facade\Route::resource("restful/adminrule", "\\Yirius\\Admin\\model\\restful\\AdminRule");
+\think\facade\Route::resource("restful/adminrole", "\\Yirius\\Admin\\model\\restful\\AdminRole");
 \think\facade\Route::resource("restful/adminmember", "\\Yirius\\Admin\\model\\restful\\AdminMember");
 
 
 //加入以下console
 \think\Console::addDefaultCommands([
-    "Yirius\\Admin\\command\\Cache"
+    "Yirius\\Admin\\command\\Cache",
+    "Yirius\\Admin\\command\\Menu"
 ]);

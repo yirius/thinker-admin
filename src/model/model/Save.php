@@ -10,6 +10,7 @@ namespace Yirius\Admin\model\model;
 
 
 use think\facade\Validate;
+use think\Model;
 use Yirius\Admin\model\AdminModelBase;
 
 class Save extends AdminModelBase
@@ -20,7 +21,7 @@ class Save extends AdminModelBase
     protected $addData = [];
 
     /**
-     * @var Validate
+     * @var \think\Validate
      */
     protected $validate = null;
 
@@ -78,7 +79,8 @@ class Save extends AdminModelBase
     /**
      * @title getError
      * @description
-     * @createtime 2019/2/28 下午12:23
+     * @createtime 2019/2/28 下午1:45
+     * @return array|bool
      */
     public function getError()
     {
@@ -86,7 +88,7 @@ class Save extends AdminModelBase
         {
             return $this->validate->getError();
         }else{
-            return false;
+            return "未知错误，请您联系客服";
         }
     }
 
@@ -94,7 +96,7 @@ class Save extends AdminModelBase
      * @title getResult
      * @description get total result
      * @createtime 2019/2/28 上午11:51
-     * @return mixed
+     * @return Model|bool
      */
     public function getResult()
     {

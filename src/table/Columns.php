@@ -9,6 +9,7 @@
 namespace Yirius\Admin\table;
 
 
+use Yirius\Admin\Admin;
 use Yirius\Admin\Layout;
 
 
@@ -59,6 +60,11 @@ use Yirius\Admin\Layout;
 class Columns extends Layout
 {
     /**
+     * @var Table
+     */
+    protected $table = null;
+
+    /**
      * @var array
      */
     protected $config = [
@@ -72,12 +78,19 @@ class Columns extends Layout
     protected $tool = '';
 
     /**
+     * @var array
+     */
+    protected $fullTemplet = [];
+
+    /**
      * Columns constructor.
      * @param $field
      * @param $title
      */
-    public function __construct($field, $title)
+    public function __construct($field, $title, $table)
     {
+        $this->table = $table;
+
         $this->config['field'] = $field;
 
         $this->config['title'] = $title;
@@ -107,15 +120,27 @@ class Columns extends Layout
      */
     public function getTool()
     {
+        $fullTempletString = '';
+        foreach($this->fullTemplet as $i => $v){
+            $fullTempletString .= <<<HTML
+<script type="text/html" id="{$i}">
+{$v}
+</script>
+HTML;
+        }
+
+        $toolString = '';
         if(empty($this->tool)){
-            return '';
+            $toolString = '';
         }else{
-            return <<<HTML
+            $toolString = <<<HTML
 <script type="text/html" id="{$this->getToolbar()}">
 {$this->tool}
 </script>
 HTML;
         }
+
+        return $fullTempletString . $toolString;
     }
 
     /**
@@ -181,6 +206,49 @@ HTML;
         $this->setWidth(55);
 
         return $this->tool('<a class="layui-btn layui-btn-xs" lay-event="expend" style="width: 20px;height: 20px;border-radius: 10px;line-height: 20px;cursor: pointer;padding: 0 0 0 3px;"><i class="layui-icon layui-icon-add-1"></i></a>');
+    }
+
+    /**
+     * @title setFullTemplet
+     * @description
+     * @createtime 2019/2/28 下午2:54
+     * @param $id
+     * @param $fullTemplet
+     * @return $this
+     */
+    public function setFullTemplet($id, $fullTemplet)
+    {
+        $this->fullTemplet[$id] = $fullTemplet;
+
+        return $this;
+    }
+
+    /**
+     * @title setSwitchTemplet
+     * @description
+     * @createtime 2019/2/28 下午3:08
+     * @param $field
+     * @param null $url
+     * @return Columns
+     */
+    public function setSwitchTemplet($field, $url = null)
+    {
+        if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
+
+        Admin::script(<<<HTML
+layui.form.on("switch(switch{$field})", function(obj){
+    var renderData = JSON.parse(obj.elem.dataset.json);
+    layui.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? 1 : 0, field: "{$field}"});
+});
+HTML
+        );
+
+        $this->setTemplet('#' . $this->table->getName() . "_" . $field . "_templet");
+
+        return $this->setFullTemplet($this->table->getName() . "_" . $field . "_templet", <<<HTML
+<input type="checkbox" name="{$field}" value="1" data-json="{{=JSON.stringify(d) }}" lay-skin="switch" lay-text="开|关" lay-filter="switch{$field}" {{ d.{$field} == 1 ? 'checked' : '' }}>
+HTML
+        );
     }
 
     /**

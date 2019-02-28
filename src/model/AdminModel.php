@@ -12,6 +12,7 @@ namespace Yirius\Admin\model;
 use think\Model;
 use Yirius\Admin\model\model\Delete;
 use Yirius\Admin\model\model\Lists;
+use Yirius\Admin\model\model\Save;
 
 class AdminModel extends Model
 {
@@ -42,5 +43,15 @@ class AdminModel extends Model
      */
     public static function adminDelete(){
         return (new Delete(new static()));
+    }
+
+    /**
+     * @title adminSave
+     * @description
+     * @createtime 2019/2/28 下午1:46
+     * @return Save
+     */
+    public static function adminSave(){
+        return (new Save(new static()));
     }
 }

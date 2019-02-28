@@ -12,6 +12,7 @@ namespace Yirius\Admin\model\restful;
 use think\Request;
 use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
+use \Yirius\Admin\model\table as table;
 
 class AdminRule extends AdminRestful
 {
@@ -64,13 +65,37 @@ class AdminRule extends AdminRestful
     /**
      * @title save
      * @description
-     * @createtime 2019/2/28 上午11:46
+     * @createtime 2019/2/28 下午2:10
      * @param Request $request
+     * @param array $where
      * @return mixed|void
      */
-    public function save(Request $request)
+    public function save(Request $request, $where = [])
     {
-        // TODO: Implement save() method.
+        $addData = $request->param();
+        $addData['status'] = $request->param('status', 0);
+
+        $adminSaveModel = table\AdminRule::adminSave();
+        $isAdd = $adminSaveModel
+            ->setValidate([
+                'name' => "require",
+                'title' => "require",
+                'mid' => "require|number"
+            ], [
+                'name.require' => "规则名称必须填写",
+                'title.require' => "中文名称必须填写",
+                'mid.require' => "上级编号必须填写",
+                'mid.number' => "上级编号必须填写数字编号"
+            ])
+            ->setAdd($addData)
+            ->setWhere($where)
+            ->getResult();
+
+        if($isAdd === false){
+            Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
+        }else{
+            Admin::tools()->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."规则成功");
+        }
     }
 
     /**
@@ -95,7 +120,34 @@ class AdminRule extends AdminRestful
      */
     public function update($id, Request $request)
     {
-        // TODO: Implement update() method.
+        //判断是否是修改字段
+        if($request->param("__type") == "field"){
+            $field = $request->param("field");
+            if(in_array($field, ['status'])){
+                $adminSaveModel = table\AdminRule::adminSave();
+                $isAdd = $adminSaveModel
+                    ->setAdd([
+                        $field => $request->param("value")
+                    ])
+                    ->setWhere([
+                        ['id', '=', $id]
+                    ])
+                    ->getResult();
+
+                if($isAdd === false){
+                    Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
+                }else{
+                    Admin::tools()->jsonSend([], 1, "修改规则成功");
+                }
+            }else{
+                Admin::tools()->jsonSend([], 0, "该字段不可修改");
+            }
+        }else{
+            //执行整体更改
+            $this->save($request, [
+                ['id', '=', $id]
+            ]);
+        }
     }
 
     /**

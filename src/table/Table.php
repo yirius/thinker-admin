@@ -144,7 +144,7 @@ class Table extends Layout
      */
     public function columns($field, $name)
     {
-        $columns = (new Columns($field, $name));
+        $columns = (new Columns($field, $name, $this));
 
         $columns->setToolbar($this->getName() . "_". $field ."_tool");
 

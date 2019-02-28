@@ -11,6 +11,9 @@ namespace Yirius\Admin\controller;
 
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
+use Yirius\Admin\model\table\AdminMember;
+use Yirius\Admin\model\table\AdminMenu;
+use Yirius\Admin\model\table\AdminRole;
 use Yirius\Admin\model\table\AdminRule;
 use Yirius\Admin\table\Table;
 
@@ -27,11 +30,13 @@ class System extends AdminController
      * @createtime 2019/2/27 下午2:15
      * @return mixed
      */
-    public function member()
+    public function members()
     {
         return \Yirius\Admin\Admin::table("thinker_admin_member", function(Table $table){
 
-            $table->setRestfulUrl("/restful/adminmember")->setEditPath("/thinkersystem/memberEdit");
+            $table
+                ->setRestfulUrl("/restful/adminmember")
+                ->setEditPath("/thinkersystem/membersEdit");
 
             $table->search(function(Inline $form){
                 $form->text("username", "登录账号");
@@ -61,18 +66,87 @@ class System extends AdminController
     }
 
     /**
-     * @title memberEdit
+     * @title membersEdit
      * @description
-     * @createtime 2019/2/27 下午2:15
+     * @createtime 2019/2/28 下午4:56
+     * @param int $id
+     * @return mixed
+     * @throws \Exception
      */
-    public function memberEdit()
+    public function membersEdit($id = 0)
     {
+        return \Yirius\Admin\Admin::form("thinker_admin_members", function(Form $form) use($id){
 
+            $value = $id === 0 ? [] : AdminMember::get(['id' => $id])->toArray();
+            unset($value['password']);
+
+            $form->setValue($value);
+
+            $form->text("username", "登录账号");
+
+            $form->text("phone", "登录手机号");
+
+            $form->text("realname", "真实姓名");
+
+            $form->text("password", "密码");
+
+            $form->switchs("status", "状态");
+
+            $form->footer()->submit("/restful/adminmember", $id);
+
+        })->show();
     }
 
+    /**
+     * @title roles
+     * @description
+     * @createtime 2019/2/28 下午4:25
+     * @return mixed
+     */
     public function roles()
     {
+        return \Yirius\Admin\Admin::table("thinker_admin_roles", function(Table $table){
 
+            $table
+                ->setRestfulUrl("/restful/adminrole")
+                ->setEditPath("/thinkersystem/rolesEdit");
+
+            $table->columns("id", "编号");
+
+            $table->columns("title", "角色名称");
+
+            $table->columns("status", "状态")->setSwitchTemplet("status");
+
+            $table->columns('op', '操作')->edit()->delete();
+
+            $table->tool()->edit()->delete();
+
+            $table->toolbar()->add()->delete()->event()->add()->delete();
+
+        })->show();
+    }
+
+    /**
+     * @title rolesEdit
+     * @description
+     * @createtime 2019/2/28 下午4:59
+     * @param int $id
+     * @return mixed
+     * @throws \Exception
+     */
+    public function rolesEdit($id = 0)
+    {
+        return \Yirius\Admin\Admin::form("thinker_admin_members", function(Form $form) use($id){
+
+            $form->setValue($id === 0 ? [] : AdminRole::get(['id' => $id])->toArray());
+
+            $form->text("username", "登录账号");
+
+            $form->selectplus("username", "登录账号");
+
+            $form->footer()->submit("/restful/adminrole", $id);
+
+        })->show();
     }
 
     /**
@@ -85,7 +159,9 @@ class System extends AdminController
     {
         return \Yirius\Admin\Admin::table("thinker_admin_rules", function(Table $table){
 
-            $table->setRestfulUrl("/restful/adminrule")->setEditPath("/thinkersystem/rulesEdit");
+            $table
+                ->setRestfulUrl("/restful/adminrule")
+                ->setEditPath("/thinkersystem/rulesEdit");
 
             $table->columns('', '')->setType('checkbox');
 
@@ -95,9 +171,7 @@ class System extends AdminController
 
             $table->columns('title', "中文名称");
 
-            $table->columns('jump', "跳转地址");
-
-            $table->columns('sort', "排序");
+            $table->columns('status', "状态")->setSwitchTemplet('status');
 
             $table->columns('op', '操作')->edit()->delete();
 
@@ -120,11 +194,10 @@ class System extends AdminController
      */
     public function rulesEdit($id = 0)
     {
-        $value = $id === 0 ? [] : AdminRule::get(['id' => $id])->toArray();
 
-        return \Yirius\Admin\Admin::form("thinkeradmin_admin_rulesedit", function(Form $form) use($value){
+        return \Yirius\Admin\Admin::form("thinkeradmin_admin_rulesedit", function(Form $form) use($id){
 
-            $form->setValue($value);
+            $form->setValue($id === 0 ? [] : AdminRule::get(['id' => $id])->toArray());
 
             $form->text("name", "规则名称(英文)");
 
@@ -136,7 +209,7 @@ class System extends AdminController
 
             $form->text("mid", "上级编号");
 
-            $form->footer()->submit("/restful/adminrule");
+            $form->footer()->submit("/restful/adminrule", $id);
 
         })->show();
     }
@@ -185,7 +258,9 @@ class System extends AdminController
      */
     public function menusEdit($id = 0)
     {
-        return \Yirius\Admin\Admin::form("thinker_admin_menusedit", function(Form $form){
+        return \Yirius\Admin\Admin::form("thinker_admin_menusedit", function(Form $form) use($id){
+
+            $form->setValue($id === 0 ? [] : AdminMenu::get(['id' => $id])->toArray());
 
             $form->text("pid", "上层id");
 
@@ -199,7 +274,7 @@ class System extends AdminController
 
             $form->text("sort", "排序");
 
-            $form->footer()->submit("/restful/adminmenu");
+            $form->footer()->submit("/restful/adminmenu", $id);
 
         })->show();
     }

@@ -39,19 +39,28 @@ class Footer extends Layout
     }
 
     /**
-     * @title setSubmit
+     * @title submit
      * @description
-     * @createtime 2019/2/25 下午6:28
+     * @createtime 2019/2/28 下午2:04
      * @param $url
+     * @param int $id
      * @param null $successCall
      * @param null $beforeSubmit
      * @return $this
      */
-    public function submit($url, $successCall = null, $beforeSubmit = null)
+    public function submit($url, $id = 0, $successCall = null, $beforeSubmit = null)
     {
-        $doneCall = is_null($successCall) ? 'layer.msg(res.msg);' : $successCall;
+        $doneCall = is_null($successCall) ? 'layer.closeAll();layer.msg(res.msg);' : $successCall;
 
         $beforeEvent = is_null($beforeSubmit) ? '' : htmlspecialchars($beforeSubmit);
+
+        //judge restful url
+        $requestMethod = 'POST';
+
+        if($id != 0){
+            $requestMethod = "PUT";
+            $url = $url . "/" . $id;
+        }
 
         Admin::script(<<<HTML
 layui.form.on("submit({$this->form->getName()}-submit)", function (obj) {
@@ -61,7 +70,7 @@ layui.form.on("submit({$this->form->getName()}-submit)", function (obj) {
         obj = beforeEvent(obj);
     }
     layui.http.request({
-        method: 'POST',
+        method: '{$requestMethod}',
         url: "{$url}",
         data: layui.http._beforeAjax(obj.field),
         success: function (res) {
