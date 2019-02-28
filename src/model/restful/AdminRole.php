@@ -47,14 +47,11 @@ class AdminRole extends AdminRestful
         $adminSaveModel = table\AdminRole::adminSave();
         $isAdd = $adminSaveModel
             ->setValidate([
-                'name' => "require",
                 'title' => "require",
-                'mid' => "require|number"
+                'rules' => "require",
             ], [
-                'name.require' => "规则名称必须填写",
-                'title.require' => "中文名称必须填写",
-                'mid.require' => "上级编号必须填写",
-                'mid.number' => "上级编号必须填写数字编号"
+                'title.require' => "角色名称必须填写",
+                'rules.require' => "角色对应规则必须选择",
             ])
             ->setAdd($addData)
             ->setWhere($where)
@@ -63,7 +60,7 @@ class AdminRole extends AdminRestful
         if($isAdd === false){
             Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
         }else{
-            Admin::tools()->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."规则成功");
+            Admin::tools()->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."角色成功");
         }
     }
 

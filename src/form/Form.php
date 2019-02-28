@@ -26,6 +26,7 @@ use Yirius\Admin\layout\PageView;
  * @method Assembly\Switchs switchs($name, $label)
  * @method Assembly\Text text($name, $label)
  * @method Assembly\Textarea textarea($name, $label)
+ * @method Assembly\Tree tree($name, $label)
  * @method Assembly\Upload upload($name, $label)
  * @package Yirius\Admin
  */
@@ -102,6 +103,7 @@ class Form extends Layout
             'switchs' => Assembly\Switchs::class,
             'text' => Assembly\Text::class,
             'textarea' => Assembly\Textarea::class,
+            'tree' => Assembly\Tree::class,
             'upload' => Assembly\Upload::class,
         ]);
 

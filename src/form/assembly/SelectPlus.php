@@ -105,12 +105,12 @@ class SelectPlus extends Assembly
 
         foreach($this->optionsArray as $i => $v){
             if(empty($v['list'])){
-                $result[] = '<option value="'. $v['value'] .'">'. $v['text'] . $this->checkValue($v) . '</option>';
+                $result[] = '<option value="'. $v['value'] .'" '. $this->checkValue($v) .'>'. $v['text'] .'</option>';
             }else{
                 $temp = [];
                 $temp[] = '<optgroup label="'. $v['text'] .'">';
                 foreach($v['list'] as $j => $val){
-                    $temp[] = '<option value="'. $val['value'] . $this->checkValue($val) . '">'. $val['text'] .'</option>';
+                    $temp[] = '<option value="'. $val['value'] .'" '. $this->checkValue($val) .'>'. $val['text'] .'</option>';
                 }
                 $temp[] = '</optgroup>';
                 $result[] = join("", $temp);

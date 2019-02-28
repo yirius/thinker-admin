@@ -19,6 +19,13 @@ return [
         'login_field' => "username|phone"
     ],
 
+    //Rule相关配置
+    'rule' => [
+        'type' => [
+            ['text' => "其他规则", 'value' => 3]
+        ]
+    ],
+
     //json web token相关设置
     'jwt' => [
         'type' => "HS256",

@@ -80,12 +80,15 @@ class AdminRule extends AdminRestful
             ->setValidate([
                 'name' => "require",
                 'title' => "require",
-                'mid' => "require|number"
+                'mid' => "require|number",
+                'type' => "require|number"
             ], [
                 'name.require' => "规则名称必须填写",
                 'title.require' => "中文名称必须填写",
                 'mid.require' => "上级编号必须填写",
-                'mid.number' => "上级编号必须填写数字编号"
+                'mid.number' => "上级编号必须填写数字编号",
+                'type.require' => "规则类型必须填写",
+                'type.number' => "规则类型必须填写数字编号"
             ])
             ->setAdd($addData)
             ->setWhere($where)
