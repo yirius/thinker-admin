@@ -74,6 +74,11 @@ layui.form.on("submit({$this->form->getName()}-submit)", function (obj) {
         url: "{$url}",
         data: layui.http._beforeAjax(obj.field),
         success: function (res) {
+            if(layui.table){
+                for(var i in layui.table.cache){
+                    layui.table.reload(i);
+                }
+            }
             {$doneCall}
         }
     });
