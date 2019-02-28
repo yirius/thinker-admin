@@ -30,5 +30,6 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 //加入以下console
 \think\Console::addDefaultCommands([
     "Yirius\\Admin\\command\\Cache",
-    "Yirius\\Admin\\command\\Menu"
+    "Yirius\\Admin\\command\\Menu",
+    "Yirius\\Admin\\command\\Init"
 ]);

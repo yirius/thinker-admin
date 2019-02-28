@@ -55,6 +55,7 @@ class AdminMember extends AdminRestful
             if(empty($where)){
                 $adminTools->jsonSend([], 0, "新增后台用户，必须填写密码");
             }
+            unset($addData['password']);
         }
 
         $adminSaveModel = \Yirius\Admin\model\table\AdminMember::adminSave();
