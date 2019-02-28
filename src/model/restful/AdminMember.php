@@ -11,6 +11,7 @@ namespace Yirius\Admin\model\restful;
 use think\Request;
 use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
+use Yirius\Admin\model\table\AdminRoleAccess;
 
 class AdminMember extends AdminRestful
 {
@@ -75,6 +76,12 @@ class AdminMember extends AdminRestful
         if($isAdd === false){
             $adminTools->jsonSend([], 0, $adminSaveModel->getError());
         }else{
+
+            //check and update access
+            if(!empty($addData['groups']) && is_array($addData['groups'])){
+                (new AdminRoleAccess())->checkOrUpdateAccess($addData['groups'], $isAdd->id);
+            }
+
             $adminTools->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."后台管理员成功");
         }
     }

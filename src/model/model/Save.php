@@ -111,7 +111,13 @@ class Save extends AdminModelBase
 
             return $this->model;
         }else{
-            return $this->model->save($this->addData, $this->where);
+            $flag = $this->model->save($this->addData, $this->where);
+
+            if($flag){
+                return $this->model;
+            }else{
+                return false;
+            }
         }
     }
 }

@@ -14,6 +14,7 @@ use Yirius\Admin\form\Inline;
 use Yirius\Admin\model\table\AdminMember;
 use Yirius\Admin\model\table\AdminMenu;
 use Yirius\Admin\model\table\AdminRole;
+use Yirius\Admin\model\table\AdminRoleAccess;
 use Yirius\Admin\model\table\AdminRule;
 use Yirius\Admin\table\Table;
 
@@ -77,6 +78,15 @@ class System extends AdminController
             }else{
                 $value = AdminMember::get(['id' => $id])->toArray();
                 unset($value['password']);
+                //check if there have group_access data
+                $groups = AdminRoleAccess::field("group_id")->where([
+                    ['uid', '=', $id],
+                    ['type', '=', 0]
+                ])->select()->toArray();
+                $value['groups[]'] = [];
+                foreach($groups as $i => $v){
+                    $value['groups[]'][] = $v['group_id'];
+                }
             }
 
             $form->setValue($value);
@@ -92,7 +102,11 @@ class System extends AdminController
             $form->switchs("status", "状态");
 
             $form->checkbox("groups", "角色权限")
-                ->options(AdminRole::adminSelect()->getResult())
+                ->options(
+                    AdminRole::adminSelect()->setWhere([
+                        ['status', '=', 1]
+                    ])->getResult()
+                )
                 ->primary();
 
             $form->footer()->submit("/restful/adminmember", $id);
