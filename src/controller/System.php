@@ -11,6 +11,7 @@ namespace Yirius\Admin\controller;
 
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
+use Yirius\Admin\model\table\AdminRule;
 use Yirius\Admin\table\Table;
 
 class System extends AdminController
@@ -74,6 +75,12 @@ class System extends AdminController
 
     }
 
+    /**
+     * @title rules
+     * @description
+     * @createtime 2019/2/28 上午11:09
+     * @return mixed
+     */
     public function rules()
     {
         return \Yirius\Admin\Admin::table("thinker_admin_rules", function(Table $table){
@@ -96,8 +103,40 @@ class System extends AdminController
 
             $table->tool()->edit()->delete();
 
-            $table->toolbar()->add()->delete()
-                ->event()->add()->delete();
+            $table->toolbar()->add()->delete()->event()->add()->delete();
+
+            $table->setLimit(10000)->setLimits([10000]);
+
+        })->show();
+    }
+
+    /**
+     * @title rulesEdit
+     * @description
+     * @createtime 2019/2/28 上午11:18
+     * @param int $id
+     * @return mixed
+     * @throws \Exception
+     */
+    public function rulesEdit($id = 0)
+    {
+        $value = $id === 0 ? [] : AdminRule::get(['id' => $id])->toArray();
+
+        return \Yirius\Admin\Admin::form("thinkeradmin_admin_rulesedit", function(Form $form) use($value){
+
+            $form->setValue($value);
+
+            $form->text("name", "规则名称(英文)");
+
+            $form->text("title", "中文名称");
+
+            $form->switchs("status", "状态");
+
+            $form->textarea("condition", "逻辑判断");
+
+            $form->text("mid", "上级编号");
+
+            $form->footer()->submit("/restful/adminrule");
 
         })->show();
     }

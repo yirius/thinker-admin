@@ -105,12 +105,12 @@ class SelectPlus extends Assembly
 
         foreach($this->optionsArray as $i => $v){
             if(empty($v['list'])){
-                $result[] = '<option value="'. $v['value'] .'">'. $v['text'] .'</option>';
+                $result[] = '<option value="'. $v['value'] .'">'. $v['text'] . $this->checkValue($v) . '</option>';
             }else{
                 $temp = [];
                 $temp[] = '<optgroup label="'. $v['text'] .'">';
                 foreach($v['list'] as $j => $val){
-                    $temp[] = '<option value="'. $val['value'] .'">'. $val['text'] .'</option>';
+                    $temp[] = '<option value="'. $val['value'] . $this->checkValue($val) . '">'. $val['text'] .'</option>';
                 }
                 $temp[] = '</optgroup>';
                 $result[] = join("", $temp);
@@ -296,5 +296,29 @@ HTML;
         Admin::script('formSelects', 2);
 
         Admin::style('formSelects', 1);
+    }
+
+    /**
+     * @title checkValue
+     * @description base value checked
+     * @createtime 2019/2/28 上午11:36
+     * @param array $option
+     * @return string
+     */
+    protected function checkValue(array $option)
+    {
+        if(!empty($option['checked'])){
+            return "selected='selected'";
+        }else{
+            if(!is_array($this->value)){
+                $this->value = explode(",", $this->value);
+            }
+            //check value
+            if(in_array($option['value'], $this->value)){
+                return "selected='selected'";
+            }else{
+                return "";
+            }
+        }
     }
 }

@@ -70,7 +70,7 @@ HTML;
      */
     public function edit($view = null, $title = '编辑信息',array $area = ['80%', '80%'], $id = null, array $data = [])
     {
-        if(is_null($view)) $view = $this->table->getEditPath() . "/{{d.id}}";
+        if(is_null($view)) $view = $this->table->getEditPath() . "?id={{d.id}}";
 
         if(is_null($id)) $id = $this->table->getName() . "_dialog";
 

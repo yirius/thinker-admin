@@ -38,10 +38,12 @@ class Switchs extends Assembly
      */
     public function render()
     {
+        $checked = empty($this->value) ? '' : "checked='checked'";
+
         return <<<HTML
 <label class="layui-form-label">{$this->getLabel()}</label>
 <div class="{$this->getClass()}">
-    <input type="checkbox" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->text}" value="1" {$this->getAttributes()}>
+    <input type="checkbox" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->text}" value="1" {$checked} {$this->getAttributes()}>
 </div>
 HTML;
     }

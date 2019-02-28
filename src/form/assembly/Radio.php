@@ -53,7 +53,9 @@ class Radio extends Assembly
         $attrs = $this->getAttributes();
 
         foreach($this->optionsArray as $i => $v){
-            $result[] = '<input type="'. $this->inputType .'" value="'. $v['value'] .'" title="'. $v['text'] .'" name="'. $this->getName() .'" id="'. $this->getId() . $i .'" lay-filter="'. $this->getId() . $i .'" '. $attrs .' />';
+
+
+            $result[] = '<input type="'. $this->inputType .'" value="'. $v['value'] .'" title="'. $v['text'] .'" name="'. $this->getName() .'" id="'. $this->getId() . $i .'" lay-filter="'. $this->getId() . $i .'" '. $attrs . $this->checkValue($v) . ' />';
         }
 
         return join("", $result);
@@ -73,5 +75,29 @@ class Radio extends Assembly
     {$this->getOptions()}
 </div>
 HTML;
+    }
+
+    /**
+     * @title checkValue
+     * @description base value checked
+     * @createtime 2019/2/28 上午11:36
+     * @param array $option
+     * @return string
+     */
+    protected function checkValue(array $option)
+    {
+        if(!empty($option['checked'])){
+            return "checked='checked'";
+        }else{
+            if(!is_array($this->value)){
+                $this->value = explode(",", $this->value);
+            }
+            //check value
+            if(in_array($option['value'], $this->value)){
+                return "checked='checked'";
+            }else{
+                return "";
+            }
+        }
     }
 }

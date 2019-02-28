@@ -45,12 +45,14 @@ class Inline extends Layout
      * @title setAssemblys
      * @description
      * @createtime 2019/2/24 下午6:26
-     * @param Assembly $assemblys
+     * @param Assembly $assembly
      * @return $this
      */
-    public function setAssemblys(Assembly $assemblys)
+    public function setAssemblys(Assembly $assembly)
     {
-        $this->assemblys[] = $assemblys;
+        $assembly->setForm($this->form)->setValue($this->form->getValue($assembly->getName()));
+
+        $this->assemblys[] = $assembly;
 
         return $this;
     }

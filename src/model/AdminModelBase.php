@@ -69,4 +69,12 @@ abstract class AdminModelBase
      * @createtime 2019/2/20 下午11:49
      */
     protected function afterSetModel(){}
+
+    /**
+     * @title getResult
+     * @description get total result
+     * @createtime 2019/2/28 上午11:51
+     * @return mixed
+     */
+    abstract public function getResult();
 }

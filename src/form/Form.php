@@ -61,6 +61,11 @@ class Form extends Layout
     protected $footer;
 
     /**
+     * @var array
+     */
+    protected $value = [];
+
+    /**
      * Form constructor.
      * @param $name
      * @param \Closure|null $callback
@@ -159,7 +164,7 @@ class Form extends Layout
      */
     public function setAssemblys(Assembly $assembly)
     {
-        $assembly->setForm($this);
+        $assembly->setForm($this)->setValue($this->getValue($assembly->getName()));
 
         $this->assemblys[] = $assembly;
 
@@ -271,6 +276,40 @@ HTML;
             }
             $pageView->card($this->render());
         })->render();
+    }
+
+    /**
+     * @title setValue
+     * @description
+     * @createtime 2019/2/28 上午11:21
+     * @param $value
+     * @return $this
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @title getValue
+     * @description
+     * @createtime 2019/2/28 上午11:24
+     * @param null $name
+     * @return array|mixed|string
+     */
+    public function getValue($name = null)
+    {
+        if(empty($name)){
+            return $this->value;
+        }else{
+            if(!isset($this->value[$name])){
+                return '';
+            }else{
+                return $this->value[$name];
+            }
+        }
     }
 
     /**

@@ -173,6 +173,12 @@ class Lists extends AdminModelBase
     }
 
     /**
+     * @title setField
+     * @description
+     * @createtime 2019/2/28 上午11:49
+     * @param $field
+     * @return $this
+     */
     public function setField($field)
     {
         $this->paramField = $field;

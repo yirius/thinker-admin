@@ -8,6 +8,7 @@
 
 namespace Yirius\Admin\model;
 
+use think\Request;
 use Yirius\Admin\controller\AdminController;
 
 abstract class AdminRestful extends AdminController
@@ -16,21 +17,21 @@ abstract class AdminRestful extends AdminController
 
     /**
      * @title index
-     * @ajaxMethod get
      * @description get table's list
      * @createtime 2019/2/26 下午4:09
+     * @param Request $request
      * @return mixed
      */
-    public abstract function index();
+    public abstract function index(Request $request);
 
     /**
      * @title save
-     * @ajaxMethod POST
      * @description add a new line
      * @createtime 2019/2/26 下午4:10
+     * @param Request $request
      * @return mixed
      */
-    public abstract function save();
+    public abstract function save(Request $request);
 
     /**
      * @title read
@@ -46,9 +47,10 @@ abstract class AdminRestful extends AdminController
      * @description
      * @createtime 2019/2/26 下午4:11
      * @param $id
+     * @param Request $request
      * @return mixed
      */
-    public abstract function update($id);
+    public abstract function update($id, Request $request);
 
     /**
      * @title delete
@@ -63,9 +65,10 @@ abstract class AdminRestful extends AdminController
      * @title deleteall
      * @description
      * @createtime 2019/2/27 上午1:47
+     * @param Request $request
      * @return mixed
      */
-    public abstract function deleteall();
+    public abstract function deleteall(Request $request);
 
     /**
      * @title send

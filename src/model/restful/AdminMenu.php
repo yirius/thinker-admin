@@ -9,6 +9,7 @@
 namespace Yirius\Admin\model\restful;
 
 
+use think\Request;
 use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
 
@@ -16,16 +17,13 @@ class AdminMenu extends AdminRestful
 {
     /**
      * @title index
-     * @description
-     * @createtime 2019/2/27 下午2:24
-     * @return mixed|void
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
+     * @description get table's list
+     * @createtime 2019/2/26 下午4:09
+     * @param Request $request
+     * @return mixed
      */
-    public function index()
+    public function index(Request $request)
     {
-
         $allMenus = \Yirius\Admin\model\table\AdminMenu::all()->toArray();
 
         $result = Admin::tools()->tree($allMenus);
@@ -62,12 +60,12 @@ class AdminMenu extends AdminRestful
 
     /**
      * @title save
-     * @ajaxMethod POST
      * @description add a new line
      * @createtime 2019/2/26 下午4:10
+     * @param Request $request
      * @return mixed
      */
-    public function save()
+    public function save(Request $request)
     {
         // TODO: Implement save() method.
     }
@@ -89,9 +87,10 @@ class AdminMenu extends AdminRestful
      * @description
      * @createtime 2019/2/26 下午4:11
      * @param $id
+     * @param Request $request
      * @return mixed
      */
-    public function update($id)
+    public function update($id, Request $request)
     {
         // TODO: Implement update() method.
     }
@@ -112,11 +111,11 @@ class AdminMenu extends AdminRestful
      * @title deleteall
      * @description
      * @createtime 2019/2/27 上午1:47
+     * @param Request $request
      * @return mixed
      */
-    public function deleteall()
+    public function deleteall(Request $request)
     {
         // TODO: Implement deleteall() method.
     }
-
 }

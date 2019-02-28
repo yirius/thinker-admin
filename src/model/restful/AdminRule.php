@@ -9,6 +9,7 @@
 namespace Yirius\Admin\model\restful;
 
 
+use think\Request;
 use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
 
@@ -17,13 +18,11 @@ class AdminRule extends AdminRestful
     /**
      * @title index
      * @description
-     * @createtime 2019/2/27 下午2:24
+     * @createtime 2019/2/28 上午11:46
+     * @param Request $request
      * @return mixed|void
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
      */
-    public function index()
+    public function index(Request $request)
     {
 
         $allMenus = \Yirius\Admin\model\table\AdminRule::all()->toArray();
@@ -64,12 +63,12 @@ class AdminRule extends AdminRestful
 
     /**
      * @title save
-     * @ajaxMethod POST
-     * @description add a new line
-     * @createtime 2019/2/26 下午4:10
-     * @return mixed
+     * @description
+     * @createtime 2019/2/28 上午11:46
+     * @param Request $request
+     * @return mixed|void
      */
-    public function save()
+    public function save(Request $request)
     {
         // TODO: Implement save() method.
     }
@@ -89,11 +88,12 @@ class AdminRule extends AdminRestful
     /**
      * @title update
      * @description
-     * @createtime 2019/2/26 下午4:11
+     * @createtime 2019/2/28 上午11:46
      * @param $id
-     * @return mixed
+     * @param Request $request
+     * @return mixed|void
      */
-    public function update($id)
+    public function update($id, Request $request)
     {
         // TODO: Implement update() method.
     }
@@ -113,10 +113,11 @@ class AdminRule extends AdminRestful
     /**
      * @title deleteall
      * @description
-     * @createtime 2019/2/27 上午1:47
-     * @return mixed
+     * @createtime 2019/2/28 上午11:46
+     * @param Request $request
+     * @return mixed|void
      */
-    public function deleteall()
+    public function deleteall(Request $request)
     {
         // TODO: Implement deleteall() method.
     }

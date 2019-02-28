@@ -8,6 +8,7 @@
 
 namespace Yirius\Admin\model\restful;
 
+use think\Request;
 use Yirius\Admin\model\AdminRestful;
 
 class AdminMember extends AdminRestful
@@ -15,9 +16,14 @@ class AdminMember extends AdminRestful
     /**
      * @title index
      * @description
-     * @createtime 2019/2/26 下午4:01
+     * @createtime 2019/2/28 上午11:47
+     * @param Request $request
+     * @return mixed|void
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
      */
-    public function index()
+    public function index(Request $request)
     {
         $result = \Yirius\Admin\model\table\AdminMember::adminList()->getResult();
 
@@ -26,12 +32,12 @@ class AdminMember extends AdminRestful
 
     /**
      * @title save
-     * @ajaxMethod POST
      * @description add a new line
      * @createtime 2019/2/26 下午4:10
+     * @param Request $request
      * @return mixed
      */
-    public function save()
+    public function save(Request $request)
     {
         // TODO: Implement save() method.
     }
@@ -53,9 +59,10 @@ class AdminMember extends AdminRestful
      * @description
      * @createtime 2019/2/26 下午4:11
      * @param $id
+     * @param Request $request
      * @return mixed
      */
-    public function update($id)
+    public function update($id, Request $request)
     {
         // TODO: Implement update() method.
     }
@@ -76,9 +83,10 @@ class AdminMember extends AdminRestful
      * @title deleteall
      * @description
      * @createtime 2019/2/27 上午1:47
+     * @param Request $request
      * @return mixed
      */
-    public function deleteall()
+    public function deleteall(Request $request)
     {
         // TODO: Implement deleteall() method.
     }
