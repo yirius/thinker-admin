@@ -15,6 +15,7 @@ use Yirius\Admin\form\Form;
 use Yirius\Admin\Layout;
 use Yirius\Admin\layout\Card;
 use Yirius\Admin\layout\PageView;
+use Yirius\Admin\table\events\On;
 use Yirius\Admin\table\events\Tool;
 
 /**
@@ -89,6 +90,11 @@ class Table extends Layout
     protected $toolbar = null;
 
     /**
+     * @var On
+     */
+    protected $on = null;
+
+    /**
      * restful url
      * @var string
      */
@@ -151,6 +157,28 @@ class Table extends Layout
         $this->columns[] = $columns;
 
         return $columns;
+    }
+
+    /**
+     * @return array
+     */
+    public function getColumnsCount()
+    {
+        return count($this->columns);
+    }
+
+    /**
+     * @title on
+     * @description
+     * @createtime 2019/3/1 下午6:15
+     * @param \Closure|null $callback
+     * @return On
+     */
+    public function on(\Closure $callback = null)
+    {
+        $this->on = (new On($this, $callback));
+
+        return $this->on;
     }
 
     /**

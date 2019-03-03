@@ -28,6 +28,7 @@ use Yirius\Admin\layout\PageView;
  * @method Assembly\Textarea textarea($name, $label)
  * @method Assembly\Tree tree($name, $label)
  * @method Assembly\Upload upload($name, $label)
+ * @method Assembly\WangEditor wangeditor($name, $label)
  * @package Yirius\Admin
  */
 class Form extends Layout
@@ -51,15 +52,10 @@ class Form extends Layout
     protected $assemblys = [];
 
     /**
-     * @var array|\Closure|null
-     */
-    protected $breadcrumb = null;
-
-    /**
      * page footer
      * @var Footer
      */
-    protected $footer;
+    protected $footer = null;
 
     /**
      * @var array
@@ -70,7 +66,6 @@ class Form extends Layout
      * Form constructor.
      * @param $name
      * @param \Closure|null $callback
-     * @throws \Exception
      */
     public function __construct($name, \Closure $callback = null)
     {
@@ -105,10 +100,11 @@ class Form extends Layout
             'textarea' => Assembly\Textarea::class,
             'tree' => Assembly\Tree::class,
             'upload' => Assembly\Upload::class,
+            'wangeditor' => Assembly\WangEditor::class,
         ]);
 
         //judge thinkeradmin's config extends
-        if(config('thinkeradmin.form.extends')){
+        if (config('thinkeradmin.form.extends')) {
             $this->setExtends(config('thinkeradmin.form.extends'));
         }
 
@@ -174,21 +170,6 @@ class Form extends Layout
     }
 
     /**
-     * @title breadcrumb
-     * @description
-     * @createtime 2019/2/25 下午11:30
-     * @param $breadcrumb
-     * @return array|\Closure|null|Breadcrumb
-     * @throws \Exception
-     */
-    public function breadcrumb($breadcrumb)
-    {
-        $this->breadcrumb = (new Breadcrumb($breadcrumb));
-
-        return $this->breadcrumb;
-    }
-
-    /**
      * @title inline
      * @description set inline or not inline
      * @createtime 2019/2/27 下午12:22
@@ -213,33 +194,14 @@ class Form extends Layout
      */
     public function footer(\Closure $footer = null)
     {
-        $footer = (new Footer($this, $footer));
+        if (is_null($this->footer)) {
 
-        $this->assemblys[] = $footer;
+            $this->footer = (new Footer($this, $footer));
 
-        return $footer;
-    }
+            $this->assemblys[] = $this->footer;
+        }
 
-    /**
-     * @title setName
-     * @description
-     * @createtime 2019/2/25 下午11:31
-     * @param $name
-     * @return $this
-     */
-    public function setName($name)
-    {
-        $this->name = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、'], "_", $name);
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name;
+        return $this->footer;
     }
 
     /**
@@ -267,17 +229,21 @@ HTML;
     /**
      * @title show
      * @description
-     * @createtime 2019/2/26 下午3:14
+     * @createtime 2019/3/3 下午8:59
+     * @param \Closure|null $closure
      * @return mixed
      */
-    public function show()
+    public function show(\Closure $closure = null)
     {
-        return Admin::pageView(function (PageView $pageView) {
-            if (!empty($this->breadcrumb)) {
-                $pageView->setBreadcrumb($this->breadcrumb);
-            }
-            $pageView->card($this->render());
-        })->render();
+        if ($closure instanceof \Closure) {
+            return Admin::pageView(function (PageView $pageView) use ($closure) {
+                call($closure, [$pageView, $this->render()]);
+            })->render();
+        } else {
+            return Admin::pageView(function (PageView $pageView) {
+                $pageView->card($this->render());
+            })->render();
+        }
     }
 
     /**
@@ -303,15 +269,37 @@ HTML;
      */
     public function getValue($name = null)
     {
-        if(empty($name)){
+        if (empty($name)) {
             return $this->value;
-        }else{
-            if(!isset($this->value[$name])){
+        } else {
+            if (!isset($this->value[$name])) {
                 return '';
-            }else{
+            } else {
                 return $this->value[$name];
             }
         }
+    }
+
+    /**
+     * @title setName
+     * @description
+     * @createtime 2019/2/25 下午11:31
+     * @param $name
+     * @return $this
+     */
+    public function setName($name)
+    {
+        $this->name = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、'], "_", $name);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**

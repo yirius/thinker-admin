@@ -10,6 +10,7 @@ namespace Yirius\Admin\controller;
 
 
 use think\Controller;
+use think\facade\Env;
 use think\facade\Route;
 
 class AdminController extends Controller
@@ -25,11 +26,23 @@ class AdminController extends Controller
     protected $returnJsonError = false;
 
     /**
+     * which access type to check
+     * @var int
+     */
+    protected $accessType = 0;
+
+    /**
      * which rule type to check
      * @var int
      */
     protected $checkType = 1;
 
+    /**
+     * @title initialize
+     * @description
+     * @createtime 2019/3/3 下午7:46
+     * @throws \Exception
+     */
     protected function initialize()
     {
         //judge is there have access_token
@@ -45,7 +58,10 @@ class AdminController extends Controller
         //get path, check resource restful url
         $currentPath = $this->getCurrentPath();
         //if check error, sendError
-        if(!\Yirius\Admin\Admin::auth()->check($currentPath, $this->getToken('id'), $this->checkType)){
+        if(!\Yirius\Admin\Admin::auth()
+            ->setAccessType($this->accessType)
+            ->check($currentPath, $this->getToken('id'), $this->checkType)
+        ){
             $this->sendError(lang("do not have authority to access", ['url' => $currentPath]), 0);
         }
     }
@@ -68,6 +84,8 @@ class AdminController extends Controller
                 unset($paths[$i]);
             }
         }
+
+        Env::set("THINKER_PATH", join("/", $paths));
 
         return join("/", $paths);
     }
@@ -116,5 +134,16 @@ HTML
             )->send();
             exit;
         }
+    }
+
+    /**
+     * @title getCurrentName
+     * @description
+     * @createtime 2019/3/3 下午8:56
+     * @return mixed
+     */
+    protected function getCurrentName()
+    {
+        return str_replace(["\\", "//", "::"], "_", __METHOD__);
     }
 }

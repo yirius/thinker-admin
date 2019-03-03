@@ -41,7 +41,7 @@ abstract class Assembly extends Layout
      * assembly's class, if it is array, then it will be joined
      * @var string|array
      */
-    protected $class = '';
+    protected $class = 'layui-input-block';
 
     /**
      * html element's attr
@@ -150,9 +150,9 @@ abstract class Assembly extends Layout
      */
     public function setClass($class)
     {
-        if(is_array($this->class)){
+        if (is_array($this->class)) {
             $this->class[] = $class;
-        }else{
+        } else {
             $this->class = $class;
         }
 
@@ -179,7 +179,7 @@ abstract class Assembly extends Layout
      */
     public function setId($id)
     {
-        $this->id = str_replace([' ', ',', '，', '.', '。'], "_", $id);
+        $this->id = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、'], "_", $id);
 
         return $this;
     }
@@ -225,7 +225,7 @@ abstract class Assembly extends Layout
      */
     public function offAttributes($field)
     {
-        if(isset($this->attributes[$field])){
+        if (isset($this->attributes[$field])) {
             unset($this->attributes[$field]);
         }
 
@@ -239,7 +239,7 @@ abstract class Assembly extends Layout
     {
         $result = [];
 
-        foreach($this->attributes as $i => $attribute){
+        foreach ($this->attributes as $i => $attribute) {
             $result[] = $i . '="' . $attribute . '"';
         }
 
@@ -267,5 +267,59 @@ abstract class Assembly extends Layout
      * @description
      * @createtime 2019/2/24 下午7:14
      */
-    protected function afterSetForm(){}
+    protected function afterSetForm()
+    {
+    }
+
+    /**
+     * @title parseFieldName
+     * @description parse zIndex to z-index
+     * @createtime 2019/3/3 下午6:52
+     * @param $name
+     * @return string
+     */
+    protected function parseFieldName($name)
+    {
+        $chars = "";
+        for ($i = 0; $i < strlen($name); $i++) {
+            if ((ord($name[$i]) >= ord('A')) && (ord($name[$i]) <= ord('Z'))) {
+                $chars .= "-";
+                $chars .= strtolower($name[$i]);
+            } else {
+                $chars .= $name[$i];
+            }
+        }
+
+        return $chars;
+    }
+
+    /**
+     * @title __call
+     * @description
+     * @createtime 2019/3/2 下午7:17
+     * @param $name
+     * @param $arguments
+     * @return $this|string
+     * @throws \Exception
+     */
+    public function __call($name, $arguments)
+    {
+        $operateType = substr($name, 0, 3);
+        $name = "data" . $this->parseFieldName(substr($name, 3));
+
+        //if it is set
+        if ($operateType === "set") {
+
+            $this->setAttributes($name, is_array($arguments[0]) ? json_encode($arguments[0]) : $arguments[0]);
+
+            return $this;
+
+        } else if ($operateType === "get") {
+
+            return empty($this->attributes[$name]) ? '' : $this->attributes[$name];
+
+        }
+
+        return $this;
+    }
 }

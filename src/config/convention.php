@@ -16,7 +16,8 @@ return [
             'ices_admin_member'
         ],
         'access_type' => 0,
-        'login_field' => "username|phone"
+        'login_field' => "username|phone",
+        'login_verfiy_func' => null
     ],
 
     //Rule相关配置
@@ -41,5 +42,20 @@ return [
     //form相关
     'form' => [
         'extends' => []
+    ],
+
+    //Upload配置
+    'upload' => [
+        'images' => [
+            'water' => false,
+            'validate' => [
+                'size' => 1024 * 1024 * 5,
+                'ext' => "jpg,png,gif,jpeg,do,bmp"
+            ]
+        ],
+        'files' => [
+            'size' => 1024 * 1024 * 5,
+            'ext' => "png,jpg,jpeg,gif,bmp,flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid,rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml"
+        ]
     ]
 ];

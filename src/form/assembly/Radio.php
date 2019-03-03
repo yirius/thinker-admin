@@ -20,11 +20,6 @@ class Radio extends Assembly
     protected $inputType = "radio";
 
     /**
-     * @var string
-     */
-    protected $class = 'layui-input-block';
-
-    /**
      * @var array
      */
     protected $optionsArray = [];

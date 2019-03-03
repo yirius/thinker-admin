@@ -141,12 +141,17 @@ HTML
      */
     public function expend($html)
     {
+        $html = str_replace(["\r\n", "\r", "\n", "'"], ["", "", "", '"'], <<<HTML
+<tr class="table-item"><td colspan="{$this->table->getColumnsCount()}">{$html}</td></tr>'
+HTML
+        );
+
         return $this->event("expend", <<<HTML
 var _this = $(this), tr = _this.parents('tr'), trIndex = tr.data('index');
 if($(this).find("i").hasClass('layui-icon-add-1')){
     $(this).find("i").removeClass('layui-icon-add-1').addClass('layui-icon-fonts-del');
     var tableId = 'tableOut_tableIn_' + trIndex;
-    var _html = layui.laytpl('<tr class="table-item">{$html}</tr>').render(obj.data);
+    var _html = layui.laytpl('{$html}').render(obj.data);
     tr.after(_html);
 }else{
     $(this).find("i").addClass('layui-icon-add-1').removeClass('layui-icon-fonts-del');

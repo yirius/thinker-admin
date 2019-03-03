@@ -9,6 +9,7 @@
 namespace Yirius\Admin\controller;
 
 
+use Yirius\Admin\extend\Upload;
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
 
@@ -17,10 +18,6 @@ class Admin
     public function index()
     {
         return \Yirius\Admin\Admin::form("testForm", function (Form $form) {
-
-            $form->breadcrumb([
-                ['text' => "测试主页"]
-            ]);
 
             $form->button("test1", "测试1")
                 ->danger()
@@ -78,9 +75,11 @@ class Admin
                 ['text' => "测试1", 'value' => "1"],
                 ['text' => "测试2", 'value' => "2"],
                 ['text' => "测试3", 'value' => "3"]
-            ])->on('console.log(1);', false)->linkage('/thinkeradmin/test');
+            ])->on('console.log(1);', false);
 
             $form->upload("test15", "测试上传");
+
+            $form->wangeditor("test16", "富文本");
 
             $form->footer()->submit("/thinkeradmin/test");
 
@@ -114,45 +113,78 @@ class Admin
     /**
      * @title login
      * @description
-     * @createtime 2019/2/26 下午12:16
+     * @createtime 2019/3/3 下午7:18
      * @param $username
      * @param $password
      * @param $vercode
+     * @param int $access_type
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function login($username, $password, $vercode)
+    public function login($username, $password, $vercode, $access_type = 0)
     {
+        //new static
+        $tools = \Yirius\Admin\Admin::tools();
+        $auth = \Yirius\Admin\Admin::auth()->setAccessType($access_type);
+
         //首先验证验证码输入
         if (!captcha_check($vercode)) {
-            \Yirius\Admin\Admin::tools()->jsonSend([], 0, "验证码输入不正确, 请您重新输入");
+            $tools->jsonSend([], 0, lang("incorrect verfiy"));
         }
         //利用Auth来校验用户信息
-        $userinfo = \Yirius\Admin\Admin::auth()->getUserinfo($username);
+        $userinfo = $auth->getUserinfo($username);
         //查无此用户
         if (empty($userinfo)) {
-            \Yirius\Admin\Admin::tools()->jsonSend([], 0, "查无此用户");
+            $tools->jsonSend([], 0, lang("empty userinfo"));
         } else {
-            //如果用户密码错误的话
-            if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
-                \Yirius\Admin\Admin::tools()->jsonSend([], 0, "用户登录账号密码错误");
+            //返回的数据
+            $resultData = [];
+            //判断是否是总后台登录
+            if($access_type === 0){
+                //如果用户密码错误的话
+                if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
+                    $resultData = false;
+                }else{
+                    $resultData = [
+                        'id' => $userinfo['id'],
+                        'username' => $userinfo['username'],
+                        'userphone' => $userinfo['phone'],
+                        'type' => "admin"
+                    ];
+                }
+            }else{
+                //判断是否存在自定义登录方法
+                $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
+                if($login_verfiy_func instanceof \Closure){
+                    $resultData = call($login_verfiy_func, [$username, $password, $userinfo]);
+                }else{
+                    //如果用户密码错误的话
+                    if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
+                        $resultData = false;
+                    }else{
+                        $resultData = [
+                            'id' => $userinfo['id'],
+                            'username' => $userinfo['username'],
+                            'userphone' => $userinfo['phone'],
+                            'type' => "user"
+                        ];
+                    }
+                }
             }
-            //否则的话直接返回对应的jwt
-            \Yirius\Admin\Admin::tools()->jsonSend([
-                'id' => $userinfo['id'],
-                'username' => $userinfo['username'],
-                'userphone' => $userinfo['phone'],
-                'config' => [
-                    'menu' => \Yirius\Admin\Admin::auth()->getAuthMenu($userinfo['id'])
-                ],
-                'access_token' => \Yirius\Admin\Admin::jwt()->encode([
-                    'id' => $userinfo['id'],
-                    'type' => "admin",
-                    'username' => $userinfo['username'],
-                    'userphone' => $userinfo['phone'],
-                ])
-            ], 1, "登录成功");
+            //如果是真等于false，说明失败了
+            if($resultData === false){
+                $tools->jsonSend([], 0, lang("incorrect username or password"));
+            }else{
+                //首先赋值token
+                $resultData['access_token'] = \Yirius\Admin\Admin::jwt()->encode($resultData);
+                //然后赋值config
+                $resultData['config'] = [
+                    'menu' => $auth->getAuthMenu($userinfo['id'])
+                ];
+                //否则的话直接返回对应的jwt
+                $tools->jsonSend($resultData, 1, lang("login success"));
+            }
         }
     }
 
@@ -174,10 +206,6 @@ class Admin
      */
     public function uploads($isimage = true)
     {
-        if($isimage){
-            (new Upload())->images();
-        }else{
-            (new Upload())->upload();
-        }
+        (new Upload())->upload(false, $isimage);
     }
 }

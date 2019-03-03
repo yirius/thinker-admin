@@ -60,11 +60,6 @@ class Tree extends Assembly
     /**
      * @var string
      */
-    protected $class = 'layui-input-block';
-
-    /**
-     * @var string
-     */
     protected $event = '';
 
     /**

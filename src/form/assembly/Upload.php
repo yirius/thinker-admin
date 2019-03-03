@@ -14,12 +14,6 @@ use Yirius\Admin\form\Assembly;
 
 class Upload extends Assembly
 {
-
-    /**
-     * @var string
-     */
-    protected $class = 'layui-input-block';
-
     /**
      * @var string
      */

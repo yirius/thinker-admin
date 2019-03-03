@@ -14,8 +14,18 @@ use Yirius\Admin\Layout;
 /**
  * Class Inline
  * @method Assembly\Button button($name, $label)
- * @method Assembly\Text text($name, $label)
+ * @method Assembly\Checkbox checkbox($name, $label)
+ * @method Assembly\Date date($name, $label)
  * @method Assembly\Password password($name, $label)
+ * @method Assembly\Radio radio($name, $label)
+ * @method Assembly\Select select($name, $label)
+ * @method Assembly\SelectPlus selectplus($name, $label)
+ * @method Assembly\Switchs switchs($name, $label)
+ * @method Assembly\Text text($name, $label)
+ * @method Assembly\Textarea textarea($name, $label)
+ * @method Assembly\Tree tree($name, $label)
+ * @method Assembly\Upload upload($name, $label)
+ * @method Assembly\WangEditor wangeditor($name, $label)
  * @package Yirius\Admin\form
  */
 class Inline extends Layout

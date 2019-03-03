@@ -49,7 +49,7 @@ class Tools
                 'topindex' => 0,
                 'sublist' => "list"
             ];
-        }else{
+        } else {
             $config = array_merge([
                 'parentid' => "pid",
                 'id' => "id",
@@ -88,12 +88,12 @@ class Tools
             if (is_null($keys)) {
                 $tempTree = $v;
             } else {
-                if(is_array($keys)){
+                if (is_array($keys)) {
                     $tempTree = [];
                     foreach ($keys as $key) {
                         $tempTree[$key] = isset($v[$key]) ? $v[$key] : '';
                     }
-                }else if($keys instanceof \Closure){
+                } else if ($keys instanceof \Closure) {
                     $tempTree = $keys($v);
                 }
             }
@@ -140,5 +140,111 @@ class Tools
         while (strlen($password) < $len)
             $password .= substr($chars, (mt_rand() % strlen($chars)), 1);
         return $password;
+    }
+
+    /**
+     * @title 设置一个等待时间
+     * @description
+     * @createtime: 2018/3/21 01:11
+     * @param $name
+     * @param int $second
+     * @return bool
+     */
+    public function setTimeOut($name, $second = 60)
+    {
+        $canNext = session($name);
+        if (empty($canNext)) {
+            /**
+             * 如果不存在这个标记, 那就说明原来没进行过, 可以进行下一步
+             */
+            session($name, time());
+            return true;
+        } else {
+            /**
+             * 如果日期大于记录时间seconds, 重新记录然后可以返回下一步
+             */
+            if ((time() - intval($canNext)) > $second) {
+                session($name, time());
+                return true;
+            } else {
+                //事件记录还没到
+                return false;
+            }
+        }
+    }
+
+    /**
+     * 金额小数点四舍五入
+     * @param $amount
+     * @param string $type
+     * @return string
+     */
+    public function amountRound($amount, $type = "floor")
+    {
+        return sprintf("%.2f", $type($amount * 100) / 100);
+    }
+
+    /**
+     * 使证书字符串整齐化
+     * @param $certStr
+     * @param string $prefix
+     * @return string
+     */
+    public function neatCertificate($certStr, $prefix = 'PRIVATE KEY')
+    {
+        $trueInfo = str_replace(['-----BEGIN ' . $prefix . '-----', '-----END ' . $prefix . '-----'], '', $certStr);
+        $trueInfo = str_replace(" ", "\n", $trueInfo);
+        return "-----BEGIN " . $prefix . "-----\n" . $trueInfo . "\n-----END " . $prefix . "-----";
+    }
+
+    /**
+     * @title formatDate
+     * @description 把一个时间格式化城几天之前
+     * @createtime 2019/3/3 下午7:51
+     * @param $time
+     * @param float|int $deadLine
+     * @return string
+     */
+    public function formatDate($time, $deadLine = 86400 * 30)
+    {
+        if (empty($time)) {
+            return "无时间";
+        }
+        if(is_numeric($time)){
+            $t = time() - $time;
+        }else{
+            $t = time() - strtotime($time);
+        }
+        $f = array(
+            '31536000' => '年',
+            '2592000' => '个月',
+            '604800' => '星期',
+            '86400' => '天',
+            '3600' => '小时',
+            '60' => '分钟',
+            '1' => '秒'
+        );
+        //如果是一个月之前的，直接显示时间
+        if ($t > $deadLine) {
+            return $time;
+        }
+        $result = "无时间";
+        foreach ($f as $k => $v) {
+            if (0 != $c = floor($t / (int)$k)) {
+                $result = $c . $v . '前';
+                break;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * @title is_cli
+     * @description
+     * @createtime 2019/3/3 下午7:52
+     * @return bool
+     */
+    public function is_cli(){
+        return preg_match("/cli/i", php_sapi_name()) ? true : false;
     }
 }

@@ -226,19 +226,25 @@ HTML;
     /**
      * @title setSwitchTemplet
      * @description
-     * @createtime 2019/2/28 下午3:08
+     * @createtime 2019/3/1 下午2:39
      * @param $field
      * @param null $url
+     * @param array $config
      * @return Columns
      */
-    public function setSwitchTemplet($field, $url = null)
+    public function setSwitchTemplet($field, $url = null, $config = [])
     {
         if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
+
+        $config = array_merge([
+            'checkedValue' => 1,
+            'unCheckedValue' => 0
+        ], $config);
 
         Admin::script(<<<HTML
 layui.form.on("switch(switch{$field})", function(obj){
     var renderData = JSON.parse(obj.elem.dataset.json);
-    layui.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? 1 : 0, field: "{$field}"});
+    layui.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$field}"});
 });
 HTML
         );
@@ -246,7 +252,7 @@ HTML
         $this->setTemplet('#' . $this->table->getName() . "_" . $field . "_templet");
 
         return $this->setFullTemplet($this->table->getName() . "_" . $field . "_templet", <<<HTML
-<input type="checkbox" name="{$field}" value="1" data-json="{{=JSON.stringify(d) }}" lay-skin="switch" lay-text="开|关" lay-filter="switch{$field}" {{ d.{$field} == 1 ? 'checked' : '' }}>
+<input type="checkbox" name="{$field}" value="{$config['checkedValue']}" data-json="{{=JSON.stringify(d) }}" lay-skin="switch" lay-text="开|关" lay-filter="switch{$field}" {{ d.{$field} == {$config['checkedValue']} ? 'checked' : '' }}>
 HTML
         );
     }

@@ -22,11 +22,6 @@ class Text extends Assembly
     /**
      * @var string
      */
-    protected $class = 'layui-input-block';
-
-    /**
-     * @var string
-     */
     protected $placeholder = '';
 
     /**

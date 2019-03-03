@@ -41,6 +41,10 @@ class Adminjwt
 
     protected static $instance = null;
 
+    /**
+     * Adminjwt constructor.
+     * @param array|null $config
+     */
     function __construct(array $config = null)
     {
         if (is_null($config)) {

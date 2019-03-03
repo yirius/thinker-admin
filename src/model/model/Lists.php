@@ -39,6 +39,11 @@ class Lists extends AdminModelBase
     private $paramWith = [];
 
     /**
+     * @var array
+     */
+    private $paramJoin = [];
+
+    /**
      * @var string
      */
     private $paramField = "*";
@@ -163,12 +168,25 @@ class Lists extends AdminModelBase
      * @title setWith
      * @description set with table
      * @createtime 2019/2/20 下午7:29
-     * @param array $with
+     * @param $with
      * @return $this
      */
-    public function setWith(array $with)
+    public function setWith($with)
     {
         $this->paramWith = $with;
+        return $this;
+    }
+
+    /**
+     * @title setJoin
+     * @description
+     * @createtime 2019/3/1 上午11:49
+     * @param array $join
+     * @return $this
+     */
+    public function setJoin(array $join)
+    {
+        $this->paramJoin = $join;
         return $this;
     }
 
@@ -205,7 +223,11 @@ class Lists extends AdminModelBase
             ->order($this->paramOrder);
 
         if(!empty($this->paramWith)){
-            $queryObject = $queryObject->alias("a")->with($this->paramWith);
+            $queryObject = $queryObject->with($this->paramWith);
+        }
+
+        if(!empty($this->paramWith)){
+            $queryObject = $queryObject->alias("a")->join($this->paramJoin);
         }
 
         //before fetch array, make call

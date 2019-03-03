@@ -16,11 +16,6 @@ class Textarea extends Assembly
     /**
      * @var string
      */
-    protected $class = 'layui-input-block';
-
-    /**
-     * @var string
-     */
     protected $placeholder = '';
 
     /**
@@ -75,7 +70,7 @@ class Textarea extends Assembly
         return <<<HTML
 <label class="layui-form-label">{$this->getLabel()}</label>
 <div class="{$this->getClass()}">
-    <textarea class="{$this->getInputClass()}" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" value="{$this->getValue()}" {$this->getAttributes()} >{$this->placeholder}</textarea>
+    <textarea class="{$this->getInputClass()}" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttributes()} placeholder="{$this->placeholder}">{$this->getValue()}</textarea>
 </div>
 HTML;
     }

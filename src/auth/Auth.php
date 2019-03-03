@@ -13,6 +13,9 @@ use Yirius\Admin\Admin;
 
 class Auth
 {
+    /**
+     * @var array
+     */
     protected $config = [
         'auth_group' => 'ices_admin_group', // 用户组数据表名
         'auth_group_access' => 'ices_admin_group_access', // 用户-用户组关系表
@@ -25,10 +28,21 @@ class Auth
         'login_field' => "username|phone"
     ];
 
+    /**
+     * @var int
+     */
     protected $accessType = 0;
 
+    /**
+     * @var string
+     */
     protected $authUserTable;
 
+    /**
+     * Auth constructor.
+     * @param array|null $config
+     * @throws \Exception
+     */
     public function __construct(array $config = null)
     {
         if (is_null($config)) {
@@ -46,7 +60,7 @@ class Auth
      * @createtime 2019/2/21 上午12:26
      * @param array $config
      * @return $this
-     * @throws AuthException
+     * @throws \Exception
      */
     public function setConfig(array $config)
     {
@@ -72,7 +86,7 @@ class Auth
      * @createtime 2019/2/21 上午12:26
      * @param $access_type
      * @return $this
-     * @throws AuthException
+     * @throws \Exception
      */
     public function setAccessType($access_type)
     {
@@ -81,7 +95,7 @@ class Auth
         if (!empty($this->config['auth_user'][$this->accessType])) {
             $this->authUserTable = $this->config['auth_user'][$this->accessType];
         } else {
-            throw new AuthException("access_type [index] not exist in auth_user");
+            throw new \Exception("access_type [index] not exist in auth_user");
         }
 
         return $this;
@@ -135,7 +149,7 @@ class Auth
      */
     public function getAuthRules($userid, $type = 1)
     {
-        if ($ruleids = cache("thinker_admin_authrules_" . $userid . "_" . $type)) {
+        if ($ruleids = cache("thinker_admin_authrules_" . $this->accessType . "_" . $userid . "_" . $type)) {
             return $ruleids;
         } else {
 
@@ -155,10 +169,11 @@ class Auth
 
             //查询到所有规则可用的
             $rules = db($this->config['auth_rule'])
+                ->field('condition,name')
+                ->cache("thinker_admin_authrulesall_" . $this->accessType . "_" . $userid . "_" . $type)
                 ->where('id', 'in', $ruleids)
                 ->where('status', '=', 1)
                 ->where('type', '=', $type)
-                ->field('condition,name')
                 ->select();
 
             $authList = []; //循环规则，判断结果。
@@ -181,7 +196,12 @@ class Auth
 
             $authList = array_unique($authList);
 
-            cache("thinker_admin_authrules_" . $userid . "_" . $type, $authList, null, 'thinker_admin_auth');
+            cache(
+                "thinker_admin_authrules_" . $this->accessType . "_" . $userid . "_" . $type,
+                $authList,
+                null,
+                'thinker_admin_auth'
+            );
 
             return $authList;
         }
@@ -204,7 +224,11 @@ class Auth
             ->where("a.uid", $userid)
             ->where("b.status", 1)
             ->where("a.type", $this->accessType)
-            ->cache('thinker_admin_authgroup_' . $userid, 0, 'thinker_admin_auth')
+            ->cache(
+                'thinker_admin_authgroup_' . $this->accessType . "_" . $userid,
+                0,
+                'thinker_admin_auth'
+            )
             ->select();
 
         return $authGroups;
@@ -222,7 +246,7 @@ class Auth
      */
     public function getAuthMenu($userid)
     {
-        if($result = cache("thinker_admin_authmenu_" . $userid))
+        if($result = cache("thinker_admin_authmenu_" . $this->accessType . "_" . $userid))
         {
             return $result;
         }
@@ -251,7 +275,12 @@ class Auth
             ];
         });
 
-        cache("thinker_admin_authmenu_" . $userid, $result, null, "thinker_admin_auth");
+        cache(
+            "thinker_admin_authmenu_" . $this->accessType . "_" . $userid,
+            $result,
+            null,
+            "thinker_admin_auth"
+        );
 
         return $result;
     }
@@ -272,7 +301,11 @@ class Auth
         }
 
         return db($this->authUserTable)
-            ->cache('thinker_admin_authuser_' . $value . "_" . $field, 0, 'thinker_admin_auth')
+            ->cache(
+                'thinker_admin_authuser_' . $this->accessType . '_' . $value . "_" . $field,
+                0,
+                'thinker_admin_auth'
+            )
             ->where($field, '=', $value)
             ->find();
     }
