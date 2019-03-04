@@ -9,6 +9,7 @@
 namespace Yirius\Admin\table\events;
 
 
+use Yirius\Admin\Admin;
 use Yirius\Admin\Layout;
 use Yirius\Admin\table\Table;
 
@@ -78,7 +79,21 @@ HTML;
 
         $data = json_encode($data);
 
-        return $this->event("add", <<<HTML
+        if(config('thinkeradmin.isIframe')){
+            return $this->event("add", <<<HTML
+layui.view.dialog({
+    type: 2,
+    title: '{$title}',
+    area: {$area},
+    id: '{$id}',
+    style: "height=''",
+    content: layui.tools.getCorrectUrl('{$view}', obj.data),
+    data: layui.http._beforeAjax({})
+});
+HTML
+            );
+        }else{
+            return $this->event("add", <<<HTML
 layui.view.dialog({
     title: '{$title}',
     area: {$area},
@@ -90,7 +105,8 @@ layui.view.dialog({
     }
 });
 HTML
-        );
+            );
+        }
     }
 
     /**
@@ -137,6 +153,58 @@ layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(val
         });
     });
 });
+HTML
+        );
+    }
+
+    /**
+     * @title xlsx
+     * @description
+     * @createtime 2019/3/4 下午5:33
+     * @param $url
+     * @param string $parseData
+     * @param string $afterReload
+     * @param array $sendData
+     * @param string $requestMethod
+     * @return Toolbar
+     */
+    public function xlsx($url, $parseData = '', $afterReload = '', $sendData = [], $requestMethod = 'post')
+    {
+        Admin::script("excel", 2);
+
+        Admin::script(<<<HTML
+$(document).on("change", "#{$this->table->getName()}_xlsximport", function(e){
+    layui.excel.importExcel(this.files, {}, function(data){
+        {$parseData}
+        layui.table.reload('{$this->table->getName()}', {
+            data: data[0].Sheet1,
+            limit: data[0].Sheet1.length,
+            limits: [data[0].Sheet1.length]
+        });
+        {$afterReload}
+    });
+});
+HTML
+        );
+
+        $sendData = json_encode($sendData);
+
+        $this->event("submitexcel", <<<HTML
+var resultData = layui.table.cache['{$this->table->getName()}'];
+if(resultData.length == 0){
+    layui.layer.alert("您尚未导入excel");
+    return;
+}
+layer.confirm('是否确定导入'+ resultData.length +'条数据？', function(index) {
+    layui.http.{$requestMethod}('{$url}', $.extend({data: resultData}, {$sendData}), function(res){
+        layui.layer.alert(res.msg);
+    });
+});
+HTML
+        );
+
+        return $this->event("importexcel", <<<HTML
+$("#{$this->table->getName()}_xlsximport").click();
 HTML
         );
     }

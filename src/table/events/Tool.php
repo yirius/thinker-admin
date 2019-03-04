@@ -78,7 +78,20 @@ HTML;
 
         $data = json_encode($data);
 
-        return $this->event("edit", <<<HTML
+        if(config('thinkeradmin.isIframe')){
+            return $this->event("edit", <<<HTML
+layui.view.dialog({
+    type: 2,
+    title: '{$title}',
+    area: {$area},
+    id: '{$id}',
+    content: layui.tools.getCorrectUrl('{$view}', obj.data),
+    data: layui.http._beforeAjax({})
+});
+HTML
+        );
+        }else{
+            return $this->event("edit", <<<HTML
 layui.view.dialog({
     title: '{$title}',
     area: {$area},
@@ -90,7 +103,8 @@ layui.view.dialog({
     }
 });
 HTML
-        );
+            );
+        }
     }
 
     /**

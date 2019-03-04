@@ -73,14 +73,14 @@ class Toolbar extends Layout
     }
 
     /**
-     * @title edit
+     * @title add
      * @description
-     * @createtime 2019/2/27 上午1:11
+     * @createtime 2019/3/4 下午4:05
      * @return Toolbar
      */
     public function add()
     {
-        return $this->button('编辑', 'add', 'add-1', '');
+        return $this->button('添加', 'add', 'add-1', '');
     }
 
     /**
@@ -92,6 +92,21 @@ class Toolbar extends Layout
     public function delete()
     {
         return $this->button('删除', 'delete', 'delete', 'layui-btn-danger');
+    }
+
+    /**
+     * @title xlsx
+     * @description
+     * @createtime 2019/3/4 下午4:58
+     * @return Toolbar
+     */
+    public function xlsx()
+    {
+        $this
+            ->button('导入EXCEL', 'importexcel', 'list', 'layui-btn-warm')
+            ->button('提交EXCEL', 'submitexcel', 'set', '');
+
+        return $this->toolbar("<input type='file' style='display: none' id='{$this->table->getName()}_xlsximport'/>");
     }
 
     /**

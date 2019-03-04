@@ -186,7 +186,9 @@ class Table extends Layout
      */
     public function on(\Closure $callback = null)
     {
-        $this->on = (new On($this, $callback));
+        if(is_null($this->on)){
+            $this->on = (new On($this, $callback));
+        }
 
         return $this->on;
     }
@@ -200,7 +202,9 @@ class Table extends Layout
      */
     public function tool(\Closure $callback = null)
     {
-        $this->tool = (new Tool($this, $callback));
+        if(is_null($this->tool)){
+            $this->tool = (new Tool($this, $callback));
+        }
 
         return $this->tool;
     }
@@ -214,7 +218,9 @@ class Table extends Layout
      */
     public function toolbar(\Closure $callback = null)
     {
-        $this->toolbar = (new Toolbar($this, $callback));
+        if(is_null($this->toolbar)){
+            $this->toolbar = (new Toolbar($this, $callback));
+        }
 
         return $this->toolbar;
     }
@@ -229,9 +235,9 @@ class Table extends Layout
     public function render()
     {
         //judge table server url
-        if(empty($this->config['url']))
+        if(!isset($this->config['url']) && !isset($this->config['data']))
         {
-            throw new \Exception("table config's field must have [url]");
+            throw new \Exception("table config's field must have [url] when data is empty");
         }
 
         //render columns
@@ -387,7 +393,6 @@ HTML
     {
         return $this->restfulUrl;
     }
-
 
     /**
      * @title setEditPath

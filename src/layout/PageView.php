@@ -149,7 +149,46 @@ class PageView extends Layout
     public function render()
     {
         if (config('thinkeradmin.isIframe')) {
-
+            $scripts = $this->formatScript(true);
+return response(<<<HTML
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{$this->title}</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
+    <link rel="stylesheet" href="/thinker-admin/lib/css/fancybox.css" media="all">
+    <link rel="stylesheet" href="/thinker-admin/style/admin.css" media="all">
+    <style>.layui-layer-content{height: calc(100% - 80px);}</style>
+    {$this->formatStyle()}
+</head>
+<body>
+{$this->getBreadcrumb()}
+<div class="layui-fluid">
+    {$this->formatLayouts()}
+</div>
+<script src="/layui/layui.js"></script>
+<script src="/thinker-admin/lib/extend/fancybox.js"></script>
+{$scripts['files']}
+<script>
+    layui.config({
+        version: (new Date()).getTime()
+    }).extend({
+        thinkeradmin: "/thinker-admin/thinkeradmin",
+        ices: "../ices.min"
+    }).use(["thinkeradmin", "ices"], function(){
+        {$scripts['css']}
+        {$scripts['use']}
+    });
+</script>
+</body>
+</html>
+HTML
+        );
         } else {
             return response(<<<HTML
 <title>{$this->title}</title>
@@ -183,9 +222,10 @@ HTML
      * @title formatJavascript
      * @description get Javascript and format it
      * @createtime 2019/2/24 下午5:42
-     * @return string
+     * @param bool $returnArr
+     * @return string|array
      */
-    protected function formatScript()
+    protected function formatScript($returnArr = false)
     {
         $style = Admin::getStyle();
         $script = Admin::getScript();
@@ -210,7 +250,27 @@ HTML
         $scriptString = join("\r\n", $script['script']);
 
         $useFiles = json_encode($script['use']);
-        return <<<HTML
+        if($returnArr){
+            return [
+                'files' => $javascript,
+                'css' => $cssFiles,
+                'use' => <<<HTML
+layui.use({$useFiles}, function(){
+        function load(){
+            var $ = layui.jquery;
+            {$scriptString}
+        }
+        if(!layui.common){
+            layui.use('common', load);
+        }else{
+            layui.cache.callback.common();
+            load();
+        }
+    });
+HTML
+            ];
+        }else{
+            return <<<HTML
 {$javascript}
 <script>
     {$cssFiles}
@@ -228,7 +288,8 @@ HTML
     });
 </script>
 HTML
-            ;
+                ;
+        }
     }
 
     /**

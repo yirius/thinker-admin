@@ -86,6 +86,7 @@ class Columns extends Layout
      * Columns constructor.
      * @param $field
      * @param $title
+     * @param $table
      */
     public function __construct($field, $title, $table)
     {
@@ -129,7 +130,6 @@ class Columns extends Layout
 HTML;
         }
 
-        $toolString = '';
         if(empty($this->tool)){
             $toolString = '';
         }else{

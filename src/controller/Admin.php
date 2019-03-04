@@ -10,85 +10,10 @@ namespace Yirius\Admin\controller;
 
 
 use Yirius\Admin\extend\Upload;
-use Yirius\Admin\form\Form;
-use Yirius\Admin\form\Inline;
-use Yirius\Admin\model\table\AdminRule;
+use Yirius\Admin\table\Table;
 
 class Admin
 {
-    public function index()
-    {
-        return \Yirius\Admin\Admin::form("testForm", function (Form $form) {
-
-            $form->button("test1", "测试1")
-                ->danger()
-                ->radius()
-                ->xs()
-                ->on("click", "layer.msg('111');");
-
-            $form->text("test2", "测试文字");
-
-            //inline
-            $form->inline(function (Inline $formObj) {
-
-                $formObj->text("test3", "测试inline文字1")->setAttributes('required', 'true');
-
-                $formObj->text("test4", "测试inline文字2");
-
-                $formObj->password("test5", "测试inline密码2");
-            });
-
-            $form->select("test6", "测试下拉")->setPlaceholder("测试")->options([
-                ['text' => "第一个选项", 'value' => 1]
-            ]);
-
-            $form->date("test7", "测试时间");
-
-            $form->date("test8", "测试时间1")
-                ->setValue('2019-01-01 / 2019-01-02')
-                ->range()
-                ->onChange('console.log(value);');
-
-            $form->radio("test9", "测试单选")->options([
-                ['text' => "测试1", 'value' => "1"],
-                ['text' => "测试2", 'value' => "2"],
-                ['text' => "测试3", 'value' => "3"]
-            ]);
-
-            $form->checkbox("test10[]", "测试多选")->options([
-                ['text' => "测试1", 'value' => "1"],
-                ['text' => "测试2", 'value' => "2"],
-                ['text' => "测试3", 'value' => "3"]
-            ]);
-
-            $form->checkbox("test11[]", "测试多选1")->options([
-                ['text' => "测试1", 'value' => "1"],
-                ['text' => "测试2", 'value' => "2"],
-                ['text' => "测试3", 'value' => "3"]
-            ])->primary();
-
-            $form->switchs("test12", "测试开关");
-
-            $form->textarea("test13", "测试文字area");
-
-            $form->selectplus("test14", "测试下拉")->options([
-                ['text' => "第一个选项", 'value' => 0],
-                ['text' => "测试1", 'value' => "1"],
-                ['text' => "测试2", 'value' => "2"],
-                ['text' => "测试3", 'value' => "3"]
-            ])->on('console.log(1);', false);
-
-            $form->upload("test15", "测试上传");
-
-            $form->wangeditor("test16", "富文本");
-
-            $form->tree("test17", "书文本")->setData(AdminRule::adminSelect()->getResult());
-
-            $form->footer()->submit("/thinkeradmin/test");
-
-        })->show();
-    }
-
     /**
      * @title config
      * @description get dynamic config
@@ -201,6 +126,46 @@ class Admin
     public function logout()
     {
         \Yirius\Admin\Admin::tools()->jsonSend([]);
+    }
+
+    /**
+     * @title theme
+     * @description
+     * @createtime 2019/3/4 下午5:44
+     * @return \think\Response
+     */
+    public function theme()
+    {
+        return response(<<<HTML
+<!-- 主题设置模板 -->
+<script type="text/html" template>
+    {{#
+        var theme = layui.session.get("theme") || {},
+        themeIndex =  parseInt((theme && theme.color) ? theme.color.index : 0) || 0;
+    }}
+    <div class="layui-card-header">
+        配色方案
+    </div>
+    <div class="layui-card-body thinkeradmin-setTheme">
+        <ul class="thinkeradmin-setTheme-color">
+            {{# layui.each(layui.thinkeradmin.theme.color, function(index, item){ }}
+            <li thinkeradmin-event="setTheme" 
+                data-index="{{ index }}" 
+                data-alias="{{ item.alias }}"
+                {{ index === themeIndex ? 'class="layui-this"' : '' }} 
+                title="{{ item.alias }}"
+            >
+                <div class="thinkeradmin-setTheme-header" style="background-color: {{ item.header }};"></div>
+                <div class="thinkeradmin-setTheme-side" style="background-color: {{ item.main }};">
+                    <div class="thinkeradmin-setTheme-logo" style="background-color: {{ item.logo }};"></div>
+                </div>
+            </li>
+            {{# }); }}
+        </ul>
+    </div>
+</script>
+HTML
+            , 'html');
     }
 
     /**
