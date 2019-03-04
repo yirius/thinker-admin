@@ -9,6 +9,7 @@
 namespace Yirius\Admin\form\assembly;
 
 
+use Yirius\Admin\Admin;
 use Yirius\Admin\form\Assembly;
 
 class Switchs extends Assembly
@@ -27,6 +28,24 @@ class Switchs extends Assembly
     {
         $this->text = $on . "|" . $off;
 
+        return $this;
+    }
+
+    /**
+     * @title on
+     * @description
+     * @createtime 2019/3/3 下午9:44
+     * @param $callback
+     * @return $this
+     */
+    public function on($callback)
+    {
+        Admin::script(<<<HTML
+layui.form.on("switch({$this->getId()})", function(obj){
+{$callback}
+});
+HTML
+        );
         return $this;
     }
 

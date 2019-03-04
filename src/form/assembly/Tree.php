@@ -18,20 +18,20 @@ use Yirius\Admin\form\Assembly;
  * @method Tree setData(array $data);
  * @method Tree setEmptText($text);
  * @method Tree setUrl($url);
- * @method Tree setRenderAfterExpand($bool = false);
- * @method Tree setHighlightCurrent($bool = true);
- * @method Tree setDefaultExpandAll($bool = true);
- * @method Tree setExpandOnClickNode($bool = false);
- * @method Tree setCheckOnClickNode($bool = true);
+ * @method Tree setRenderAfterExpand(bool $bool);
+ * @method Tree setHighlightCurrent(bool $bool);
+ * @method Tree setDefaultExpandAll(bool $bool);
+ * @method Tree setExpandOnClickNode(bool $bool);
+ * @method Tree setCheckOnClickNode(bool $bool);
  * @method Tree setDefaultExpandedKeys(array $expendKey);
- * @method Tree setAutoExpandParent($bool = true);
- * @method Tree setShowCheckbox($bool = false);
- * @method Tree setCheckStrictly($bool = true);
+ * @method Tree setAutoExpandParent(bool $bool);
+ * @method Tree setShowCheckbox(bool $bool);
+ * @method Tree setCheckStrictly(bool $bool);
  * @method Tree setDefaultCheckedKeys(array $checkKeys);
- * @method Tree setccordion($bool = false);
+ * @method Tree setccordion(bool $bool);
  * @method Tree setIndent(int $indent);
- * @method Tree setLazy($bool = true);
- * @method Tree setDraggable($bool = true);
+ * @method Tree setLazy(bool $bool);
+ * @method Tree setDraggable(bool $bool);
  * @method Tree setContextmenuList(array $list);
  *
  * @method Tree getData();
@@ -173,23 +173,24 @@ HTML
      */
     public function render()
     {
-        PRINT_R($this->getValue());
-
         //add script
         Admin::script(<<<HTML
-var {$this->getEleName()} = layui.eleTree.render($.extend({
-    elem: '#{$this->getId()}'
+(function(){
+var currentEleTree = document.querySelector("#{$this->getId()}");
+currentEleTree.eleTree = layui.eleTree.render($.extend({
+    elem: "#{$this->getId()}"
 }, {$this->getConfig()}));
 layui.eleTree.on("nodeChecked({$this->getId()})",function(d) {
     //add checkEvent
     var _checked = [];
-    layui.each({$this->getEleName()}.getChecked(false, true), function(n, v){
+    layui.each(currentEleTree.eleTree.getChecked(false, true), function(n, v){
         _checked.push(v.value);
     });
     $("#{$this->getId()}_input").val(_checked.join(","));
     {$this->checkedEvent}
 });
 {$this->event}
+})();
 HTML
         );
 
@@ -234,17 +235,6 @@ HTML;
     public function getConfig()
     {
         return json_encode($this->config);
-    }
-
-    /**
-     * @title getEleName
-     * @description
-     * @createtime 2019/2/28 下午5:53
-     * @return string
-     */
-    protected function getEleName()
-    {
-        return $this->getId() . "_eletree";
     }
 
     /**

@@ -51,8 +51,9 @@ class Save extends AdminModelBase
     /**
      * @title setValidate
      * @description
-     * @createtime 2019/2/28 下午12:12
+     * @createtime 2019/3/3 下午10:34
      * @param array $validate
+     * @param array $msg
      * @return $this
      */
     public function setValidate(array $validate, array $msg)

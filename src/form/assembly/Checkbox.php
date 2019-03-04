@@ -26,15 +26,4 @@ class Checkbox extends Radio
 
         return $this;
     }
-
-    /**
-     * @title getName
-     * @description re write getName
-     * @createtime 2019/2/24 下午8:59
-     * @return string
-     */
-    public function getName()
-    {
-        return $this->name . '[]';
-    }
 }

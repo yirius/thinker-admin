@@ -9,6 +9,7 @@
 namespace Yirius\Admin\form\assembly;
 
 
+use Yirius\Admin\Admin;
 use Yirius\Admin\form\Assembly;
 
 class Radio extends Assembly
@@ -23,6 +24,25 @@ class Radio extends Assembly
      * @var array
      */
     protected $optionsArray = [];
+
+
+    /**
+     * @title on
+     * @description
+     * @createtime 2019/3/3 下午9:44
+     * @param $callback
+     * @return $this
+     */
+    public function on($callback)
+    {
+        Admin::script(<<<HTML
+layui.form.on("{$this->inputType}({$this->getId()})", function(obj){
+{$callback}
+});
+HTML
+        );
+        return $this;
+    }
 
     /**
      * @title options
@@ -47,10 +67,8 @@ class Radio extends Assembly
 
         $attrs = $this->getAttributes();
 
-        foreach($this->optionsArray as $i => $v){
-
-
-            $result[] = '<input type="'. $this->inputType .'" value="'. $v['value'] .'" title="'. $v['text'] .'" name="'. $this->getName() .'" id="'. $this->getId() . $i .'" lay-filter="'. $this->getId() . $i .'" '. $attrs . $this->checkValue($v) . ' />';
+        foreach ($this->optionsArray as $i => $v) {
+            $result[] = '<input type="' . $this->inputType . '" value="' . $v['value'] . '" title="' . $v['text'] . '" name="' . $this->getName() . '" id="' . $this->getId() . $i . '" lay-filter="' . $this->getId() . $i . '" ' . $attrs . $this->checkValue($v) . (!empty($v['disabled']) ? ' disabled ' : '') . ' />';
         }
 
         return join("", $result);
@@ -81,16 +99,16 @@ HTML;
      */
     protected function checkValue(array $option)
     {
-        if(!empty($option['checked'])){
+        if (!empty($option['checked'])) {
             return "checked='checked'";
-        }else{
-            if(!is_array($this->value)){
+        } else {
+            if (!is_array($this->value)) {
                 $this->value = explode(",", $this->value);
             }
             //check value
-            if(in_array($option['value'], $this->value)){
+            if (in_array($option['value'], $this->value)) {
                 return "checked='checked'";
-            }else{
+            } else {
                 return "";
             }
         }

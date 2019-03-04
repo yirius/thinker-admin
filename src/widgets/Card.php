@@ -6,7 +6,7 @@
  * Time: 下午12:05
  */
 
-namespace Yirius\Admin\layout;
+namespace Yirius\Admin\widgets;
 
 
 use Yirius\Admin\Layout;
@@ -21,7 +21,7 @@ class Card extends Layout
     /**
      * @var string
      */
-    protected $headerClass = '';
+    protected $headerClass = 'thinkeradmin-card-header-auto';
 
     /**
      * @var string

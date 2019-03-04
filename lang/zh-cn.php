@@ -22,5 +22,11 @@ return [
     "incorrect verfiy" => "验证码输入不正确, 请您重新输入",
     "empty userinfo" => "暂无该用户信息",
     "incorrect username or password" => "用户登录账号密码错误",
-    "login success" => "您已经成功登录，正在跳转..."
+    "login success" => "您已经成功登录，正在跳转...",
+    "empty password" => "请您输入密码",
+
+    //restful
+    'delete success' => "删除成功",
+    'delete error' => "删除失败，请您联系技术人员",
+    'not delete all' => "未全部删除，{:arr}未成功删除"
 ];

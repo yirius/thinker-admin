@@ -77,7 +77,7 @@ class Inline extends Layout
     {
         $render = "";
         foreach ($this->assemblys as $i => $v) {
-            $render .= $v->setClass('layui-input-inline')->render();
+            $render .= '<div class="layui-inline">' . $v->setClass('layui-input-inline')->render() . "</div>";
         }
 
         return $render;

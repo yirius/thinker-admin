@@ -132,12 +132,22 @@ class Table extends Layout
     {
         $this->search = (new Form($this->getName() . '_form', function(Form $form) use($callback){
             $form->inline($callback)
-                ->button("", '<i class="layui-icon layui-icon-search thinkeradmin-button-btn"></i>')
+                ->button("_search_button", '')
+                ->setHaveLabel(false)
+                ->setText('<i class="layui-icon layui-icon-search thinkeradmin-button-btn"></i>')
                 ->setAttributes('lay-submit', '')
                 ->setId($this->getName() . '_form_search');
         }));
 
         return $this->search;
+    }
+
+    /**
+     * @return Form
+     */
+    public function getSearch()
+    {
+        return is_null($this->search) ? '' : $this->search->render();
     }
 
     /**
@@ -281,21 +291,21 @@ HTML
     /**
      * @title show
      * @description
-     * @createtime 2019/2/26 下午3:14
+     * @createtime 2019/3/3 下午10:49
+     * @param \Closure|null $closure
      * @return mixed
      */
-    public function show()
+    public function show(\Closure $closure = null)
     {
-        return Admin::pageView(function (PageView $pageView) {
-            $pageView->card(function(Card $card){
-                if(!is_null($this->search)){
-                    $card
-                        ->setTitle($this->search->render())
-                        ->setHeaderClass('thinkeradmin-card-header-auto');
-                }
-                $card->setContent($this->render());
-            });
-        })->render();
+        if ($closure instanceof \Closure) {
+            return Admin::pageView(function (PageView $pageView) use ($closure) {
+                call($closure, [$pageView, $this->render(), $this->getSearch()]);
+            })->render();
+        } else {
+            return Admin::pageView(function (PageView $pageView) {
+                $pageView->card($this->render(), $this->getSearch());
+            })->render();
+        }
     }
 
     /**

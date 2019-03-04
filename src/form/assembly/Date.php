@@ -11,6 +11,15 @@ namespace Yirius\Admin\form\assembly;
 
 use Yirius\Admin\Admin;
 
+/**
+ * Class Date
+ * @method Date setShowBottom(bool $isShow);
+ * @method Date setBtns(array $btns);
+ * @method Date setLang($lang);
+ * @method Date setTheme($theme);
+ * @method Date setMark(array $mark);
+ * @package Yirius\Admin\form\assembly
+ */
 class Date extends Text
 {
     /**

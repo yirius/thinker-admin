@@ -146,4 +146,37 @@ HTML
     {
         return str_replace(["\\", "//", "::"], "_", __METHOD__);
     }
+
+    /**
+     * @title checkLoginPwd
+     * @description
+     * @createtime 2019/3/4 上午1:22
+     */
+    protected function checkLoginPwd()
+    {
+        $password = $this->request->param("password");
+        if(empty($password))
+        {
+            \Yirius\Admin\Admin::tools()->jsonSend([], 0, lang("empty password"));
+        }
+
+        $userinfo = \Yirius\Admin\Admin::auth()
+            ->setAccessType($this->getToken("access_token"))
+            ->getUserinfo($this->getToken("id"), "id");
+
+        $resultData = true;
+        //判断是否存在自定义登录方法
+        $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
+        if($login_verfiy_func instanceof \Closure){
+            $resultData = call($login_verfiy_func, [$this->getToken("username"), $password, $userinfo]);
+        }else{
+            //如果用户密码错误的话
+            if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
+                $resultData = false;
+            }
+        }
+        if($resultData === false){
+            \Yirius\Admin\Admin::tools()->jsonSend([], 0, lang("incorrect username or password"));
+        }
+    }
 }

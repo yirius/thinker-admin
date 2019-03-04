@@ -12,34 +12,39 @@ namespace Yirius\Admin\form\assembly;
 use Yirius\Admin\Admin;
 use Yirius\Admin\form\Assembly;
 
-class Upload extends Assembly
+class Upload extends Button
 {
     /**
      * @var string
      */
-    protected $url = "./thinkeradmin/uploads?isimage=1";
+    protected $text = "上传图片";
+
+    /**
+     * @var string
+     */
+    protected $buttonHtml = '<div class="thinkeradmin-upload-list"></div>';
 
     /**
      * @title isFile
      * @description
-     * @createtime 2019/2/25 下午4:51
+     * @createtime 2019/3/3 下午10:05
+     * @return Upload
      */
     public function isFile()
     {
-        $this->url = "./thinkeradmin/uploads";
-
-        return $this;
+        return $this->url("./thinkeradmin/uploads");
     }
 
     /**
      * @title url
      * @description
-     * @createtime 2019/2/25 下午4:51
+     * @createtime 2019/3/3 下午10:04
      * @param $url
+     * @return $this
      */
     public function url($url)
     {
-        $this->url = $url;
+        $this->setAttributes("data-url", $url);
 
         return $this;
     }
@@ -66,24 +71,24 @@ class Upload extends Assembly
     public function offFancybox()
     {
         $this->offAttributes("data-isshow");
+
         return $this;
     }
 
     /**
-     * @title render
-     * @description render html
-     * @createtime 2019/2/24 下午4:25
-     * @return mixed
+     * @title setName
+     * @description
+     * @createtime 2019/3/3 下午10:03
+     * @param $name
+     * @return $this|Button
      */
-    public function render()
+    public function setName($name)
     {
-        return <<<HTML
-<label class="layui-form-label">{$this->getLabel()}</label>
-<div class="{$this->getClass()}">
-    <button type="button" class="layui-btn layui-btn-primary" lay-upload="" data-url="{$this->url}" {$this->getAttributes()} data-name="{$this->getName()}" id="{$this->getId()}" >上传图片</button>
-    <div class="thinkeradmin-upload-list"></div>
-</div>
-HTML;
+        $this->name = $name;
+
+        $this->setAttributes("data-name", $this->name);
+
+        return $this;
     }
 
     /**
@@ -96,6 +101,10 @@ HTML;
     {
         Admin::script('upload', 2);
 
-        $this->setAttributes('data-isshow', 'true');
+        $this
+            ->setAttributes('data-isshow', 'true')
+            ->setAttributes("lay-upload", "")
+            ->setAttributes("data-name", $this->name)
+            ->url("./thinkeradmin/uploads?isimage=1");
     }
 }

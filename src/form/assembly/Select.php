@@ -9,6 +9,7 @@
 namespace Yirius\Admin\form\assembly;
 
 
+use Yirius\Admin\Admin;
 use Yirius\Admin\form\Assembly;
 
 class Select extends Assembly
@@ -27,6 +28,57 @@ class Select extends Assembly
      * @var array
      */
     protected $optionsArray = [];
+
+    /**
+     * @title options
+     * @description
+     * @createtime 2019/2/24 下午8:38
+     * @param array $optionsArray
+     * @return $this
+     */
+    public function options(array $optionsArray)
+    {
+        $this->optionsArray = $optionsArray;
+
+        return $this;
+    }
+
+    /**
+     * @title on
+     * @description
+     * @createtime 2019/3/3 下午9:44
+     * @param $callback
+     * @return $this
+     */
+    public function on($callback)
+    {
+        Admin::script(<<<HTML
+layui.form.on("select({$this->getId()})", function(obj){
+{$callback}
+});
+HTML
+        );
+        return $this;
+    }
+
+    /**
+     * @title render
+     * @description render html
+     * @createtime 2019/2/24 下午4:25
+     * @return mixed
+     */
+    public function render()
+    {
+        return <<<HTML
+<label class="layui-form-label">{$this->getLabel()}</label>
+<div class="{$this->getClass()}">
+    <select class="{$this->getSelectClass()}" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttributes()} >
+        {$this->getPlaceholder()}
+        {$this->getOptions()}
+    </select>
+</div>
+HTML;
+    }
 
     /**
      * @title setPlaceholder
@@ -77,20 +129,6 @@ class Select extends Assembly
     }
 
     /**
-     * @title options
-     * @description
-     * @createtime 2019/2/24 下午8:38
-     * @param array $optionsArray
-     * @return $this
-     */
-    public function options(array $optionsArray)
-    {
-        $this->optionsArray = $optionsArray;
-
-        return $this;
-    }
-
-    /**
      * @return array
      */
     public function getOptions()
@@ -99,12 +137,12 @@ class Select extends Assembly
 
         foreach($this->optionsArray as $i => $v){
             if(empty($v['list'])){
-                $result[] = '<option value="'. $v['value'] .'" '. $this->checkValue($v) .'>'. $v['text'] .'</option>';
+                $result[] = '<option value="'. $v['value'] .'" '. $this->checkValue($v) . (!empty($v['disabled']) ? ' disabled ' : '') .'>'. $v['text'] .'</option>';
             }else{
                 $temp = [];
                 $temp[] = '<optgroup label="'. $v['text'] .'">';
                 foreach($v['list'] as $j => $val){
-                    $temp[] = '<option value="'. $val['value'] .'" '. $this->checkValue($val) .'>'. $val['text'] .'</option>';
+                    $temp[] = '<option value="'. $val['value'] .'" '. $this->checkValue($val) . (!empty($val['disabled']) ? ' disabled ' : '') .'>'. $val['text'] .'</option>';
                 }
                 $temp[] = '</optgroup>';
                 $result[] = join("", $temp);
@@ -112,25 +150,6 @@ class Select extends Assembly
         }
 
         return join("", $result);
-    }
-
-    /**
-     * @title render
-     * @description render html
-     * @createtime 2019/2/24 下午4:25
-     * @return mixed
-     */
-    public function render()
-    {
-        return <<<HTML
-<label class="layui-form-label">{$this->getLabel()}</label>
-<div class="{$this->getClass()}">
-    <select class="{$this->getSelectClass()}" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttributes()} >
-        {$this->getPlaceholder()}
-        {$this->getOptions()}
-    </select>
-</div>
-HTML;
     }
 
     /**

@@ -12,6 +12,7 @@ namespace Yirius\Admin\controller;
 use Yirius\Admin\extend\Upload;
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
+use Yirius\Admin\model\table\AdminRule;
 
 class Admin
 {
@@ -54,13 +55,13 @@ class Admin
                 ['text' => "测试3", 'value' => "3"]
             ]);
 
-            $form->checkbox("test10", "测试多选")->options([
+            $form->checkbox("test10[]", "测试多选")->options([
                 ['text' => "测试1", 'value' => "1"],
                 ['text' => "测试2", 'value' => "2"],
                 ['text' => "测试3", 'value' => "3"]
             ]);
 
-            $form->checkbox("test11", "测试多选1")->options([
+            $form->checkbox("test11[]", "测试多选1")->options([
                 ['text' => "测试1", 'value' => "1"],
                 ['text' => "测试2", 'value' => "2"],
                 ['text' => "测试3", 'value' => "3"]
@@ -80,6 +81,8 @@ class Admin
             $form->upload("test15", "测试上传");
 
             $form->wangeditor("test16", "富文本");
+
+            $form->tree("test17", "书文本")->setData(AdminRule::adminSelect()->getResult());
 
             $form->footer()->submit("/thinkeradmin/test");
 
@@ -150,7 +153,8 @@ class Admin
                         'id' => $userinfo['id'],
                         'username' => $userinfo['username'],
                         'userphone' => $userinfo['phone'],
-                        'type' => "admin"
+                        'type' => "admin",
+                        'access_type' => $access_type
                     ];
                 }
             }else{
@@ -167,7 +171,8 @@ class Admin
                             'id' => $userinfo['id'],
                             'username' => $userinfo['username'],
                             'userphone' => $userinfo['phone'],
-                            'type' => "user"
+                            'type' => "user",
+                            'access_type' => $access_type
                         ];
                     }
                 }

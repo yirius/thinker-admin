@@ -15,6 +15,14 @@ use Yirius\Admin\model\table\AdminRoleAccess;
 
 class AdminMember extends AdminRestful
 {
+    protected $restfulTable = \Yirius\Admin\model\table\AdminMember::class;
+
+    protected $tableCanEditField = ['status'];
+
+    protected $tableEditMsg = "编辑后台用户成功";
+
+    protected $tableSaveMsg = "新增后台用户成功";
+
     /**
      * @title index
      * @description
@@ -34,13 +42,18 @@ class AdminMember extends AdminRestful
 
     /**
      * @title save
-     * @description add a new line
-     * @createtime 2019/2/26 下午4:10
+     * @description
+     * @createtime 2019/3/3 下午10:40
      * @param Request $request
-     * @param array $where
+     * @param array $updateWhere
      * @return mixed|void
+     * @throws \think\Exception
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @throws \think\exception\PDOException
      */
-    public function save(Request $request, $where = [])
+    public function save(Request $request, $updateWhere = [])
     {
         $adminTools = Admin::tools();
 
@@ -52,7 +65,7 @@ class AdminMember extends AdminRestful
             $addData['password'] = sha1($addData['password'] . $addData['salt']);
         }else{
             //if empty where, then operate is add a new user
-            if(empty($where)){
+            if(empty($updateWhere)){
                 $adminTools->jsonSend([], 0, "新增后台用户，必须填写密码");
             }
             unset($addData['password']);
@@ -71,7 +84,7 @@ class AdminMember extends AdminRestful
                 'realname.require' => "真实姓名必须填写"
             ])
             ->setAdd($addData)
-            ->setWhere($where)
+            ->setWhere($updateWhere)
             ->getResult();
 
         if($isAdd === false){
@@ -111,26 +124,7 @@ class AdminMember extends AdminRestful
     {
         //判断是否是修改字段
         if($request->param("__type") == "field"){
-            $field = $request->param("field");
-            if(in_array($field, ['status'])){
-                $adminSaveModel = \Yirius\Admin\model\table\AdminMember::adminSave();
-                $isAdd = $adminSaveModel
-                    ->setAdd([
-                        $field => $request->param("value")
-                    ])
-                    ->setWhere([
-                        ['id', '=', $id]
-                    ])
-                    ->getResult();
-
-                if($isAdd === false){
-                    Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
-                }else{
-                    Admin::tools()->jsonSend([], 1, "修改后台管理员成功");
-                }
-            }else{
-                Admin::tools()->jsonSend([], 0, "该字段不可修改");
-            }
+            $this->defaultUpdate($id, $request->param("field"), $request->param("value"));
         }else{
             //执行整体更改
             $this->save($request, [
@@ -148,7 +142,7 @@ class AdminMember extends AdminRestful
      */
     public function delete($id)
     {
-        // TODO: Implement delete() method.
+
     }
 
     /**

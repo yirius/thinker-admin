@@ -101,7 +101,7 @@ class System extends AdminController
 
             $form->switchs("status", "状态");
 
-            $form->checkbox("groups", "角色权限")
+            $form->checkbox("groups[]", "角色权限")
                 ->options(
                     AdminRole::adminSelect()->setWhere([
                         ['status', '=', 1]

@@ -6,7 +6,7 @@
  * Time: 下午5:16
  */
 
-namespace Yirius\Admin\layout;
+namespace Yirius\Admin\widgets;
 
 
 class Breadcrumb
