@@ -15,18 +15,30 @@ use Yirius\Admin\model\table\AdminRoleAccess;
 
 class AdminMember extends AdminRestful
 {
+    /**
+     * @var \Yirius\Admin\model\table\AdminMember
+     */
     protected $restfulTable = \Yirius\Admin\model\table\AdminMember::class;
 
+    /**
+     * @var array
+     */
     protected $tableCanEditField = ['status'];
 
+    /**
+     * @var string
+     */
     protected $tableEditMsg = "编辑后台用户成功";
 
+    /**
+     * @var string
+     */
     protected $tableSaveMsg = "新增后台用户成功";
 
     /**
      * @title index
      * @description
-     * @createtime 2019/2/28 上午11:47
+     * @createtime 2019/3/4 下午3:33
      * @param Request $request
      * @return mixed|void
      * @throws \think\db\exception\DataNotFoundException
@@ -35,23 +47,22 @@ class AdminMember extends AdminRestful
      */
     public function index(Request $request)
     {
-        $result = \Yirius\Admin\model\table\AdminMember::adminList()->getResult();
-
-        $this->send($result);
+        $this->send(($this->restfulTable)::adminList()
+            ->setWhere([
+                ["username", "like", "%_var%"],
+                ["phone", "like", "%_var%"],
+            ])
+            ->getResult());
     }
 
     /**
      * @title save
      * @description
-     * @createtime 2019/3/3 下午10:40
+     * @createtime 2019/3/4 下午3:25
      * @param Request $request
      * @param array $updateWhere
      * @return mixed|void
-     * @throws \think\Exception
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     * @throws \think\exception\PDOException
+     * @throws \Exception
      */
     public function save(Request $request, $updateWhere = [])
     {
@@ -71,33 +82,21 @@ class AdminMember extends AdminRestful
             unset($addData['password']);
         }
 
-        $adminSaveModel = \Yirius\Admin\model\table\AdminMember::adminSave();
-        $isAdd = $adminSaveModel
-            ->setValidate([
-                'username' => "require",
-                'phone' => "require|mobile",
-                'realname' => "require"
-            ], [
-                'username.require' => "登录账号必须填写",
-                'phone.require' => "登录手机号必须填写",
-                'phone.mobile' => "登录手机号必须填写手机格式，如139XXXXXXXX",
-                'realname.require' => "真实姓名必须填写"
-            ])
-            ->setAdd($addData)
-            ->setWhere($updateWhere)
-            ->getResult();
-
-        if($isAdd === false){
-            $adminTools->jsonSend([], 0, $adminSaveModel->getError());
-        }else{
-
+        $this->defaultSave($addData, [[
+            'username' => "require",
+            'phone' => "require|mobile",
+            'realname' => "require"
+        ], [
+            'username.require' => "登录账号必须填写",
+            'phone.require' => "登录手机号必须填写",
+            'phone.mobile' => "登录手机号必须填写手机格式，如139XXXXXXXX",
+            'realname.require' => "真实姓名必须填写"
+        ]], $updateWhere, function($isAdd) use($addData){
             //check and update access
             if(!empty($addData['groups']) && is_array($addData['groups'])){
                 (new AdminRoleAccess())->checkOrUpdateAccess($addData['groups'], $isAdd->id);
             }
-
-            $adminTools->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."后台管理员成功");
-        }
+        });
     }
 
     /**
@@ -142,7 +141,11 @@ class AdminMember extends AdminRestful
      */
     public function delete($id)
     {
+        $this->checkLoginPwd();
 
+        $this->defaultDelete($id, [1], function($notDelete) use($id){
+            (new AdminRoleAccess())->checkOrUpdateAccess([], $id);
+        });
     }
 
     /**
@@ -154,6 +157,18 @@ class AdminMember extends AdminRestful
      */
     public function deleteall(Request $request)
     {
-        // TODO: Implement deleteall() method.
+        $this->checkLoginPwd();
+
+        $data = $request->param("data");
+        $deleteIds = [];
+        foreach($data as $i => $v){
+            $deleteIds[] = $v['id'];
+        }
+        $this->defaultDelete($deleteIds, [1], function($notDelete) use($deleteIds){
+            $deletes = array_diff($deleteIds, $notDelete);
+            foreach($deletes as $j => $val){
+                (new AdminRoleAccess())->checkOrUpdateAccess([], $val);
+            }
+        });
     }
 }

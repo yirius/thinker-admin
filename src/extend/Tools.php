@@ -41,6 +41,8 @@ class Tools
      */
     public function tree(array $data, $keys = null, array $config = null)
     {
+        if(empty($data)) return [];
+
         //set config
         if (is_null($config)) {
             $config = [

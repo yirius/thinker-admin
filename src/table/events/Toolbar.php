@@ -128,6 +128,11 @@ layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(val
     layer.close(index);
     layer.confirm('确定删除吗？', function(index) {
         layui.http.delete('{$url}', $.extend({password: value, data: checkStatus.data}, {$sendData}), function(res){
+            if(layui.table){
+                for(var i in layui.table.cache){
+                    layui.table.reload(i);
+                }
+            }
             {$afterDelete}
         });
     });

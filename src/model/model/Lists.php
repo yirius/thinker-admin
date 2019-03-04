@@ -125,10 +125,14 @@ class Lists extends AdminModelBase
         }
         $where = [];
         foreach ($params as $i => $v) {
-            if(is_numeric($i)){
-                $paramName = $v[0];
-            }else{
+            if(!is_numeric($i)){
                 $paramName = $i;
+            }else{
+                if(is_array($v)){
+                    $paramName = $v[0];
+                }else{
+                    $paramName = $v;
+                }
             }
             //judge where param is exsit and value not eq ''
             if (isset($values[$paramName]) && $values[$paramName] != "") {

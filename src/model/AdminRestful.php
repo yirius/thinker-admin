@@ -104,7 +104,7 @@ abstract class AdminRestful extends AdminController
      * @param array $where
      * @throws \Exception
      */
-    protected function defaultSave($addData, $validate = null, $where = [])
+    protected function defaultSave($addData, $validate = null, $where = [], \Closure $afterSave = null)
     {
         if(is_null($this->restfulTable)){
             throw new \Exception(lang("restful not config table"));
@@ -123,6 +123,7 @@ abstract class AdminRestful extends AdminController
             if($isAdd === false){
                 Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
             }else{
+                if($afterSave instanceof \Closure) call($afterSave, [$isAdd]);
                 Admin::tools()->jsonSend([], 1, (empty($where) ? $this->tableSaveMsg : $this->tableEditMsg));
             }
         }
@@ -153,24 +154,27 @@ abstract class AdminRestful extends AdminController
     /**
      * @title defaultDelete
      * @description
-     * @createtime 2019/3/4 下午12:40
+     * @createtime 2019/3/4 下午2:43
      * @param $data
      * @param array $notDelete
+     * @param \Closure|null $afterDelete
      * @throws \think\Exception
      * @throws \think\exception\PDOException
      */
-    protected function defaultDelete($data, $notDelete = [])
+    protected function defaultDelete($data, $notDelete = [], \Closure $afterDelete = null)
     {
         $flag = ($this->restfulTable)::adminDelete()
-            ->delete($data)
+            ->delete(is_array($data) ? $data : [$data])
             ->notDelete($notDelete)
             ->getResult();
 
         if($flag === true){
-            Admin::tools()->jsonSend([], 0, lang("delete success"));
+            if($afterDelete instanceof \Closure) call($afterDelete, [[]]);
+            Admin::tools()->jsonSend([], 1, lang("delete success"));
         }else if($flag === false){
             Admin::tools()->jsonSend([], 0, lang("delete error"));
         }else{
+            if($afterDelete instanceof \Closure) call($afterDelete, [$flag]);
             Admin::tools()->jsonSend([], 0, lang("not delete all", ['arr' => join(",", $flag)]));
         }
     }

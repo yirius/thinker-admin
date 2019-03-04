@@ -17,6 +17,8 @@ use Yirius\Admin\model\model\Select;
 
 class AdminModel extends Model
 {
+    protected $autoWriteTimestamp = 'datetime';
+
     /**
      * @title init
      * @description after __construct, set model other data

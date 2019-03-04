@@ -23,7 +23,7 @@ class System extends AdminController
     /**
      * @title member
      * @description system member list
-     * @createtime 2019/2/27 下午2:15
+     * @create_time 2019/2/27 下午2:15
      * @return mixed
      */
     public function members()
@@ -50,7 +50,7 @@ class System extends AdminController
 
             $table->columns("realname", "名称");
 
-            $table->columns("createtime", "创建时间");
+            $table->columns("create_time", "创建时间");
 
             $table->columns("op", "操作")->setWidth(170)->edit()->delete();
 
@@ -64,7 +64,7 @@ class System extends AdminController
     /**
      * @title membersEdit
      * @description
-     * @createtime 2019/2/28 下午4:56
+     * @create_time 2019/2/28 下午4:56
      * @param int $id
      * @return mixed
      * @throws \Exception
@@ -117,7 +117,7 @@ class System extends AdminController
     /**
      * @title roles
      * @description
-     * @createtime 2019/2/28 下午4:25
+     * @create_time 2019/2/28 下午4:25
      * @return mixed
      */
     public function roles()
@@ -127,6 +127,16 @@ class System extends AdminController
             $table
                 ->setRestfulUrl("/restful/adminrole")
                 ->setEditPath("/thinkersystem/rolesEdit");
+
+            $table->search(function(Inline $inline){
+
+                $inline->text("title", "角色名称");
+
+                $inline->select("status", "状态")->options([
+                    ['text' => "开启", 'value' => 1],
+                    ['text' => "关闭", 'value' => 0],
+                ])->setPlaceholder("--全部--");
+            });
 
             $table->columns("id", "编号");
 
@@ -146,7 +156,7 @@ class System extends AdminController
     /**
      * @title rolesEdit
      * @description
-     * @createtime 2019/2/28 下午4:59
+     * @create_time 2019/2/28 下午4:59
      * @param int $id
      * @return mixed
      * @throws \Exception
@@ -182,7 +192,7 @@ class System extends AdminController
     /**
      * @title rules
      * @description
-     * @createtime 2019/2/28 上午11:09
+     * @create_time 2019/2/28 上午11:09
      * @return mixed
      */
     public function rules()
@@ -192,6 +202,15 @@ class System extends AdminController
             $table
                 ->setRestfulUrl("/restful/adminrule")
                 ->setEditPath("/thinkersystem/rulesEdit");
+
+            $table->search(function(Inline $inline){
+                //judge if there have user's type
+                $ruleTypes = config("thinkeradmin.rule.type");
+                $inline->select("type", "类型")->options(array_merge([
+                    ['text' => "路由规则", 'value' => 1],
+                    ['text' => "界面规则", 'value' => 2]
+                ], empty($ruleTypes) ? [] : $ruleTypes))->setPlaceholder("--全部--");
+            });
 
             $table->columns('', '')->setType('checkbox');
 
@@ -209,7 +228,7 @@ class System extends AdminController
 
             $table->toolbar()->add()->delete()->event()->add()->delete();
 
-            $table->setLimit(10000)->setLimits([10000]);
+            $table->setLimit(100000)->setLimits([100000]);
 
         })->show();
     }
@@ -217,7 +236,7 @@ class System extends AdminController
     /**
      * @title rulesEdit
      * @description
-     * @createtime 2019/2/28 上午11:18
+     * @create_time 2019/2/28 上午11:18
      * @param int $id
      * @return mixed
      * @throws \Exception
@@ -254,7 +273,7 @@ class System extends AdminController
     /**
      * @title menus
      * @description
-     * @createtime 2019/2/27 下午4:48
+     * @create_time 2019/2/27 下午4:48
      * @return mixed
      */
     public function menus()
@@ -282,13 +301,14 @@ class System extends AdminController
             $table->toolbar()->add()->delete()
                 ->event()->add()->delete();
 
+            $table->setLimit(100000)->setLimits([100000]);
         })->show();
     }
 
     /**
      * @title menusEdit
      * @description
-     * @createtime 2019/2/27 下午4:49
+     * @create_time 2019/2/27 下午4:49
      * @param int $id
      * @return \Yirius\Admin\form\Form
      * @throws \Exception

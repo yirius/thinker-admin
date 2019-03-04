@@ -16,6 +16,17 @@ use Yirius\Admin\model\AdminRestful;
 class AdminMenu extends AdminRestful
 {
     /**
+     * @var \Yirius\Admin\model\table\AdminMenu
+     */
+    protected $restfulTable = \Yirius\Admin\model\table\AdminMenu::class;
+
+    protected $tableCanEditField = ['status'];
+
+    protected $tableEditMsg = "编辑后台菜单成功";
+
+    protected $tableSaveMsg = "新增后台菜单成功";
+
+    /**
      * @title index
      * @description get table's list
      * @createtime 2019/2/26 下午4:09
@@ -24,11 +35,9 @@ class AdminMenu extends AdminRestful
      */
     public function index(Request $request)
     {
-        $allMenus = \Yirius\Admin\model\table\AdminMenu::all()->toArray();
+        $allMenus = ($this->restfulTable)::all()->toArray();
 
-        $result = Admin::tools()->tree($allMenus);
-
-        $this->send(count($allMenus), $this->getMenusTree($result));
+        $this->send(count($allMenus), $this->getMenusTree(Admin::tools()->tree($allMenus)));
     }
 
     /**
@@ -61,19 +70,19 @@ class AdminMenu extends AdminRestful
     /**
      * @title save
      * @description
-     * @createtime 2019/2/28 下午4:46
+     * @createtime 2019/3/4 下午4:02
      * @param Request $request
-     * @param array $where
+     * @param array $updateWhere
      * @return mixed|void
+     * @throws \Exception
      */
-    public function save(Request $request, $where = [])
+    public function save(Request $request, $updateWhere = [])
     {
         $addData = $request->param();
         $addData['sort'] = $request->param('sort', 0);
 
-        $adminSaveModel = \Yirius\Admin\model\table\AdminMenu::adminSave();
-        $isAdd = $adminSaveModel
-            ->setValidate([
+        $this->defaultSave($addData, [
+            [
                 'name' => "require",
                 'title' => "require",
                 'jump' => "require",
@@ -84,16 +93,8 @@ class AdminMenu extends AdminRestful
                 'jump.require' => "跳转地址必须填写",
                 'pid.require' => "上级编号必须填写",
                 'pid.number' => "上级编号必须填写数字编号"
-            ])
-            ->setAdd($addData)
-            ->setWhere($where)
-            ->getResult();
-
-        if($isAdd === false){
-            Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
-        }else{
-            Admin::tools()->jsonSend([], 1, (empty($where) ? "新增" : "修改") ."规则成功");
-        }
+            ]
+        ], $updateWhere);
     }
 
     /**
@@ -111,35 +112,17 @@ class AdminMenu extends AdminRestful
     /**
      * @title update
      * @description
-     * @createtime 2019/2/26 下午4:11
+     * @createtime 2019/3/4 下午4:02
      * @param $id
      * @param Request $request
-     * @return mixed
+     * @return mixed|void
+     * @throws \Exception
      */
     public function update($id, Request $request)
     {
         //判断是否是修改字段
         if($request->param("__type") == "field"){
-            $field = $request->param("field");
-            if(in_array($field, ['status'])){
-                $adminSaveModel = \Yirius\Admin\model\table\AdminMenu::adminSave();
-                $isAdd = $adminSaveModel
-                    ->setAdd([
-                        $field => $request->param("value")
-                    ])
-                    ->setWhere([
-                        ['id', '=', $id]
-                    ])
-                    ->getResult();
-
-                if($isAdd === false){
-                    Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
-                }else{
-                    Admin::tools()->jsonSend([], 1, "修改规则成功");
-                }
-            }else{
-                Admin::tools()->jsonSend([], 0, "该字段不可修改");
-            }
+            $this->defaultUpdate($id, $request->param("field"), $request->param("value"));
         }else{
             //执行整体更改
             $this->save($request, [
@@ -151,24 +134,37 @@ class AdminMenu extends AdminRestful
     /**
      * @title delete
      * @description
-     * @createtime 2019/2/26 下午4:11
+     * @createtime 2019/3/4 下午4:03
      * @param $id
-     * @return mixed
+     * @return mixed|void
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
      */
     public function delete($id)
     {
-        // TODO: Implement delete() method.
+        $this->checkLoginPwd();
+
+        $this->defaultDelete($id, [1,2,3,4,5]);
     }
 
     /**
      * @title deleteall
      * @description
-     * @createtime 2019/2/27 上午1:47
+     * @createtime 2019/3/4 下午4:03
      * @param Request $request
-     * @return mixed
+     * @return mixed|void
+     * @throws \think\Exception
+     * @throws \think\exception\PDOException
      */
     public function deleteall(Request $request)
     {
-        // TODO: Implement deleteall() method.
+        $this->checkLoginPwd();
+
+        $data = $request->param("data");
+        $deleteIds = [];
+        foreach($data as $i => $v){
+            $deleteIds[] = $v['id'];
+        }
+        $this->defaultDelete($deleteIds, [1,2,3,4,5]);
     }
 }

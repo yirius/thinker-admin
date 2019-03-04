@@ -165,7 +165,11 @@ HTML;
             return "selected='selected'";
         }else{
             if(!is_array($this->value)){
-                $this->value = explode(",", $this->value);
+                if($this->value == "" || $this->value == null){
+                    $this->value = [];
+                }else{
+                    $this->value = explode(",", $this->value);
+                }
             }
             //check value
             if(in_array($option['value'], $this->value)){
