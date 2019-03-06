@@ -143,7 +143,7 @@ if(checkStatus.data.length == 0){
 layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
     layer.close(index);
     layer.confirm('确定删除吗？', function(index) {
-        layui.http.delete('{$url}', $.extend({password: value, data: checkStatus.data}, {$sendData}), function(res){
+        layui.http.delete('{$url}', $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(res){
             if(layui.table){
                 for(var i in layui.table.cache){
                     layui.table.reload(i);
@@ -168,7 +168,7 @@ HTML
      * @param string $requestMethod
      * @return Toolbar
      */
-    public function xlsx($url, $parseData = '', $afterReload = '', $sendData = [], $requestMethod = 'post')
+    public function xlsx($url, $parseData = '', $afterReload = '', $afterRequest = '', $errorRequest = '', $sendData = [], $requestMethod = 'post')
     {
         Admin::script("excel", 2);
 
@@ -189,6 +189,8 @@ HTML
 
         $sendData = json_encode($sendData);
 
+        if(empty($afterRequest)) $afterRequest = "layui.layer.alert(res.msg)";
+
         $this->event("submitexcel", <<<HTML
 var resultData = layui.table.cache['{$this->table->getName()}'];
 if(resultData.length == 0){
@@ -196,8 +198,10 @@ if(resultData.length == 0){
     return;
 }
 layer.confirm('是否确定导入'+ resultData.length +'条数据？', function(index) {
-    layui.http.{$requestMethod}('{$url}', $.extend({data: resultData}, {$sendData}), function(res){
-        layui.layer.alert(res.msg);
+    layui.http.{$requestMethod}('{$url}', $.extend({data: JSON.stringify(resultData)}, {$sendData}), function(res){
+        {$afterRequest}
+    }, function(res){
+        {$errorRequest}
     });
 });
 HTML

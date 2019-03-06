@@ -13,5 +13,5 @@ use Yirius\Admin\model\AdminModel;
 
 class AdminMenu extends AdminModel
 {
-    protected $table = "ices_admin_menu";
+    protected $table = "thinker_admin_menu";
 }

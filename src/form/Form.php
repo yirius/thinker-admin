@@ -19,6 +19,7 @@ use Yirius\Admin\layout\PageView;
  * @method Assembly\Button button($name, $label)
  * @method Assembly\Checkbox checkbox($name, $label)
  * @method Assembly\Date date($name, $label)
+ * @method Assembly\Hidden hidden($name, $label)
  * @method Assembly\Password password($name, $label)
  * @method Assembly\Radio radio($name, $label)
  * @method Assembly\Select select($name, $label)
@@ -91,6 +92,7 @@ class Form extends Layout
             'button' => Assembly\Button::class,
             'checkbox' => Assembly\Checkbox::class,
             'date' => Assembly\Date::class,
+            'hidden' => Assembly\Hidden::class,
             'password' => Assembly\Password::class,
             'radio' => Assembly\Radio::class,
             'select' => Assembly\Select::class,

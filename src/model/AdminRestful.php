@@ -138,14 +138,14 @@ abstract class AdminRestful extends AdminController
      * @param $value
      * @throws \Exception
      */
-    protected function defaultUpdate($id, $field, $value)
+    protected function defaultUpdate($id, $field, $value, \Closure $afterSave = null)
     {
         if(in_array($field, $this->tableCanEditField)){
             $this->defaultSave([
                 $field => $value
             ], null, [
                 ['id', '=', $id]
-            ]);
+            ], $afterSave);
         }else{
             Admin::tools()->jsonSend([], 0, "该字段不可修改");
         }

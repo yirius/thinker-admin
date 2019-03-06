@@ -16,6 +16,7 @@ use Yirius\Admin\Layout;
  * @method Assembly\Button button($name, $label)
  * @method Assembly\Checkbox checkbox($name, $label)
  * @method Assembly\Date date($name, $label)
+ * @method Assembly\Hidden hidden($name, $label)
  * @method Assembly\Password password($name, $label)
  * @method Assembly\Radio radio($name, $label)
  * @method Assembly\Select select($name, $label)

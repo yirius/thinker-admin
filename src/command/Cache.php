@@ -22,6 +22,7 @@ class Cache extends Command
             ->setName('admin:cache')
             ->addArgument('tag', Argument::OPTIONAL, "cache operate tag, 'thinker_admin_auth' just need auth")
             ->addArgument('type', Argument::OPTIONAL, "cache operate type")
+            ->addArgument('isthinker', Argument::OPTIONAL, "cache is thinker", true)
             ->setDescription('this command use for model operate, args with [tag] [type]');
     }
 
@@ -31,23 +32,26 @@ class Cache extends Command
 
         $type = trim($input->getArgument('type'));
 
+        $isthinker = trim($input->getArgument('isthinker'));
+
         $output->comment("admin:cache operate [thinker_admin_". $tag ."] -> [". $type ."]");
 
         if($type == "clear"){
-            $this->clear($tag, $output);
+            $this->clear($tag, $isthinker, $output);
         }
     }
 
     /**
      * @title clear
      * @description
-     * @createtime 2019/2/26 下午12:32
+     * @createtime 2019/3/5 下午4:09
      * @param $tag
+     * @param $isthinker
      * @param Output $output
      */
-    protected function clear($tag, Output $output)
+    protected function clear($tag, $isthinker, Output $output)
     {
-        $flag = \think\facade\Cache::clear("thinker_admin_" . $tag);
+        $flag = \think\facade\Cache::clear(($isthinker ? "thinker_admin_" : '') . $tag);
 
         if($flag){
             $output->info("tag: thinker_admin_" . $tag . " clear success");

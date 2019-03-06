@@ -13,5 +13,5 @@ use Yirius\Admin\model\AdminModel;
 
 class AdminRole extends AdminModel
 {
-    protected $table = "ices_admin_group";
+    protected $table = "thinker_admin_group";
 }

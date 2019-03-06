@@ -230,7 +230,7 @@ class Lists extends AdminModelBase
             $queryObject = $queryObject->with($this->paramWith);
         }
 
-        if(!empty($this->paramWith)){
+        if(!empty($this->paramJoin)){
             $queryObject = $queryObject->alias("a")->join($this->paramJoin);
         }
 

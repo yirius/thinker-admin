@@ -170,7 +170,7 @@ class AdminRule extends AdminRestful
     {
         $this->checkLoginPwd();
 
-        $data = $request->param("data");
+        $data = json_decode($request->param("data"), true);
         $deleteIds = [];
         foreach($data as $i => $v){
             $deleteIds[] = $v['id'];
