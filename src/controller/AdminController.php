@@ -137,17 +137,6 @@ HTML
     }
 
     /**
-     * @title getCurrentName
-     * @description
-     * @createtime 2019/3/3 下午8:56
-     * @return mixed
-     */
-    protected function getCurrentName()
-    {
-        return str_replace(["\\", "//", "::"], "_", __METHOD__);
-    }
-
-    /**
      * @title checkLoginPwd
      * @description
      * @createtime 2019/3/4 上午1:22
@@ -178,5 +167,21 @@ HTML
         if($resultData === false){
             \Yirius\Admin\Admin::tools()->jsonSend([], 0, lang("incorrect username or password"));
         }
+    }
+
+    /**
+     * @title checkAuth
+     * @description
+     * @createtime 2019/3/7 下午9:26
+     * @param $rule
+     * @param int $type
+     * @return bool
+     * @throws \Exception
+     */
+    protected function checkAuth($rule, $type = 1)
+    {
+        return \Yirius\Admin\Admin::auth()
+            ->setAccessType($this->getToken("access_type"))
+            ->check($rule, $this->getToken("id"), $type);
     }
 }

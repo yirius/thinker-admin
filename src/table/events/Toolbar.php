@@ -79,34 +79,19 @@ HTML;
 
         $data = json_encode($data);
 
-        if(config('thinkeradmin.isIframe')){
-            return $this->event("add", <<<HTML
-layui.view.dialog({
-    type: 2,
-    title: '{$title}',
-    area: {$area},
-    id: '{$id}',
-    style: "height=''",
-    content: layui.tools.getCorrectUrl('{$view}', obj.data),
-    data: layui.http._beforeAjax({})
-});
-HTML
-            );
-        }else{
-            return $this->event("add", <<<HTML
+        return $this->event("add", <<<HTML
 layui.view.dialog({
     title: '{$title}',
     area: {$area},
     id: '{$id}',
     success: function(layero, index){
-        layui.view.init("#" + this.id).render(
+        parent.layui.view.init("#" + this.id).render(
             layui.tools.getCorrectUrl('{$view}', obj.data), {$data}
         ).done(function(){});
     }
 });
 HTML
-            );
-        }
+        );
     }
 
     /**
@@ -137,18 +122,15 @@ HTML
         return $this->event("delete", <<<HTML
 var checkStatus = layui.table.checkStatus(obj.config.id);
 if(checkStatus.data.length == 0){
-    layui.layer.alert("您尚未选择任何条目");
+    layui.tools.alert("您尚未选择任何条目");
     return;
 }
-layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
-    layer.close(index);
-    layer.confirm('确定删除吗？', function(index) {
+parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+    parent.layer.close(index);
+    parent.layer.confirm('确定删除吗？', function(index) {
+        parent.layer.close(index);
         layui.http.delete('{$url}', $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(res){
-            if(layui.table){
-                for(var i in layui.table.cache){
-                    layui.table.reload(i);
-                }
-            }
+            layui.tools.reloadTable();
             {$afterDelete}
         });
     });
@@ -189,7 +171,7 @@ HTML
 
         $sendData = json_encode($sendData);
 
-        if(empty($afterRequest)) $afterRequest = "layui.layer.alert(res.msg)";
+        if(empty($afterRequest)) $afterRequest = 'layui.tools.reloadTable();layer.closeAll();layer.msg(res.msg);';
 
         $this->event("submitexcel", <<<HTML
 var resultData = layui.table.cache['{$this->table->getName()}'];
@@ -198,6 +180,7 @@ if(resultData.length == 0){
     return;
 }
 layer.confirm('是否确定导入'+ resultData.length +'条数据？', function(index) {
+    parent.layer.close(index);
     layui.http.{$requestMethod}('{$url}', $.extend({data: JSON.stringify(resultData)}, {$sendData}), function(res){
         {$afterRequest}
     }, function(res){

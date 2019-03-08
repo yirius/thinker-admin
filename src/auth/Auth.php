@@ -170,7 +170,11 @@ class Auth
             //查询到所有规则可用的
             $rules = db($this->config['auth_rule'])
                 ->field('condition,name')
-                ->cache("thinker_admin_authrulesall_" . $this->accessType . "_" . $userid . "_" . $type)
+                ->cache(
+                    "thinker_admin_authrulesall_" . $this->accessType . "_" . $userid . "_" . $type,
+                    null,
+                    'thinker_admin_auth'
+                )
                 ->where('id', 'in', $ruleids)
                 ->where('status', '=', 1)
                 ->where('type', '=', $type)

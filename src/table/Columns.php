@@ -158,20 +158,24 @@ HTML;
     }
 
     /**
-     * @title toolbarBtn
+     * @title button
      * @description
-     * @createtime 2019/2/26 下午5:37
+     * @createtime 2019/3/7 下午9:20
      * @param $text
      * @param $event
      * @param $icon
      * @param $class
+     * @param bool $isHref
+     * @param string $attrs
      * @return Columns
      */
-    public function button($text, $event, $icon, $class)
+    public function button($text, $event, $icon, $class, $isHref = false, $attrs = '')
     {
         $this->setWidth(150);
 
-        return $this->tool('<a class="layui-btn layui-btn-xs '. $class .'" lay-event="'. $event .'"><i class="layui-icon layui-icon-'. $icon .'"></i>'. $text .'</a>');
+        $attr = $isHref ? "thinker-href" : "lay-event";
+
+        return $this->tool('<a class="layui-btn layui-btn-xs '. $class .'" '.$attrs . ' '. $attr.'="'. $event .'"><i class="layui-icon layui-icon-'. $icon .'"></i>'. $text .'</a>');
     }
 
     /**
@@ -238,13 +242,15 @@ HTML;
 
         $config = array_merge([
             'checkedValue' => 1,
-            'unCheckedValue' => 0
+            'unCheckedValue' => 0,
+            'filter' => $field,
+            'field' => $field
         ], $config);
 
         Admin::script(<<<HTML
-layui.form.on("switch(switch{$field})", function(obj){
+layui.form.on("switch(switch{$config['filter']})", function(obj){
     var renderData = JSON.parse(obj.elem.dataset.json);
-    layui.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$field}"});
+    layui.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$config['filter']}"});
 });
 HTML
         );
@@ -252,7 +258,7 @@ HTML
         $this->setTemplet('#' . $this->table->getName() . "_" . $field . "_templet");
 
         return $this->setFullTemplet($this->table->getName() . "_" . $field . "_templet", <<<HTML
-<input type="checkbox" name="{$field}" value="{$config['checkedValue']}" data-json="{{=JSON.stringify(d) }}" lay-skin="switch" lay-text="开|关" lay-filter="switch{$field}" {{ d.{$field} == {$config['checkedValue']} ? 'checked' : '' }}>
+<input type="checkbox" name="{$config['filter']}" value="{$config['checkedValue']}" data-json="{{=JSON.stringify(d) }}" lay-skin="switch" lay-text="开|关" lay-filter="switch{$config['filter']}" {{ d.{$config['field']} == {$config['checkedValue']} ? 'checked' : '' }}>
 HTML
         );
     }

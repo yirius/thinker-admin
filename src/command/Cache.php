@@ -34,7 +34,7 @@ class Cache extends Command
 
         $isthinker = trim($input->getArgument('isthinker'));
 
-        $output->comment("admin:cache operate [thinker_admin_". $tag ."] -> [". $type ."]");
+        $output->comment("admin:cache operate [". ($isthinker ? "thinker_admin_" : '') . $tag ."] -> [". $type ."]");
 
         if($type == "clear"){
             $this->clear($tag, $isthinker, $output);
@@ -54,9 +54,9 @@ class Cache extends Command
         $flag = \think\facade\Cache::clear(($isthinker ? "thinker_admin_" : '') . $tag);
 
         if($flag){
-            $output->info("tag: thinker_admin_" . $tag . " clear success");
+            $output->info("tag: " . ($isthinker ? "thinker_admin_" : '') . $tag . " clear success");
         }else{
-            $output->error("tag: thinker_admin_" . $tag . " clear error");
+            $output->error("tag: " . ($isthinker ? "thinker_admin_" : '') . $tag . " clear error");
         }
     }
 }

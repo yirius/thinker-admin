@@ -78,33 +78,19 @@ HTML;
 
         $data = json_encode($data);
 
-        if(config('thinkeradmin.isIframe')){
-            return $this->event("edit", <<<HTML
-layui.view.dialog({
-    type: 2,
-    title: '{$title}',
-    area: {$area},
-    id: '{$id}',
-    content: layui.tools.getCorrectUrl('{$view}', obj.data),
-    data: layui.http._beforeAjax({})
-});
-HTML
-        );
-        }else{
-            return $this->event("edit", <<<HTML
+        return $this->event("edit", <<<HTML
 layui.view.dialog({
     title: '{$title}',
     area: {$area},
     id: '{$id}',
     success: function(layero, index){
-        layui.view.init("#" + this.id).render(
+        parent.layui.view.init("#" + this.id).render(
             layui.tools.getCorrectUrl('{$view}', obj.data), {$data}
         ).done(function(){});
     }
 });
 HTML
-            );
-        }
+        );
     }
 
     /**
@@ -133,16 +119,13 @@ HTML
         $sendData = json_encode($sendData);
 
         return $this->event("delete", <<<HTML
-layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
-    layer.close(index);
-    layer.confirm('确定删除吗？', function(index) {
+parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+    parent.layer.close(index);
+    parent.layer.confirm('确定删除吗？', function(index) {
+        parent.layer.close(index);
         var url = layui.laytpl('{$url}').render(obj.data);
         layui.http.delete(url, $.extend({password: value}, {$sendData}), function(res){
-            if(layui.table){
-                for(var i in layui.table.cache){
-                    layui.table.reload(i);
-                }
-            }
+            layui.tools.reloadTable();
             {$afterDelete}
         });
     });

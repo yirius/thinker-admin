@@ -9,7 +9,9 @@
 namespace Yirius\Admin\model\restful;
 
 
+use think\facade\Cache;
 use think\Request;
+use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
 
 class AdminRole extends AdminRestful
@@ -77,7 +79,10 @@ class AdminRole extends AdminRestful
      */
     public function read($id)
     {
-        // TODO: Implement read() method.
+        $this->checkLoginPwd();
+        
+        Cache::clear();
+        Admin::tools()->jsonSend();
     }
 
     /**

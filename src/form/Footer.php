@@ -50,7 +50,7 @@ class Footer extends Layout
      */
     public function submit($url, $id = 0, $successCall = null, $beforeSubmit = null)
     {
-        $doneCall = is_null($successCall) ? 'layer.closeAll();layer.msg(res.msg);' : $successCall;
+        $doneCall = is_null($successCall) ? 'layui.tools.reloadTable();layer.closeAll();layer.msg(res.msg);' : $successCall;
 
         $beforeEvent = is_null($beforeSubmit) ? '' : htmlspecialchars($beforeSubmit);
 
@@ -74,11 +74,6 @@ layui.form.on("submit({$this->form->getName()}-submit)", function (obj) {
         url: "{$url}",
         data: layui.http._beforeAjax(obj.field),
         success: function (res) {
-            if(layui.table){
-                for(var i in layui.table.cache){
-                    layui.table.reload(i);
-                }
-            }
             {$doneCall}
         }
     });

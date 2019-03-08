@@ -124,7 +124,7 @@ abstract class AdminRestful extends AdminController
                 Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
             }else{
                 if($afterSave instanceof \Closure) call($afterSave, [$isAdd]);
-                Admin::tools()->jsonSend([], 1, (empty($where) ? $this->tableSaveMsg : $this->tableEditMsg));
+                Admin::tools()->jsonSend($isAdd->toArray(), 1, (empty($where) ? $this->tableSaveMsg : $this->tableEditMsg));
             }
         }
     }

@@ -117,9 +117,10 @@ class SelectPlus extends Select
     public function linkage($data, $width = 130)
     {
         if(is_array($data)){
+            $data = json_encode($data);
             Admin::script(<<<HTML
 layui.formSelects.data("{$this->getId()}", 'local', {
-    arr: json_encode($data),
+    arr: $data,
     linkage: true,
     linkageWidth: {$width}
 });
@@ -137,6 +138,23 @@ HTML
         }
 
         return $this;
+    }
+
+    /**
+     * @title setJsValue
+     * @description
+     * @createtime 2019/3/6 下午2:26
+     * @param array $value
+     */
+    public function setJsValue(array $value)
+    {
+        if(!empty($value)){
+            $value = json_encode($value);
+            Admin::script(<<<HTML
+layui.formSelects.value("{$this->getId()}", {$value});
+HTML
+        );
+        }
     }
 
     /**

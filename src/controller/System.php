@@ -148,7 +148,22 @@ class System extends AdminController
 
             $table->tool()->edit()->delete();
 
-            $table->toolbar()->add()->delete()->event()->add()->delete();
+            $table->toolbar()->add()->delete()
+                ->button("清除缓存", "clearcache", "app", "layui-btn-normal")
+                ->event()->add()->delete()
+                ->event("clearcache", <<<HTML
+layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+    layer.close(index);
+    layer.confirm('确定删除吗？', function(index) {
+        layer.close(index);
+        layui.http.request({
+            url: "/restful/adminrole/1", 
+            data: layui.http._beforeAjax({password: value})
+        });
+    });
+});
+HTML
+                );
 
         })->show();
     }

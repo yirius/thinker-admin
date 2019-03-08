@@ -48,6 +48,11 @@ class Lists extends AdminModelBase
      */
     private $paramField = "*";
 
+    /**
+     * @var string
+     */
+    private $paramAlias = "";
+
     protected function afterSetModel()
     {
         //inject order info
@@ -98,8 +103,14 @@ class Lists extends AdminModelBase
             //judge 'id desc'
             if (strpos($order, " ")) {
                 $orderExploded = explode(" ", $order);
-                if (!in_array($orderExploded[0], $this->modelFields)) {
-                    throw new \Exception("order field like 'id' not exsit in this table");
+                if(strpos($orderExploded[0], ".") === false){
+                    if (!in_array($orderExploded[0], $this->modelFields)) {
+                        throw new \Exception("order field like 'id' not exsit in this table");
+                    }
+                }else{
+                    if (!in_array(explode(".", $orderExploded[0])[1], $this->modelFields)) {
+                        throw new \Exception("order field like 'id' not exsit in this table");
+                    }
                 }
                 if (!in_array($orderExploded[1], ['asc', 'desc'])) {
                     throw new \Exception("order's order is not asc/desc");
@@ -208,6 +219,19 @@ class Lists extends AdminModelBase
     }
 
     /**
+     * @title setField
+     * @description
+     * @createtime 2019/2/28 上午11:49
+     * @param $field
+     * @return $this
+     */
+    public function setAlias($field)
+    {
+        $this->paramAlias = $field;
+        return $this;
+    }
+
+    /**
      * @title getResult
      * @description
      * @createtime 2019/2/20 下午7:30
@@ -226,12 +250,16 @@ class Lists extends AdminModelBase
             ->page($this->paramPage, $this->paramLimit)
             ->order($this->paramOrder);
 
+        if(!empty($this->paramAlias)){
+            $queryObject = $queryObject->alias($this->paramAlias);
+        }
+
         if(!empty($this->paramWith)){
             $queryObject = $queryObject->with($this->paramWith);
         }
 
         if(!empty($this->paramJoin)){
-            $queryObject = $queryObject->alias("a")->join($this->paramJoin);
+            $queryObject = $queryObject->join($this->paramJoin);
         }
 
         //before fetch array, make call
@@ -239,18 +267,24 @@ class Lists extends AdminModelBase
             $queryObject = $beforeFetch($queryObject);
         }
 
-        $count = $queryObject->count();
+        //some error with this Object, so colne one for use
+        $count = (clone $queryObject)->count();
 
         $selected = $queryObject->select();
 
-        //each collections
-        if (!is_null($eachFuncs)) {
-            $selected->each($eachFuncs);
-        }
+        //if fetchSql
+        if(is_string($selected)){
+            return $selected;
+        }else{
+            //each collections
+            if (!is_null($eachFuncs)) {
+                $selected->each($eachFuncs);
+            }
 
-        return [
-            'count' => $count,
-            'result' => $selected->toArray()
-        ];
+            return [
+                'count' => $count,
+                'result' => $selected->toArray()
+            ];
+        }
     }
 }

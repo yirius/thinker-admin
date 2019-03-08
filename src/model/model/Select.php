@@ -105,7 +105,7 @@ class Select extends AdminModelBase
      */
     public function getResult()
     {
-        if(empty($where)){
+        if(empty($this->where)){
             return $this->model
                 ->field($this->textName . " as text," . $this->valueName . " as value")
                 ->select()
