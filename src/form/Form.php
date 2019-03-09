@@ -11,19 +11,21 @@ namespace Yirius\Admin\form;
 
 use Yirius\Admin\Admin;
 use Yirius\Admin\Layout;
-use Yirius\Admin\layout\Breadcrumb;
 use Yirius\Admin\layout\PageView;
 
 /**
  * Class Form
  * @method Assembly\Button button($name, $label)
  * @method Assembly\Checkbox checkbox($name, $label)
+ * @method Assembly\ColorPicker colorpicker($name, $label)
  * @method Assembly\Date date($name, $label)
  * @method Assembly\Hidden hidden($name, $label)
+ * @method Assembly\Html html($name, $label)
  * @method Assembly\Password password($name, $label)
  * @method Assembly\Radio radio($name, $label)
  * @method Assembly\Select select($name, $label)
  * @method Assembly\SelectPlus selectplus($name, $label)
+ * @method Assembly\Slider slider($name, $label)
  * @method Assembly\Switchs switchs($name, $label)
  * @method Assembly\Text text($name, $label)
  * @method Assembly\Textarea textarea($name, $label)
@@ -91,12 +93,15 @@ class Form extends Layout
         $this->setExtends([
             'button' => Assembly\Button::class,
             'checkbox' => Assembly\Checkbox::class,
+            'colorpicker' => Assembly\ColorPicker::class,
             'date' => Assembly\Date::class,
             'hidden' => Assembly\Hidden::class,
+            'html' => Assembly\Html::class,
             'password' => Assembly\Password::class,
             'radio' => Assembly\Radio::class,
             'select' => Assembly\Select::class,
             'selectplus' => Assembly\SelectPlus::class,
+            'slider' => Assembly\Slider::class,
             'switchs' => Assembly\Switchs::class,
             'text' => Assembly\Text::class,
             'textarea' => Assembly\Textarea::class,
