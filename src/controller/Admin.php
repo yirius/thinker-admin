@@ -165,7 +165,7 @@ class Admin
     </div>
 </script>
 HTML
-            , 'html');
+            , 200, [], 'html');
     }
 
     /**

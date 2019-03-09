@@ -13,7 +13,7 @@ use Yirius\Admin\model\AdminModel;
 
 class AdminRoleAccess extends AdminModel
 {
-    protected $table = "thinker_admin_group_access";
+    protected $table = "ices_admin_group_access";
 
     /**
      * @title checkOrUpdateAccess

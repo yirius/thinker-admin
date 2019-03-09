@@ -13,5 +13,5 @@ use Yirius\Admin\model\AdminModel;
 
 class AdminRule extends AdminModel
 {
-    protected $table = "thinker_admin_rule";
+    protected $table = "ices_admin_rule";
 }
