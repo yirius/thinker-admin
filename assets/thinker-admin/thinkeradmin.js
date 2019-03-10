@@ -1,6 +1,5 @@
-/** thinker-admin-v1.0.0 MIT License By http://www.thinkphp-admin.com/ */
- ;/**
- * 对参数进行定义，未来放到后端进行和配置
+/**
+ * 对参数进行定义
  */
 layui.define(['jquery', 'layer', 'laytpl'], function(exports){
 
@@ -69,7 +68,7 @@ layui.define(['jquery', 'layer', 'laytpl'], function(exports){
                 error: "../error"
             },
             //样式界面
-            theme: "/thinkeradmin/theme",
+            theme: "../../thinkeradmin/theme",
             //登录界面
             login: "../login",
         },
@@ -131,6 +130,7 @@ layui.define(['jquery', 'layer', 'laytpl'], function(exports){
         theme: {
             //内置主题配色方案
             color: [
+                {"main": "#FFFFFF", "selected": "#62a8ea", "logo": "#FFFFFF", "header": "#FFFFFF", "alias": "white"},
                 {"main": "#FFFFFF", "selected": "#62a8ea", "logo": "#62a8ea", "header": "#62a8ea", "alias": "primary"},
                 {"main": "#20222A", "selected": "#8d6658", "logo": "#8d6658", "header": "#8d6658", "alias": "brown"},
                 {"main": "#20222A", "selected": "#57c7d4", "logo": "#57c7d4", "header": "#57c7d4", "alias": "cyan"},

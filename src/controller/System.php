@@ -11,6 +11,7 @@ namespace Yirius\Admin\controller;
 
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
+use Yirius\Admin\layout\PageView;
 use Yirius\Admin\model\table\AdminMember;
 use Yirius\Admin\model\table\AdminMenu;
 use Yirius\Admin\model\table\AdminRole;
@@ -58,7 +59,13 @@ class System extends AdminController
 
             $table->toolbar()->add()->delete()->event()->add()->delete();
 
-        })->show();
+        })->show(function(PageView $pageView, $render, $header){
+            $pageView->breadcrumb([
+                ['text' => "Admin管理"],
+                ['text' => "Members管理"],
+            ]);
+            $pageView->card($render, $header);
+        });
     }
 
     /**
@@ -165,7 +172,13 @@ layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(val
 HTML
                 );
 
-        })->show();
+        })->show(function(PageView $pageView, $render, $header){
+            $pageView->breadcrumb([
+                ['text' => "Admin管理"],
+                ['text' => "Roles管理"],
+            ]);
+            $pageView->card($render, $header);
+        });
     }
 
     /**
@@ -245,7 +258,13 @@ HTML
 
             $table->setLimit(100000)->setLimits([100000]);
 
-        })->show();
+        })->show(function(PageView $pageView, $render, $header){
+            $pageView->breadcrumb([
+                ['text' => "Admin管理"],
+                ['text' => "Rules管理"],
+            ]);
+            $pageView->card($render, $header);
+        });
     }
 
     /**
@@ -317,7 +336,13 @@ HTML
                 ->event()->add()->delete();
 
             $table->setLimit(100000)->setLimits([100000]);
-        })->show();
+        })->show(function(PageView $pageView, $render, $header){
+            $pageView->breadcrumb([
+                ['text' => "Admin管理"],
+                ['text' => "Menus管理"],
+            ]);
+            $pageView->card($render, $header);
+        });
     }
 
     /**

@@ -58,6 +58,7 @@
 
                 <div class="layui-logo" thinker-href="">
                     <span>{{ layui.thinkeradmin.name || 'ThinkerAdmin' }}</span>
+                    <!--<img src="./thinker-admin/style/images/logo_big.png" />-->
                 </div>
 
                 <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="thinkeradmin-side-menu" lay-filter="thinkeradmin-side-menu">
@@ -164,7 +165,7 @@
 
 
     <!-- 主体内容 -->
-    <div class="layui-body" id="thinkerAdmin_app_body" style="top: 90px;">
+    <div class="layui-body thinkeradmin-iframe-body" id="thinkerAdmin_app_body">
         <script type="text/html" template>
             <div class="thinkeradmin-tabsbody-item layui-show">
                 <iframe src="{{ layui.thinkeradmin.view.home }}" frameborder="0" class="thinkeradmin-iframe"></iframe>
