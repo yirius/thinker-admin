@@ -42,6 +42,7 @@ class Switchs extends Assembly
     {
         Admin::script(<<<HTML
 layui.form.on("switch({$this->getId()})", function(obj){
+$("#{$this->getId()}").val(obj.elem.checked ? 1 : 0);
 {$callback}
 });
 HTML
@@ -59,11 +60,24 @@ HTML
     {
         $checked = empty($this->value) ? '' : "checked='checked'";
 
+        $value = empty($this->value) ? 0 : 1;
+
         return <<<HTML
 <label class="layui-form-label">{$this->getLabel()}</label>
 <div class="{$this->getClass()}">
-    <input type="checkbox" name="{$this->getName()}" id="{$this->getId()}" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->text}" value="1" {$checked} {$this->getAttributes()}>
+    <input type="checkbox" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->text}" value="1" {$checked} {$this->getAttributes()}>
+    <input type="hidden" name="{$this->getName()}" value="{$value}" id="{$this->getId()}" />
 </div>
 HTML;
+    }
+
+    /**
+     * @title afterSetForm
+     * @description
+     * @createtime 2019/3/10 下午4:31
+     */
+    protected function afterSetForm()
+    {
+        $this->on("");
     }
 }

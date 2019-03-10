@@ -68,7 +68,7 @@ HTML
         $attrs = $this->getAttributes();
 
         foreach ($this->optionsArray as $i => $v) {
-            $result[] = '<input type="' . $this->inputType . '" value="' . $v['value'] . '" title="' . $v['text'] . '" name="' . $this->getName() . '" id="' . $this->getId() . $i . '" lay-filter="' . $this->getId() . $i . '" ' . $attrs . $this->checkValue($v) . (!empty($v['disabled']) ? ' disabled ' : '') . ' />';
+            $result[] = '<input type="' . $this->inputType . '" value="' . $v['value'] . '" title="' . $v['text'] . '" name="' . $this->getName() . '" id="' . $this->getId() . $i . '" lay-filter="' . $this->getId() . '" ' . $attrs . $this->checkValue($v) . (!empty($v['disabled']) ? ' disabled ' : '') . ' />';
         }
 
         return join("", $result);

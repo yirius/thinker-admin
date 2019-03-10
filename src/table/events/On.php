@@ -112,7 +112,14 @@ HTML
      */
     public function edit($url = null, $callback = null)
     {
-        if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
+        if(is_null($url)){
+            if(strpos($this->table->getRestfulUrl(), "?") != false){
+                $restfulUrl = explode("?", $this->table->getRestfulUrl());
+                $url = $restfulUrl[0] . "/{{d.id}}?__type=field&" . $restfulUrl[1];
+            }else{
+                $url = $this->table->getRestfulUrl() . "/{{d.id}}";
+            }
+        }
 
         if(is_null($callback)) $callback = <<<HTML
 layui.http.put(layui.laytpl("{$url}").render(obj.data), {value: obj.value, field: obj.field});

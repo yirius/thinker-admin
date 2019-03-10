@@ -130,15 +130,12 @@ class Columns extends Layout
 HTML;
         }
 
-        if(empty($this->tool)){
-            $toolString = '';
-        }else{
-            $toolString = <<<HTML
+
+        $toolString = empty($this->tool) ? '' : <<<HTML
 <script type="text/html" id="{$this->getToolbar()}">
 {$this->tool}
 </script>
 HTML;
-        }
 
         return $fullTempletString . $toolString;
     }

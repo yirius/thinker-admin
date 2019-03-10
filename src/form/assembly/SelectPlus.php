@@ -153,7 +153,7 @@ HTML
             Admin::script(<<<HTML
 layui.formSelects.value("{$this->getId()}", {$value});
 HTML
-        );
+            );
         }
     }
 

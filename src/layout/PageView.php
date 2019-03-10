@@ -149,7 +149,12 @@ class PageView extends Layout
     public function render()
     {
         if (input('param.__iframe')) {
-            return $this->iFrameRender();
+            return view(env("root_path") . DS . "public" . DS . "thinker-admin" . DS . "iframe" . DS . "index.html", array_merge($this->formatScript(true), [
+                'title' => $this->title,
+                'styles' => $this->formatStyle(),
+                'breadcrumb' => $this->getBreadcrumb(),
+                'layouts' => $this->formatLayouts()
+            ]))->send();
         } else {
             return response(<<<HTML
 <title>{$this->title}</title>
@@ -162,57 +167,6 @@ class PageView extends Layout
 HTML
             );
         }
-    }
-
-    /**
-     * @title iFrameRender
-     * @description
-     * @createtime 2019/3/7 下午8:46
-     * @return \think\Response
-     */
-    protected function iFrameRender()
-    {
-        $scripts = $this->formatScript(true);
-        return response(<<<HTML
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>{$this->title}</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <link rel="stylesheet" href="/layui/css/layui.css" media="all">
-    <link rel="stylesheet" href="/thinker-admin/lib/css/fancybox.css" media="all">
-    <link rel="stylesheet" href="/thinker-admin/style/admin.css" media="all">
-    <style>.layui-layer-content{height: calc(100% - 80px);}html,body{overflow-y: scroll !important;width: 100%;height: 100%;}</style>
-    {$this->formatStyle()}
-</head>
-<body>
-{$this->getBreadcrumb()}
-<div class="layui-fluid">
-    {$this->formatLayouts()}
-</div>
-<script src="/layui/layui.js"></script>
-<script src="/thinker-admin/lib/extend/fancybox.js"></script>
-{$scripts['files']}
-<script>
-    layui.layer = window.layer = parent.layui.layer;
-    layui.config({
-        version: (new Date()).getTime()
-    }).extend({
-        thinkeradmin: "/thinker-admin/thinkeradmin",
-        ices: "../ices.min"
-    }).use(["thinkeradmin", "ices", "index"], function(){
-        {$scripts['css']}
-        {$scripts['use']}
-    });
-</script>
-</body>
-</html>
-HTML
-        );
     }
 
     /**

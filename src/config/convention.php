@@ -3,9 +3,6 @@
  * 惯例配置
  */
 return [
-    //是否开启多页版本
-    'isIframe' => false,
-
     //Auth相关配置
     'auth' => [
         'auth_group' => 'ices_admin_group', // 用户组数据表名

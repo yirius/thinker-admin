@@ -81,7 +81,7 @@ class AdminRole extends AdminRestful
     {
         $this->checkLoginPwd();
         
-        Cache::clear();
+        Cache::clear("thinker_admin_auth");
         Admin::tools()->jsonSend();
     }
 

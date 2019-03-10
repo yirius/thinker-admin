@@ -43,6 +43,7 @@ class Toolbar extends Layout
             call($callback, [$this]);
         }
     }
+
     /**
      * @title tool
      * @description
@@ -60,16 +61,20 @@ class Toolbar extends Layout
     /**
      * @title button
      * @description
-     * @createtime 2019/2/27 上午1:11
+     * @createtime 2019/3/10 下午4:49
      * @param $text
      * @param $event
      * @param $icon
      * @param $class
+     * @param bool $isHref
+     * @param string $attrs
      * @return Toolbar
      */
-    public function button($text, $event, $icon, $class)
+    public function button($text, $event, $icon, $class, $isHref = false, $attrs = '')
     {
-        return $this->toolbar('<a class="layui-btn layui-btn-sm '. $class .'" lay-event="'. $event .'"><i class="layui-icon layui-icon-'. $icon .'"></i>'. $text .'</a>');
+        $attr = $isHref ? "thinker-href" : "lay-event";
+
+        return $this->toolbar('<a class="layui-btn layui-btn-sm '. $class .'" '.$attrs . ' '. $attr.'="'. $event .'"><i class="layui-icon layui-icon-'. $icon .'"></i>'. $text .'</a>');
     }
 
     /**

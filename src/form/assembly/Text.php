@@ -41,7 +41,7 @@ class Text extends Assembly
     public function on($event, $callback)
     {
         Admin::script(<<<HTML
-$(document).on('{$event}', '#{$this->getId()}', function() {
+$(document).off('{$event}', '#{$this->getId()}').on('{$event}', '#{$this->getId()}', function() {
     {$callback}
 });
 HTML

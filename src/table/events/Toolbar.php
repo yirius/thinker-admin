@@ -99,22 +99,17 @@ HTML
      * @description
      * @createtime 2019/2/27 上午1:20
      * @param $url
-     * @param null $tableName
      * @param array $sendData
      * @param null $afterDelete
      * @return Toolbar
      */
-    public function delete($url = null, $tableName = null, array $sendData = [], $afterDelete = null)
+    public function delete($url = null, array $sendData = [], $afterDelete = null)
     {
         if(is_null($url)) $url = $this->table->getRestfulUrl();
 
         if(is_null($afterDelete))
         {
-            $afterDelete = '';
-
-            if(!is_null($tableName)) $afterDelete .= 'table.reload("'. $tableName .'")';
-
-            $afterDelete .= "layer.msg(res.msg || '已删除')";
+            $afterDelete = "layer.msg(res.msg || '已删除')";
         }
 
         $sendData = json_encode($sendData);
@@ -142,10 +137,12 @@ HTML
     /**
      * @title xlsx
      * @description
-     * @createtime 2019/3/4 下午5:33
+     * @createtime 2019/3/10 下午4:59
      * @param $url
      * @param string $parseData
      * @param string $afterReload
+     * @param string $afterRequest
+     * @param string $errorRequest
      * @param array $sendData
      * @param string $requestMethod
      * @return Toolbar
@@ -155,7 +152,8 @@ HTML
         Admin::script("excel", 2);
 
         Admin::script(<<<HTML
-$(document).on("change", "#{$this->table->getName()}_xlsximport", function(e){
+$(document).off("change", "#{$this->table->getName()}_xlsximport")
+.on("change", "#{$this->table->getName()}_xlsximport", function(e){
     layui.excel.importExcel(this.files, {}, function(data){
         {$parseData}
         layui.table.reload('{$this->table->getName()}', {

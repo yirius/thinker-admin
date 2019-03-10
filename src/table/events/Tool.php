@@ -70,7 +70,14 @@ HTML;
      */
     public function edit($view = null, $title = '编辑信息',array $area = ['80%', '80%'], $id = null, array $data = [])
     {
-        if(is_null($view)) $view = $this->table->getEditPath() . "?id={{d.id}}";
+        if(is_null($view)){
+            if(strpos($this->table->getEditPath(), "?") != false){
+                $viewUrl = explode("?", $this->table->getEditPath());
+                $view = $viewUrl[0] . "?id={{d.id}}&" . $viewUrl[1];
+            }else{
+                $view = $this->table->getEditPath() . "?id={{d.id}}";
+            }
+        }
 
         if(is_null($id)) $id = $this->table->getName() . "_dialog";
 
@@ -105,7 +112,14 @@ HTML
      */
     public function delete($url = null, $tableName = null, array $sendData = [], $afterDelete = null)
     {
-        if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}";
+        if(is_null($url)){
+            if(strpos($this->table->getRestfulUrl(), "?") != false){
+                $restfulUrl = explode("?", $this->table->getRestfulUrl());
+                $url = $restfulUrl[0] . "/{{d.id}}?" . $restfulUrl[1];
+            }else{
+                $url = $this->table->getRestfulUrl() . "/{{d.id}}";
+            }
+        }
 
         if(is_null($afterDelete))
         {

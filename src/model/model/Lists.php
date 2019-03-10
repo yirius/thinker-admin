@@ -53,6 +53,12 @@ class Lists extends AdminModelBase
      */
     private $paramAlias = "";
 
+    /**
+     * @title afterSetModel
+     * @description
+     * @createtime 2019/3/10 下午4:47
+     * @throws \Exception
+     */
     protected function afterSetModel()
     {
         //inject order info
@@ -237,7 +243,7 @@ class Lists extends AdminModelBase
      * @createtime 2019/2/20 下午7:30
      * @param callable|null $eachFuncs
      * @param \Closure|null $beforeFetch
-     * @return array
+     * @return string|array
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException

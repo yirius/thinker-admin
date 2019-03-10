@@ -173,7 +173,7 @@ class Date extends Text
      */
     public function onReady($callback)
     {
-        $this->setAttributes("data-ready", $callback);
+        $this->setAttributes("data-ready", htmlspecialchars($callback));
 
         return $this;
     }
@@ -188,7 +188,7 @@ class Date extends Text
      */
     public function onDone($callback)
     {
-        $this->setAttributes("data-done", $callback);
+        $this->setAttributes("data-done", htmlspecialchars($callback));
 
         return $this;
     }

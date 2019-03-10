@@ -55,7 +55,7 @@ class ColorPicker extends Assembly
     {
         $this->setAttributes("data-predefine", 'true');
 
-        $this->setAttributes("data-colors", str_replace('"', "'", json_encode($colors)));
+        $this->setAttributes("data-colors", htmlspecialchars(json_encode($colors)));
 
         return $this;
     }
