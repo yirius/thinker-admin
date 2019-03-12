@@ -50,9 +50,15 @@ class Form extends Layout
 
     /**
      * has been Initialized assembly
-     * @var array
+     * @var array|Assembly
      */
     protected $assemblys = [];
+
+    /**
+     * Form tab's content
+     * @var array|Tab
+     */
+    protected $tabs = [];
 
     /**
      * page footer
@@ -193,6 +199,23 @@ class Form extends Layout
     }
 
     /**
+     * @title tab
+     * @description
+     * @createtime 2019/3/12 下午11:57
+     * @param $tabName
+     * @param \Closure $tab
+     * @return \Closure|Tab
+     */
+    public function tab($tabName, \Closure $tab)
+    {
+        $tab = (new Tab($this, $tabName, $tab));
+
+        $this->tabs[] = $tab;
+
+        return $tab;
+    }
+
+    /**
      * @title footer
      * @description
      * @createtime 2019/2/25 下午11:26
@@ -225,12 +248,36 @@ class Form extends Layout
             $splicingHtml .= '<div class="layui-form-item">' . $v->render() . '</div>';
         }
 
+
         //return all string
         return <<<HTML
 <div class="layui-form" lay-filter="{$this->getName()}" id="{$this->getName()}">
+{$this->parseTabs()}
 {$splicingHtml}
 </div>
 HTML;
+    }
+
+    /**
+     * @title parseTabs
+     * @description
+     * @createtime 2019/3/12 下午11:56
+     * @return string
+     */
+    protected function parseTabs()
+    {
+        if(empty($this->tabs)){
+            return '';
+        }else{
+            //judge tabs and make string
+            $tabsHtml = ['title' => [], 'content' => []];
+            foreach($this->tabs as $i => $v){
+                $tabsHtml['title'][] = "<li class='".($i==0?'layui-this':'')."'>" . $v->getTitle() . "</li>";
+                $tabsHtml['content'][] = '<div class="layui-tab-item '.($i==0?'layui-show':'').'">' . $v->render() . '</div>';
+            }
+
+            return '<div class="layui-tab"><ul class="layui-tab-title">'.join("", $tabsHtml['title']).'</ul><div class="layui-tab-content">'.join("", $tabsHtml['content']).'</div>';
+        }
     }
 
     /**
