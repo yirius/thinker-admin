@@ -58,6 +58,43 @@ HTML;
     }
 
     /**
+     * @title add
+     * @description
+     * @createtime 2019/3/13 下午7:09
+     * @param string $event
+     * @param null $view
+     * @param string $title
+     * @param array $area
+     * @param null $id
+     * @param array $data
+     * @return Tool
+     */
+    public function add($event = "add", $view = null, $title = '添加信息',array $area = ['80%', '80%'], $id = null, array $data = [])
+    {
+        if(is_null($view)) $view = $this->table->getEditPath();
+
+        if(is_null($id)) $id = $this->table->getName() . "_" . $event . "dialog";
+
+        $area = json_encode($area);
+
+        $data = json_encode($data);
+
+        return $this->event($event, <<<HTML
+layui.view.dialog({
+    title: '{$title}',
+    area: {$area},
+    id: '{$id}',
+    success: function(layero, index){
+        parent.layui.view.init("#" + this.id).render(
+            layui.tools.getCorrectUrl('{$view}', obj.data), {$data}
+        ).done(function(){});
+    }
+});
+HTML
+        );
+    }
+
+    /**
      * @title edit
      * @description
      * @createtime 2019/2/26 下午10:57
