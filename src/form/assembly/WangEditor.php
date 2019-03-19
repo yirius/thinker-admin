@@ -82,11 +82,16 @@ class WangEditor extends Assembly
      */
     public function render()
     {
+        $value = $this->value;
+        if($this->value === strip_tags($this->value)){
+            $value = "<p>" . $value . "</p>";
+        }
+
         return <<<HTML
 <label class="layui-form-label">{$this->getLabel()}</label>
 <div class="{$this->getClass()}">
     <textarea name="{$this->getName()}" style="display: none">{$this->getValue()}</textarea>
-    <div id="{$this->getId()}" lay-filter="{$this->getId()}" lay-wangeditor="" {$this->getAttributes()} >{$this->getValue()}</div>
+    <div id="{$this->getId()}" lay-filter="{$this->getId()}" lay-wangeditor="" {$this->getAttributes()} >{$value}</div>
 </div>
 HTML;
     }

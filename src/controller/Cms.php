@@ -247,7 +247,7 @@ HTML
             $table->columns("update_time", "更新时间");
 
             $table->columns("op", "操作")
-                ->button("内容", "/thinkercms/cms?id={{d.id}}", "list", "layui-btn", true)
+                ->button("内容", "/thinkercms/cms?id={{d.id}}&nonce=1", "list", "layui-btn", true)
                 ->edit()->button("子栏目", "addsub", "add-1", "layui-btn-primary")->delete()
                 ->setWidth(280);
 
@@ -328,13 +328,17 @@ HTML
     {
         return \Yirius\Admin\Admin::table("thinker_cms_cms", function(Table $table) use($id){
 
-            $table->setRestfulUrl("/restful/cms?id=" . $id)->setEditPath("/thinkercms/cmsEdit?columnid=" . $id);
+            $table->setRestfulUrl("/restful/cms?id=" . $id)->setEditPath("/thinkercms/cmsEdit?columnid=" . $id . "&nonce=1");
 
             $table->columns("id", "内容编号");
 
             $table->columns("title", "标题")->setTemplet("<div>{{# if(d.is_b){ }}<b>{{d.title}}</b>{{# }else{ }} {{d.title}} {{# } }}</div>");
 
             $table->columns("create_time", "创建时间");
+
+            $table->columns("op", "操作")->edit()->delete();
+
+            $table->tool()->edit()->delete();
 
             $table->toolbar()->add()->delete()->event()->add()->delete();
 
@@ -352,9 +356,24 @@ HTML
      */
     public function cmsEdit($columnid, $id = 0)
     {
-        return \Yirius\Admin\Admin::form("thinker_cms_cmsEdit", function(Form $form) use($id){
+        return \Yirius\Admin\Admin::form("thinker_cms_cmsEdit", function(Form $form) use($columnid,$id){
 
-            $form->tab("常规选项", function(Tab $tab){
+            $value = $id == 0 ? [] : \Yirius\Admin\model\table\Cms::get(['id' => $id]);
+
+            //判断是否存在其他表
+            if(!empty($value)){
+                $value->cmscontent;
+                $value = $value->toArray();
+                $cmsContentArr = $value['cmscontent'];
+                unset($value['cmscontent']);
+                $value = array_merge($value, $cmsContentArr);
+            }
+            
+            $form->setValue($value);
+
+            $columnsInfo = CmsColumns::findIdByCache($columnid);
+
+            $form->tab("常规选项", function(Tab $tab) use($columnsInfo){
 
                 $tab->text("title", "标题");
 
@@ -372,6 +391,10 @@ HTML
                 });
 
                 $tab->upload("coverpic", "封面图片");
+
+                if(!empty($columnsInfo['modelid'])){
+                    CmsModelsField::parseForm($columnsInfo['modelid'], $tab);
+                }
             });
 
             $form->tab("SEO设置", function(Tab $tab){
@@ -392,7 +415,7 @@ HTML
                 $tab->text("list_order", "排序");
             });
 
-            $form->footer()->submit("/restful/cms");
+            $form->footer()->submit("/restful/cms?columnid=" . $columnid . "&modelid=" . $columnsInfo['modelid'], $id);
 
         })->show();
     }

@@ -27,4 +27,21 @@ class CmsColumns extends AdminModel
     {
         return $this->hasOne("CmsModels", "id", "modelid");
     }
+
+    /**
+     * @title findIdByCache
+     * @description
+     * @createtime 2019/3/19 下午7:24
+     * @param $columnid
+     * @return array|null|\PDOStatement|string|\think\Model
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     */
+    public static function findIdByCache($columnid)
+    {
+        return self::where('id', '=', $columnid)
+            ->cache("thinker_cms_columns_" . $columnid, 0, "thinker_admin_cms")
+            ->find();
+    }
 }
