@@ -59,7 +59,12 @@ class Footer extends Layout
 
         if($id != 0){
             $requestMethod = "PUT";
-            $url = $url . "/" . $id;
+            if(strpos($url, "?") != false){
+                $viewUrl = explode("?", $url);
+                $url = $viewUrl[0] . "/" . $id . "?" . $viewUrl[1];
+            }else{
+                $url = $url . "/" . $id;
+            }
         }
 
         Admin::script(<<<HTML

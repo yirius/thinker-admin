@@ -107,4 +107,37 @@ class Upload extends Button
             ->setAttributes("data-name", $this->name)
             ->url("./thinkeradmin/uploads?isimage=1");
     }
+
+    /**
+     * @return string
+     */
+    public function getButtonHtml()
+    {
+        $value = explode(",", $this->getValue());
+
+        $imgs = "";
+
+        foreach($value as $i => $v){
+            if(!empty($v)){
+                $count = $i + 1;
+                $imgs .= <<<HTML
+<dd class="item_img" id="thinkeradmin_upload_{$count}">
+    <div class="operate">
+        <i class="thinkeradmin-upload-close layui-icon layui-icon-delete"></i>
+    </div>
+    <img src="{$v}" class="img" href="{$v}" data-fancybox="">
+    <input type="hidden" name="{$this->getName()}" value="{$v}">
+</dd>
+HTML;
+
+            }
+        }
+
+        return <<<HTML
+<div class="thinkeradmin-upload-list">
+{$imgs}
+</div>
+HTML
+;
+    }
 }
