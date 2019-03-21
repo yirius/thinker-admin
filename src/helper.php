@@ -16,8 +16,6 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 \think\facade\Route::alias("thinkeradmin", "\\Yirius\\Admin\\controller\\Admin", ['deny_ext' => 'php|.htacess']);
 //System's Controller
 \think\facade\Route::alias("thinkersystem", "\\Yirius\\Admin\\controller\\System", ['deny_ext' => 'php|.htacess']);
-//Cms's Controller
-\think\facade\Route::alias("thinkercms", "\\Yirius\\Admin\\controller\\Cms", ['deny_ext' => 'php|.htacess']);
 
 //add delete all
 \think\facade\Route::rest("deleteall", ['delete', '', 'deleteall']);
@@ -27,16 +25,6 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 \think\facade\Route::resource("restful/adminrule", "\\Yirius\\Admin\\model\\restful\\AdminRule");
 \think\facade\Route::resource("restful/adminrole", "\\Yirius\\Admin\\model\\restful\\AdminRole");
 \think\facade\Route::resource("restful/adminmember", "\\Yirius\\Admin\\model\\restful\\AdminMember");
-//cms restful api
-\think\facade\Route::resource("restful/cms", "\\Yirius\\Admin\\model\\restful\\Cms");
-\think\facade\Route::resource("restful/cmsmodels", "\\Yirius\\Admin\\model\\restful\\CmsModels");
-\think\facade\Route::resource("restful/cmscolumns", "\\Yirius\\Admin\\model\\restful\\CmsColumns");
-\think\facade\Route::resource("restful/cmsmodelsfield", "\\Yirius\\Admin\\model\\restful\\CmsModelsField");
-//附属表 restful api
-\think\facade\Route::resource("restful/cmsguestbook", "\\Yirius\\Admin\\model\\restful\\CmsGuestbook");
-\think\facade\Route::resource("restful/cmsguestbookattr", "\\Yirius\\Admin\\model\\restful\\CmsGuestbookAttr");
-\think\facade\Route::resource("restful/cmsproduct", "\\Yirius\\Admin\\model\\restful\\CmsProduct");
-\think\facade\Route::resource("restful/cmsproductattr", "\\Yirius\\Admin\\model\\restful\\CmsProductAttr");
 
 //加入以下console
 \think\Console::addDefaultCommands([
