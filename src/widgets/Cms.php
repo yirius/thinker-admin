@@ -85,9 +85,34 @@ class Cms extends Layout
 
     }
 
+    /**
+     * @title guestbookTable
+     * @description
+     * @createtime 2019/3/21 下午7:10
+     * @return mixed
+     */
     public function guestbookTable()
     {
+        return \Yirius\Admin\Admin::table("thinker_cms_cms", function(Table $table){
 
+            $table
+                ->setRestfulUrl("/restful/cms?columnid=" . $this->cmsColumn->getData("id"))
+                ->setEditPath("/thinkercms/cmsEdit?columnid=" . $this->cmsColumn->getData("id") . "&nonce=1");
+
+            $table->columns("id", "内容编号");
+
+            $table->columns("title", "标题")
+                ->setTemplet("<div>{{# if(d.is_b){ }}<b>{{d.title}}</b>{{# }else{ }} {{d.title}} {{# } }}</div>");
+
+            $table->columns("create_time", "创建时间");
+
+            $table->columns("op", "操作")->edit()->delete();
+
+            $table->tool()->edit()->delete();
+
+            $table->toolbar()->add()->delete()->event()->add()->delete();
+
+        })->show();
     }
 
     /**
