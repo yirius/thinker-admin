@@ -60,7 +60,6 @@ return [
     //Widgets插件管理
     'widgets' => [
         'breadcrumb' => \Yirius\Admin\widgets\Breadcrumb::class,
-        'card' => \Yirius\Admin\widgets\Card::class,
-        'cms' => \Yirius\Admin\widgets\Cms::class,
+        'card' => \Yirius\Admin\widgets\Card::class
     ]
 ];

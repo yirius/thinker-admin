@@ -42,6 +42,11 @@ class Admin
     ];
 
     /**
+     * @var array
+     */
+    protected static $widgets = [];
+
+    /**
      * @title version
      * @description
      * @createtime 2019/2/25 下午9:28
@@ -141,8 +146,23 @@ class Admin
         if ($widgetClass) {
             return (new $widgetClass($closure));
         } else {
+            if(!empty(self::$widgets[$widgetName])){
+                return (new self::$widgets[$widgetName]($closure));
+            }
             throw new \Exception("widgets " . $widgetName . " not found for class");
         }
+    }
+
+    /**
+     * @title addWidgets
+     * @description
+     * @createtime 2019/3/21 下午11:22
+     * @param $widgetName
+     * @param $class
+     */
+    public static function addWidgets($widgetName, $class)
+    {
+        self::$widgets[$widgetName] = $class;
     }
 
     /**
