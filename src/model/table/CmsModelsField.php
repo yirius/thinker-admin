@@ -53,7 +53,7 @@ class CmsModelsField extends AdminModel
     /**
      * @title parseForm
      * @description
-     * @createtime 2019/3/19 下午7:26
+     * @createtime 2019/3/21 下午5:31
      * @param $modelid
      * @param $form
      * @throws \think\db\exception\DataNotFoundException
@@ -66,7 +66,16 @@ class CmsModelsField extends AdminModel
             $allFields = self::findFieldByCache($modelid);
             foreach($allFields as $i => $v){
                 $type = $v['type'];
-                $typeObject = $form->$type($v['name'], $v['title']);
+                //特异性设置
+                if(in_array($type, ['datetime', 'uploadmulti'])){
+                    if($type == "datetime"){
+                        $typeObject = $form->date($v['name'], $v['title'])->datetime();
+                    }else if($type == "uploadmulti"){
+                        $typeObject = $form->upload($v['name'], $v['title'])->multi();
+                    }
+                }else{
+                    $typeObject = $form->$type($v['name'], $v['title']);
+                }
                 if(in_array($type, ['checkbox','radio','select','selectplus','tree']) && !empty($v['values'])){
                     //需要设置可选择项
                     $options = [];

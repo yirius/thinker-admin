@@ -38,7 +38,14 @@ class Cms extends AdminRestful
      */
     public function index(Request $request)
     {
-        $this->send(($this->restfulTable)::adminList()->setWith("cmsmodels,cmscolumns")->getResult());
+        $this->send(
+            ($this->restfulTable)::adminList()
+                ->setWith("cmsmodels,cmscolumns")
+                ->setWhere([
+                    "columnid"
+                ])
+                ->getResult()
+        );
     }
 
     /**
@@ -53,46 +60,51 @@ class Cms extends AdminRestful
     public function save(Request $request, $updateWhere = [])
     {
         $addData = $request->param();
+        $addData['list_order'] = $request->param("list_order", 0);
 
         $adminSaveModel = ($this->restfulTable)::adminSave();
 
         $adminSaveModel->setValidate([
             'title' => "require",
             'modelid' => "require|number",
-            'list_order' => "require"
+//            'list_order' => "require"
         ], [
             'title.require' => "标题必须填写",
             'modelid.require' => "对应模型必须填写",
-            'list_order.require' => "模型排序必须填写"
+//            'list_order.require' => "模型排序必须填写"
         ]);
 
         $adminSaveModel = $adminSaveModel->setAdd($addData);
 
         //新增
-        if(empty($updateWhere)){
+        if (empty($updateWhere)) {
             $isAdd = $adminSaveModel->getResult();
-            if($isAdd !== false){
+            if ($isAdd !== false) {
                 //新增成功
                 //向其他参数表添加内容
                 $fields = \Yirius\Admin\model\table\CmsModelsField::findFieldByCache(
                     $request->param("modelid"), true
                 );
                 $saveData = [];
-                foreach($fields as $i => $v){
-                    if($request->param($v)){
-                        $saveData[$v] = $request->param($v);
+                foreach ($fields as $i => $v) {
+                    if ($request->param($v)) {
+                        if(is_array($request->param($v))){
+                            $saveData[$v] = join(",", $request->param($v));
+                        }else{
+                            $saveData[$v] = $request->param($v);
+                        }
                     }
                 }
-                if(!empty($saveData)){
+                if (!empty($saveData)) {
                     $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
                     $saveData['cmsid'] = $isAdd->id;
                     (new $data['table'])->save($saveData);
                 }
-            }else{
+            } else {
                 //新增失败
                 Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
             }
-        }else{
+        } else {
             //修改记录,为空可能未修改主表，只修改了分表
             $isAdd = $adminSaveModel->setWhere($updateWhere)->getResult();
             //判断哪些内容需要修改
@@ -100,34 +112,42 @@ class Cms extends AdminRestful
                 $request->param("modelid"), true
             );
             $saveData = [];
-            foreach($fields as $i => $v){
-                if($request->param($v)){
-                    $saveData[$v] = $request->param($v);
+            foreach ($fields as $i => $v) {
+                if ($request->param($v)) {
+                    if(is_array($request->param($v))){
+                        $saveData[$v] = join(",", $request->param($v));
+                    }else{
+                        $saveData[$v] = $request->param($v);
+                    }
                 }
             }
-            if($isAdd !== false){
+            if ($isAdd !== false) {
                 //都有修改，直接改就行
-                if(!empty($saveData)){
+                if (!empty($saveData)) {
                     $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
                     $saveData['cmsid'] = $isAdd->id;
                     (new $data['table'])->save($saveData, [
                         ['cmsid', '=', $isAdd->id]
                     ]);
                 }
-            }else{
+            } else {
                 //修改失败，判断是否内容一致
-                if($adminSaveModel->getError() == "未知错误，请您联系客服"){
+                if ($adminSaveModel->getError() == "未知错误，请您联系客服") {
                     //没修改主表，直接修改分表
                     $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
                     $updateWhere[0][0] = "cmsid";
                     (new $data['table'])->save($saveData, $updateWhere);
-                }else{
+                } else {
                     Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
                 }
             }
         }
         //所有成功返回
-        Admin::tools()->jsonSend($isAdd->toArray(), 1, (empty($where) ? $this->tableSaveMsg : $this->tableEditMsg));
+        Admin::tools()->jsonSend(
+            $isAdd->toArray(),
+            1,
+            (empty($updateWhere) ? $this->tableSaveMsg : $this->tableEditMsg)
+        );
     }
 
     /**
@@ -153,9 +173,9 @@ class Cms extends AdminRestful
      */
     public function update($id, Request $request)
     {
-        if($request->param("__type") == "field"){
+        if ($request->param("__type") == "field") {
             $this->defaultUpdate($id, $request->param("field"), $request->param("value"));
-        }else{
+        } else {
             $this->save($request, [
                 ['id', '=', $id]
             ]);
@@ -175,7 +195,7 @@ class Cms extends AdminRestful
     {
         $this->checkLoginPwd();
 
-        $this->defaultDelete($id, [1,2,3,4,5,6]);
+        $this->defaultDelete($id);
     }
 
     /**
@@ -193,9 +213,9 @@ class Cms extends AdminRestful
 
         $data = json_decode($request->param("data"), true);
         $deleteIds = [];
-        foreach($data as $i => $v){
+        foreach ($data as $i => $v) {
             $deleteIds[] = $v['id'];
         }
-        $this->defaultDelete($deleteIds, [1,2,3,4,5,6]);
+        $this->defaultDelete($deleteIds);
     }
 }

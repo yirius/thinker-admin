@@ -169,7 +169,8 @@ class Cms extends AdminController
                 ['text' => "密码文本", 'value' => "password"],
                 ['text' => "滑块", 'value' => "slider"],
                 ['text' => "树状结构", 'value' => "tree"],
-                ['text' => "上传文件", 'value' => "upload"],
+                ['text' => "文件上传", 'value' => "upload"],
+                ['text' => "多文件上传", 'value' => "uploadmulti"],
                 ['text' => "按钮", 'value' => "button"],
             ])->on('judgeType(obj.value);');
 
@@ -247,11 +248,22 @@ HTML
             $table->columns("update_time", "更新时间");
 
             $table->columns("op", "操作")
-                ->button("内容", "/thinkercms/cms?id={{d.id}}&nonce=1", "list", "layui-btn", true)
-                ->edit()->button("子栏目", "addsub", "add-1", "layui-btn-primary")->delete()
+                ->button(
+                    "内容",
+                    "/thinkercms/cms?id={{d.id}}&nonce=1",
+                    "list",
+                    "layui-btn",
+                    true
+                )
+                ->edit()
+                ->button("子栏目", "addsub", "add-1", "layui-btn-primary")
+                ->delete()
                 ->setWidth(280);
 
-            $table->tool()->edit()->delete()->add("addsub", "/thinkercms/columnsEdit?pid={{d.id}}&level={{d.level+1}}");
+            $table->tool()->edit()->delete()->add(
+                "addsub",
+                "/thinkercms/columnsEdit?pid={{d.id}}&level={{d.level+1}}"
+            );
 
             $table->toolbar()->add()->delete()->event()->add()->delete();
 
@@ -320,29 +332,18 @@ HTML
     /**
      * @title cms
      * @description
-     * @createtime 2019/3/19 上午11:36
+     * @createtime 2019/3/21 上午11:16
      * @param $id
      * @return mixed
+     * @throws \Exception
      */
     public function cms($id)
     {
-        return \Yirius\Admin\Admin::table("thinker_cms_cms", function(Table $table) use($id){
+        return \Yirius\Admin\Admin::widgets("cms", function(\Yirius\Admin\widgets\Cms $cms) use($id){
 
-            $table->setRestfulUrl("/restful/cms?id=" . $id)->setEditPath("/thinkercms/cmsEdit?columnid=" . $id . "&nonce=1");
+            $cms->setCmsColumn($id);
 
-            $table->columns("id", "内容编号");
-
-            $table->columns("title", "标题")->setTemplet("<div>{{# if(d.is_b){ }}<b>{{d.title}}</b>{{# }else{ }} {{d.title}} {{# } }}</div>");
-
-            $table->columns("create_time", "创建时间");
-
-            $table->columns("op", "操作")->edit()->delete();
-
-            $table->tool()->edit()->delete();
-
-            $table->toolbar()->add()->delete()->event()->add()->delete();
-
-        })->show();
+        })->render();
     }
 
     /**

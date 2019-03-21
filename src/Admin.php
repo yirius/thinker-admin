@@ -93,12 +93,14 @@ class Admin
 
     /**
      * @title auth
-     * @description Auth Static New
-     * @createtime 2019/2/21 下午10:41
+     * @description
+     * @createtime 2019/3/21 上午11:06
      * @param array|null $config
      * @return Auth
+     * @throws \Exception
      */
-    public static function auth(array $config = null){
+    public static function auth(array $config = null)
+    {
         return (new Auth($config));
     }
 
@@ -115,12 +117,32 @@ class Admin
 
     /**
      * @title jwt
-     * @description
+     * @description adminjwt for json web token
      * @createtime 2019/2/22 上午11:46
      * @return Adminjwt
      */
-    public static function jwt(){
+    public static function jwt()
+    {
         return (new Adminjwt());
+    }
+
+    /**
+     * @title widgets
+     * @description
+     * @createtime 2019/3/21 上午11:16
+     * @param $widgetName
+     * @param \Closure|null $closure
+     * @return mixed
+     * @throws \Exception
+     */
+    public static function widgets($widgetName, \Closure $closure = null)
+    {
+        $widgetClass = config('thinkeradmin.widgets.' . $widgetName);
+        if ($widgetClass) {
+            return (new $widgetClass($closure));
+        } else {
+            throw new \Exception("widgets " . $widgetName . " not found for class");
+        }
     }
 
     /**
@@ -132,12 +154,12 @@ class Admin
      */
     public static function script($script, $isFile = 0)
     {
-        if($isFile === 0){
+        if ($isFile === 0) {
             self::$script['script'][] = $script;
-        }else{
-            if($isFile === 2){
+        } else {
+            if ($isFile === 2) {
                 self::$script['use'][] = $script;
-            }else{
+            } else {
                 self::$script['file'][] = $script;
             }
         }
@@ -162,9 +184,9 @@ class Admin
      */
     public static function style($style, $isFile = 0)
     {
-        if($isFile === 0){
+        if ($isFile === 0) {
             self::$style['style'][] = $style;
-        }else{
+        } else {
             self::$style['file'][] = $style;
         }
     }

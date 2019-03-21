@@ -14,7 +14,8 @@ return [
         ],
         'access_type' => 0,
         'login_field' => "username|phone",
-        'login_verfiy_func' => null
+        'login_verfiy_func' => null,
+        'login_update_func' => null
     ],
 
     //Rule相关配置
@@ -54,5 +55,12 @@ return [
             'size' => 1024 * 1024 * 5,
             'ext' => "png,jpg,jpeg,gif,bmp,flv,swf,mkv,avi,rm,rmvb,mpeg,mpg,ogg,ogv,mov,wmv,mp4,webm,mp3,wav,mid,rar,zip,tar,gz,7z,bz2,cab,iso,doc,docx,xls,xlsx,ppt,pptx,pdf,txt,md,xml"
         ]
+    ],
+
+    //Widgets插件管理
+    'widgets' => [
+        'breadcrumb' => \Yirius\Admin\widgets\Breadcrumb::class,
+        'card' => \Yirius\Admin\widgets\Card::class,
+        'cms' => \Yirius\Admin\widgets\Cms::class,
     ]
 ];

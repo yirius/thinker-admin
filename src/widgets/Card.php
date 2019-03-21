@@ -41,7 +41,11 @@ class Card extends Layout
     function __construct($title = null, $content = null)
     {
         if (!is_null($title)) {
-            $this->setTitle($title);
+            if($title instanceof \Closure){
+                call($title, [$this]);
+            }else{
+                $this->setTitle($title);
+            }
         }
 
         if (!is_null($content)) {

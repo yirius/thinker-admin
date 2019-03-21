@@ -10,7 +10,6 @@ namespace Yirius\Admin\form\assembly;
 
 
 use Yirius\Admin\Admin;
-use Yirius\Admin\form\Assembly;
 
 class Upload extends Button
 {
@@ -57,7 +56,7 @@ class Upload extends Button
      */
     public function multi()
     {
-        $this->setAttributes("data-ismulti", "true");
+        $this->setAttributes("data-multiple", "true");
 
         return $this;
     }
