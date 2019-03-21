@@ -41,7 +41,7 @@ class Save extends AdminModelBase
     {
         foreach($data as $i => $v){
             if(in_array($i, $this->modelFields)){
-                $this->addData[$i] = $v;
+                $this->addData[$i] = is_array($v) ? join(",", $v) : $v;
             }
         }
 

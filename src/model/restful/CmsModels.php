@@ -56,14 +56,14 @@ class CmsModels extends AdminRestful
             'nid' => "require|alpha",
             'title' => "require",
             'stitle' => "require",
-            'table' => "require|alphaDash",
+            'table' => "alphaDash",
             'list_order' => "require"
         ], [
             'nid.require' => "模型标识必须填写",
             'nid.alpha' => "模型标识必须填写纯字母",
             'title.require' => "模型名称必须填写",
             'stitle.require' => "模型简称必须填写",
-            'table.require' => "模型对应数据库表必须填写",
+//            'table.require' => "模型对应数据库表必须填写",
             'table.alphaDash' => "模型对应数据库表只能含有填写字母/数字/下划线",
             'list_order.require' => "模型排序必须填写"
         ]], $updateWhere);

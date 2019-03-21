@@ -11,6 +11,27 @@ namespace Yirius\Admin\form\assembly;
 
 use Yirius\Admin\Admin;
 
+/**
+ * Class Upload
+ * @method Upload setUrl($url)
+ * @method Upload setAccept($accept)
+ * @method Upload setHeader(array $header)
+ * @method Upload setAcceptMime($mime)
+ * @method Upload setExts($exts)
+ * @method Upload setSize($size)
+ * @method Upload setMultiple(bool $bool)
+ * @method Upload setNumber($num)
+ *
+ * @method Upload getUrl()
+ * @method Upload getAccept()
+ * @method Upload getHeader()
+ * @method Upload getAcceptMime()
+ * @method Upload getExts()
+ * @method Upload getSize()
+ * @method Upload getMultiple()
+ * @method Upload getNumber()
+ * @package Yirius\Admin\form\assembly
+ */
 class Upload extends Button
 {
     /**
@@ -31,21 +52,7 @@ class Upload extends Button
      */
     public function isFile()
     {
-        return $this->url("./thinkeradmin/uploads");
-    }
-
-    /**
-     * @title url
-     * @description
-     * @createtime 2019/3/3 下午10:04
-     * @param $url
-     * @return $this
-     */
-    public function url($url)
-    {
-        $this->setAttributes("data-url", $url);
-
-        return $this;
+        return $this->setUrl("./thinkeradmin/uploads?isimage=0")->setAccept("file");
     }
 
     /**
@@ -56,7 +63,7 @@ class Upload extends Button
      */
     public function multi()
     {
-        $this->setAttributes("data-multiple", "true");
+        $this->setMultiple(true);
 
         return $this;
     }
@@ -77,9 +84,10 @@ class Upload extends Button
     /**
      * @title setName
      * @description
-     * @createtime 2019/3/3 下午10:03
+     * @createtime 2019/3/21 下午8:06
      * @param $name
      * @return $this|Button
+     * @throws \Exception
      */
     public function setName($name)
     {
@@ -104,7 +112,7 @@ class Upload extends Button
             ->setAttributes('data-isshow', 'true')
             ->setAttributes("lay-upload", "")
             ->setAttributes("data-name", $this->name)
-            ->url("./thinkeradmin/uploads?isimage=1");
+            ->setUrl("./thinkeradmin/uploads");
     }
 
     /**

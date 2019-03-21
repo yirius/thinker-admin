@@ -38,15 +38,4 @@ class Cms extends AdminModel
     {
         return $this->hasOne("CmsColumns", "id", "columnid");
     }
-
-    /**
-     * @title cmscontent
-     * @description
-     * @createtime 2019/3/19 下午8:55
-     * @return \think\model\relation\HasOne
-     */
-    public function cmscontent()
-    {
-        return $this->hasOne($this->cmsmodels->table, "cmsid", "id");
-    }
 }

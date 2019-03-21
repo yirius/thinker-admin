@@ -31,6 +31,11 @@ class Cms extends Layout
     protected $cmsModel = null;
 
     /**
+     * @var int
+     */
+    protected $cmsid = -1;
+
+    /**
      * @var string
      */
     protected $type = "Table";
@@ -75,9 +80,52 @@ class Cms extends Layout
         })->show();
     }
 
+    /**
+     * @title articleEdit
+     * @description
+     * @createtime 2019/3/21 下午7:45
+     * @return mixed
+     * @throws \Exception
+     */
+    public function articleEdit()
+    {
+        return $this->editPage();
+    }
+
+    /**
+     * @title singleTable
+     * @description
+     * @createtime 2019/3/21 下午5:10
+     * @return mixed
+     * @throws \Exception
+     */
+    public function singleTable()
+    {
+        return $this->editPage();
+    }
+
+    /**
+     * @title imagesTable
+     * @description
+     * @createtime 2019/3/21 下午5:34
+     * @return mixed
+     * @throws \Exception
+     */
+    public function imagesTable()
+    {
+        return $this->editPage();
+    }
+
+    /**
+     * @title downloadTable
+     * @description
+     * @createtime 2019/3/21 下午7:50
+     * @return mixed
+     * @throws \Exception
+     */
     public function downloadTable()
     {
-
+        return $this->editPage();
     }
 
     public function productTable()
@@ -116,30 +164,6 @@ class Cms extends Layout
     }
 
     /**
-     * @title singleTable
-     * @description
-     * @createtime 2019/3/21 下午5:10
-     * @return mixed
-     * @throws \Exception
-     */
-    public function singleTable()
-    {
-        return $this->editPage(-1);
-    }
-
-    /**
-     * @title imagesTable
-     * @description
-     * @createtime 2019/3/21 下午5:34
-     * @return mixed
-     * @throws \Exception
-     */
-    public function imagesTable()
-    {
-        return $this->editPage(-1);
-    }
-
-    /**
      * @title editPage
      * @description
      * @createtime 2019/3/21 下午5:08
@@ -147,10 +171,12 @@ class Cms extends Layout
      * @return mixed
      * @throws \Exception
      */
-    protected function editPage($id = 0)
+    protected function editPage()
     {
-        return \Yirius\Admin\Admin::form("thinker_cms_cmsEdit", function(Form $form) use($id){
-
+        return \Yirius\Admin\Admin::form("thinker_cms_cmsEdit", function(Form $form) {
+            //找到cmsid
+            $id = $this->cmsid;
+            //judge if it one to one
             if($id == -1){
                 //direct for form page
                 $value = \Yirius\Admin\model\table\Cms::get(['columnid' => $this->cmsColumn['id']]);
@@ -162,15 +188,6 @@ class Cms extends Layout
                 }
             }else{
                 $value = $id == 0 ? [] : \Yirius\Admin\model\table\Cms::get(['id' => $id]);
-            }
-
-            //判断是否存在其他表
-            if(!empty($value)){
-                $value->cmscontent;
-                $value = $value->toArray();
-                $cmsContentArr = $value['cmscontent'];
-                unset($value['cmscontent']);
-                $value = array_merge($value, $cmsContentArr);
             }
 
             $form->setValue($value);
@@ -321,5 +338,30 @@ class Cms extends Layout
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @title setCmsid
+     * @description
+     * @createtime 2019/3/21 下午7:45
+     * @param $cmsid
+     * @return $this
+     */
+    public function setCmsid($cmsid)
+    {
+        $this->cmsid = $cmsid;
+
+        return $this;
+    }
+
+    /**
+     * @title getCmsid
+     * @description
+     * @createtime 2019/3/21 下午7:45
+     * @return int
+     */
+    public function getCmsid()
+    {
+        return $this->cmsid;
     }
 }

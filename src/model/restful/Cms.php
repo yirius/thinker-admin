@@ -62,92 +62,26 @@ class Cms extends AdminRestful
         $addData = $request->param();
         $addData['list_order'] = $request->param("list_order", 0);
 
-        $adminSaveModel = ($this->restfulTable)::adminSave();
-
-        $adminSaveModel->setValidate([
+        $validate = [[
             'title' => "require",
             'modelid' => "require|number",
-//            'list_order' => "require"
         ], [
             'title.require' => "标题必须填写",
             'modelid.require' => "对应模型必须填写",
-//            'list_order.require' => "模型排序必须填写"
-        ]);
+        ]];
 
-        $adminSaveModel = $adminSaveModel->setAdd($addData);
-
-        //新增
-        if (empty($updateWhere)) {
-            $isAdd = $adminSaveModel->getResult();
-            if ($isAdd !== false) {
-                //新增成功
-                //向其他参数表添加内容
-                $fields = \Yirius\Admin\model\table\CmsModelsField::findFieldByCache(
-                    $request->param("modelid"), true
-                );
-                $saveData = [];
-                foreach ($fields as $i => $v) {
-                    if ($request->param($v)) {
-                        if(is_array($request->param($v))){
-                            $saveData[$v] = join(",", $request->param($v));
-                        }else{
-                            $saveData[$v] = $request->param($v);
-                        }
-                    }
-                }
-                if (!empty($saveData)) {
-                    $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
-                    $saveData['cmsid'] = $isAdd->id;
-                    (new $data['table'])->save($saveData);
-                }
-            } else {
-                //新增失败
-                Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
-            }
-        } else {
-            //修改记录,为空可能未修改主表，只修改了分表
-            $isAdd = $adminSaveModel->setWhere($updateWhere)->getResult();
-            //判断哪些内容需要修改
-            $fields = \Yirius\Admin\model\table\CmsModelsField::findFieldByCache(
-                $request->param("modelid"), true
-            );
-            $saveData = [];
-            foreach ($fields as $i => $v) {
-                if ($request->param($v)) {
-                    if(is_array($request->param($v))){
-                        $saveData[$v] = join(",", $request->param($v));
-                    }else{
-                        $saveData[$v] = $request->param($v);
-                    }
-                }
-            }
-            if ($isAdd !== false) {
-                //都有修改，直接改就行
-                if (!empty($saveData)) {
-                    $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
-                    $saveData['cmsid'] = $isAdd->id;
-                    (new $data['table'])->save($saveData, [
-                        ['cmsid', '=', $isAdd->id]
-                    ]);
-                }
-            } else {
-                //修改失败，判断是否内容一致
-                if ($adminSaveModel->getError() == "未知错误，请您联系客服") {
-                    //没修改主表，直接修改分表
-                    $data = \Yirius\Admin\model\table\CmsModels::findIdByCache($request->param("modelid"));
-                    $updateWhere[0][0] = "cmsid";
-                    (new $data['table'])->save($saveData, $updateWhere);
-                } else {
-                    Admin::tools()->jsonSend([], 0, $adminSaveModel->getError());
-                }
+        //判断其他参数是否是必填
+        $fields = \Yirius\Admin\model\table\CmsModelsField::findFieldByCache(
+            $request->param("modelid"), true
+        );
+        foreach($fields as $i => $v){
+            if($v['is_must']){
+                $validate[0][$i] = "require";
+                $validate[1][$i] = $v['title'] . "必须填写";
             }
         }
-        //所有成功返回
-        Admin::tools()->jsonSend(
-            $isAdd->toArray(),
-            1,
-            (empty($updateWhere) ? $this->tableSaveMsg : $this->tableEditMsg)
-        );
+
+        $this->defaultSave($addData, $validate, $updateWhere);
     }
 
     /**

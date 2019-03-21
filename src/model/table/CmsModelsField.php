@@ -42,7 +42,7 @@ class CmsModelsField extends AdminModel
         if($isField){
             $result = [];
             foreach($allFields as $i => $v){
-                $result[] = $v['name'];
+                $result[$v['name']] = $v;
             }
             return $result;
         }else{
@@ -71,7 +71,7 @@ class CmsModelsField extends AdminModel
                     if($type == "datetime"){
                         $typeObject = $form->date($v['name'], $v['title'])->datetime();
                     }else if($type == "uploadmulti"){
-                        $typeObject = $form->upload($v['name'], $v['title'])->multi();
+                        $typeObject = $form->upload($v['name'], $v['title'])->multi()->isFile();
                     }
                 }else{
                     $typeObject = $form->$type($v['name'], $v['title']);

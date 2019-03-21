@@ -169,7 +169,7 @@ class Cms extends AdminController
                 ['text' => "密码文本", 'value' => "password"],
                 ['text' => "滑块", 'value' => "slider"],
                 ['text' => "树状结构", 'value' => "tree"],
-                ['text' => "文件上传", 'value' => "upload"],
+                ['text' => "图片上传", 'value' => "upload"],
                 ['text' => "多文件上传", 'value' => "uploadmulti"],
                 ['text' => "按钮", 'value' => "button"],
             ])->on('judgeType(obj.value);');
@@ -357,67 +357,14 @@ HTML
      */
     public function cmsEdit($columnid, $id = 0)
     {
-        return \Yirius\Admin\Admin::form("thinker_cms_cmsEdit", function(Form $form) use($columnid,$id){
+        return \Yirius\Admin\Admin::widgets("cms", function(\Yirius\Admin\widgets\Cms $cms) use($columnid, $id){
 
-            $value = $id == 0 ? [] : \Yirius\Admin\model\table\Cms::get(['id' => $id]);
+            $cms->setCmsColumn($columnid);
 
-            //判断是否存在其他表
-            if(!empty($value)){
-                $value->cmscontent;
-                $value = $value->toArray();
-                $cmsContentArr = $value['cmscontent'];
-                unset($value['cmscontent']);
-                $value = array_merge($value, $cmsContentArr);
-            }
-            
-            $form->setValue($value);
+            $cms->setType();
 
-            $columnsInfo = CmsColumns::findIdByCache($columnid);
+            $cms->setCmsid($id);
 
-            $form->tab("常规选项", function(Tab $tab) use($columnsInfo){
-
-                $tab->text("title", "标题");
-
-                $tab->inline(function(Inline $inline){
-
-                    $inline->switchs("is_b", "加粗");
-
-                    $inline->switchs("is_head", "头条");
-
-                    $inline->switchs("is_special", "特荐");
-
-                    $inline->switchs("is_top", "置顶");
-
-                    $inline->switchs("is_recom", "推荐");
-                });
-
-                $tab->upload("coverpic", "封面图片");
-
-                if(!empty($columnsInfo['modelid'])){
-                    CmsModelsField::parseForm($columnsInfo['modelid'], $tab);
-                }
-            });
-
-            $form->tab("SEO设置", function(Tab $tab){
-
-                $tab->textarea("seo_title", "SEO标题");
-
-                $tab->textarea("seo_keywords", "SEO关键字");
-
-                $tab->textarea("seo_description", "SEO描述");
-            });
-
-            $form->tab("其他设置", function(Tab $tab){
-
-                $tab->text("author", "作者");
-
-                $tab->text("visit_num", "浏览量");
-
-                $tab->text("list_order", "排序");
-            });
-
-            $form->footer()->submit("/restful/cms?columnid=" . $columnid . "&modelid=" . $columnsInfo['modelid'], $id);
-
-        })->show();
+        })->render();
     }
 }
