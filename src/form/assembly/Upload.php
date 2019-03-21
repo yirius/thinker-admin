@@ -124,6 +124,9 @@ class Upload extends Button
 
         $imgs = "";
 
+        //判断是否是多文件
+        if($this->getMultiple()) $suffix = "[]"; else $suffix = "";
+
         foreach($value as $i => $v){
             if(!empty($v)){
                 $count = $i + 1;
@@ -134,8 +137,6 @@ class Upload extends Button
                 }else{
                     $showHtml = '<a href="'.$v.'">' . $v . '</a>';
                 }
-                //判断是否是多文件
-                if($this->getMultiple()) $suffix = "[]"; else $suffix = "";
                 $imgs .= <<<HTML
 <dd class="item_img" id="thinkeradmin_upload_{$count}">
     <div class="operate">
@@ -151,6 +152,7 @@ HTML;
 
         return <<<HTML
 <div class="thinkeradmin-upload-list">
+<input type="hidden" name="{$this->getName()}{$suffix}" value="">
 {$imgs}
 </div>
 HTML

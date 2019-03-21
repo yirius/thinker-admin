@@ -367,4 +367,42 @@ HTML
 
         })->render();
     }
+
+    /**
+     * @title cmsAttr
+     * @description
+     * @createtime 2019/3/21 下午9:02
+     * @param $id
+     * @return mixed
+     * @throws \Exception
+     */
+    public function cmsAttr($id)
+    {
+        return \Yirius\Admin\Admin::widgets("cms", function(\Yirius\Admin\widgets\Cms $cms) use($id){
+
+            $cms->setCmsColumn($id);
+
+            $cms->setType("Attr");
+
+        })->render();
+    }
+
+    /**
+     * @title cmsAttrEdit
+     * @description
+     * @createtime 2019/3/21 下午9:53
+     * @param $columnid
+     * @return mixed
+     * @throws \Exception
+     */
+    public function cmsAttrEdit($columnid)
+    {
+        return \Yirius\Admin\Admin::widgets("cms", function(\Yirius\Admin\widgets\Cms $cms) use($columnid){
+
+            $cms->setCmsColumn($columnid);
+
+            $cms->setType("AttrEdit");
+
+        })->render();
+    }
 }
