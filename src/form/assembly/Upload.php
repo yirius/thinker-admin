@@ -52,7 +52,7 @@ class Upload extends Button
      */
     public function isFile()
     {
-        return $this->setUrl("./thinkeradmin/uploads?isimage=0")->setAccept("file");
+        return $this->setUrl("./thinkeradmin/uploads?isimage=0")->setAccept("file")->setText("上传文件");
     }
 
     /**
@@ -127,13 +127,22 @@ class Upload extends Button
         foreach($value as $i => $v){
             if(!empty($v)){
                 $count = $i + 1;
+                //判断是图片还是其他文件
+                $isImage = getimagesize(env("root_path") . "public" . DS . $v);
+                if($isImage){
+                    $showHtml = '<img src="'.$v.'" class="img" href="'.$v.'" data-fancybox="">';
+                }else{
+                    $showHtml = '<a href="'.$v.'">' . $v . '</a>';
+                }
+                //判断是否是多文件
+                if($this->getMultiple()) $suffix = "[]"; else $suffix = "";
                 $imgs .= <<<HTML
 <dd class="item_img" id="thinkeradmin_upload_{$count}">
     <div class="operate">
         <i class="thinkeradmin-upload-close layui-icon layui-icon-delete"></i>
     </div>
-    <img src="{$v}" class="img" href="{$v}" data-fancybox="">
-    <input type="hidden" name="{$this->getName()}" value="{$v}">
+    {$showHtml}
+    <input type="hidden" name="{$this->getName()}{$suffix}" value="{$v}">
 </dd>
 HTML;
 
