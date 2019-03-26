@@ -235,7 +235,14 @@ HTML;
      */
     public function setSwitchTemplet($field, $url = null, $config = [])
     {
-        if(is_null($url)) $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
+        if(is_null($url)){
+            if(strpos($this->table->getRestfulUrl(), "?") != false){
+                $restfulUrl = explode("?", $this->table->getRestfulUrl());
+                $url = $restfulUrl[0] . "/{{d.id}}?__type=field&" . $restfulUrl[1];
+            }else{
+                $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
+            }
+        }
 
         $config = array_merge([
             'checkedValue' => 1,

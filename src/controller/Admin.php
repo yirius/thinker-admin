@@ -9,6 +9,7 @@
 namespace Yirius\Admin\controller;
 
 
+use think\facade\Cache;
 use think\Request;
 use Yirius\Admin\extend\Upload;
 use Yirius\Admin\form\Form;

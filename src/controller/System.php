@@ -11,6 +11,7 @@ namespace Yirius\Admin\controller;
 
 use Yirius\Admin\form\Form;
 use Yirius\Admin\form\Inline;
+use Yirius\Admin\form\Tab;
 use Yirius\Admin\layout\PageView;
 use Yirius\Admin\model\table\AdminMember;
 use Yirius\Admin\model\table\AdminMenu;
@@ -372,6 +373,85 @@ HTML
             $form->text("sort", "排序");
 
             $form->footer()->submit("/restful/adminmenu", $id);
+
+        })->show();
+    }
+
+    /**
+     * @title configs
+     * @description
+     * @createtime 2019/3/26 下午1:52
+     * @return mixed
+     * @throws \Exception
+     */
+    public function configs()
+    {
+        return \Yirius\Admin\Admin::form("thinker_admin_configs", function(Form $form){
+
+            $configs = \Yirius\Admin\model\table\AdminConfigs::all()->toArray();
+            $configValues = [];
+            foreach($configs as $i => $v){
+                $configValues[$v['name']] = $v['value'];
+            }
+            $form->setValue($configValues);
+
+            $form->tab("网站设置", function (Tab $tab){
+
+                $tab->switchs("isclosed", "关闭网站");
+
+                $tab->text("title", "网站名称");
+
+                $tab->upload("logo", "网站LOGO");
+
+                $tab->upload("ico", "地址栏ICO");
+
+                $tab->text("seo_title", "SEO标题");
+
+                $tab->text("seo_keywords", "SEO关键词");
+
+                $tab->textarea("seo_description", "SEO描述");
+
+                $tab->text("copyright", "版权信息");
+
+                $tab->text("beian", "备案号");
+
+            });
+
+            $form->tab("基础设置", function (Tab $tab){
+
+                $tab->switchs("isdebug", "是否DEBUG");
+
+                $tab->switchs("openwidgets", "开启插件");
+
+                $tab->switchs("istrace", "显示TRACE");
+
+                $tab->text("errortpl", "错误模板");
+
+                $tab->switchs("isssl", "启用HTTPS");
+
+            });
+
+            $form->footer()->submit("/restful/adminconfigs");
+
+//            $form->tab("上传设置", function (Tab $tab){
+//
+//                $tab->text("images_size", "图片大小/B");
+//
+//                $tab->textarea("images_ext", "图片类型");
+//
+//                $tab->text("files_size", "文件大小/B");
+//
+//                $tab->textarea("files_ext", "文件类型");
+//
+//            });
+//
+//            $form->tab("水印设置", function (Tab $tab){
+//
+//                $tab->switchs("iswater", "开启水印");
+//
+//                $tab->switchs("watertype", "水印类型")->text("文字", "图片");
+//
+//            });
 
         })->show();
     }
