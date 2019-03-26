@@ -37,11 +37,17 @@ layui.define(['form'], function(exports){
     if(typeof layui.upload !== "undefined"){
         var upload = layui.upload;
         function _createImageElement(name, path, index, isShow){
+            var suffixIndex = path.lastIndexOf(".");
+            var suffix = path.substring(suffixIndex+1).toUpperCase();
+            var notImage = (suffix!=="BMP"&&suffix!=="JPG"&&suffix!=="JPEG"&&suffix!=="PNG"&&suffix!=="GIF");
+
             return '<dd class="item_img" id="thinkeradmin_upload_' + index + '">' +
                 '<div class="operate">' +
                 '<i class="thinkeradmin-upload-close layui-icon layui-icon-delete"></i>' +
                 '</div>' +
-                '<img src="' + path + '" class="img" ' + (isShow ? 'href="' + path + '" data-fancybox=""' : '') + '>' +
+                (notImage ?
+                    '<a href="' + path + '">' + path + '</a>':
+                    '<img src="' + path + '" class="img" ' + (isShow ? 'href="' + path + '" data-fancybox=""' : '') + '>') +
                 '<input type="hidden" name="' + name +'" value="' + path + '" />' +
                 '</dd>';
         }
@@ -50,7 +56,7 @@ layui.define(['form'], function(exports){
             var currentEle = $(v);
 
             v.currentIndex = 1;
-            var isMultiImage = currentEle.data('ismulti') || false,
+            var isMultiImage = currentEle.data('multiple') || false,
                 isShow = currentEle.data('isshow') || false;
 
             var findThinkerList = null;
@@ -63,7 +69,7 @@ layui.define(['form'], function(exports){
             var options = $.extend({
                 elem: v,
                 before: function(obj) {
-                    layer.msg('图片上传中...', {icon: 16, shade: 0.01, time: 0});
+                    layer.msg('文件上传中...', {icon: 16, shade: 0.01, time: 0});
                 },
                 done: function(res) {
                     layer.close(layer.msg());

@@ -11,11 +11,44 @@
  Target Server Version : 100134
  File Encoding         : 65001
 
- Date: 04/03/2019 17:36:45
+ Date: 26/03/2019 20:06:50
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for ices_admin_configs
+-- ----------------------------
+DROP TABLE IF EXISTS `ices_admin_configs`;
+CREATE TABLE `ices_admin_configs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  `value` longtext,
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4;
+
+-- ----------------------------
+-- Records of ices_admin_configs
+-- ----------------------------
+BEGIN;
+INSERT INTO `ices_admin_configs` VALUES (1, 'isclosed', '0', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (2, 'title', 'ThinkerAdmin后台管理', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (4, 'logo', '', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (5, 'ico', '', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (6, 'seo_title', 'ThinkerAdmin', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (7, 'seo_keywords', 'ThinkerAdmin,ThinkerAdminCms', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (8, 'seo_description', 'ThinkerAdmin', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (9, 'copyright', 'COPYRIGHT ThinkerAdmin © 2019.ALL RIGHTS RESERVED.', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (10, 'beian', '京ICP备XXXX-1', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (11, 'isdebug', '0', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (12, 'openwidgets', '0', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (13, 'istrace', '0', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (14, 'errortpl', '', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+INSERT INTO `ices_admin_configs` VALUES (15, 'isssl', '0', '2019-03-26 14:34:50', '2019-03-26 14:52:44');
+COMMIT;
 
 -- ----------------------------
 -- Table structure for ices_admin_group
@@ -29,13 +62,13 @@ CREATE TABLE `ices_admin_group` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='后台角色表';
 
 -- ----------------------------
 -- Records of ices_admin_group
 -- ----------------------------
 BEGIN;
-INSERT INTO `ices_admin_group` VALUES (1, '超级管理员', 1, '1,2,3,4,5,6,7,8,9,10,11,12,13', '2019-02-28 16:39:11', '2019-02-28 16:39:14');
+INSERT INTO `ices_admin_group` VALUES (1, '超级管理员', 1, '1,2,3,4,5,6,7,8,9,10,11,12,13,39,40,14,15,16,17,24,25,26,18,19,20,21,22,23,27,28,29,30,31,32,33,34,35,36,37,38', '2019-02-28 16:39:11', '2019-03-26 14:03:46');
 COMMIT;
 
 -- ----------------------------
@@ -53,7 +86,7 @@ CREATE TABLE `ices_admin_group_access` (
   UNIQUE KEY `uid_group_id` (`uid`,`group_id`,`type`) USING BTREE,
   KEY `uid` (`uid`),
   KEY `group_id` (`group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='后台角色权限对应表';
 
 -- ----------------------------
 -- Records of ices_admin_group_access
@@ -78,7 +111,7 @@ CREATE TABLE `ices_admin_member` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='后台用户列表';
 
 -- ----------------------------
 -- Records of ices_admin_member
@@ -102,7 +135,7 @@ CREATE TABLE `ices_admin_menu` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COMMENT='菜单表';
 
 -- ----------------------------
 -- Records of ices_admin_menu
@@ -113,6 +146,7 @@ INSERT INTO `ices_admin_menu` VALUES (2, 1, 'thinkersystem-rules', 'Rules管理'
 INSERT INTO `ices_admin_menu` VALUES (3, 1, 'thinkersystem-menu', 'Menus管理', '/thinkersystem/menus', NULL, 0, NULL, NULL);
 INSERT INTO `ices_admin_menu` VALUES (4, 1, 'thinkersystem-role', 'Roles管理', '/thinkersystem/roles', NULL, 0, NULL, NULL);
 INSERT INTO `ices_admin_menu` VALUES (5, 1, 'thinkersystem-member', 'Members管理', '/thinkersystem/members', NULL, 0, NULL, NULL);
+INSERT INTO `ices_admin_menu` VALUES (6, 1, 'thinkersystem-configs', '网站设置', '/thinkersystem/configs', '', 0, '2019-03-26 13:51:15', '2019-03-26 14:04:02');
 COMMIT;
 
 -- ----------------------------
@@ -131,7 +165,7 @@ CREATE TABLE `ices_admin_rule` (
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COMMENT='后台规则列表';
 
 -- ----------------------------
 -- Records of ices_admin_rule
@@ -150,6 +184,8 @@ INSERT INTO `ices_admin_rule` VALUES (10, '/thinkersystem/rolesEdit', 'Roles管�
 INSERT INTO `ices_admin_rule` VALUES (11, '/thinkersystem/members', 'Members管理', 1, '', 1, 1, NULL, NULL);
 INSERT INTO `ices_admin_rule` VALUES (12, '/restful/adminmember', 'Members管理Restful', 1, '', 11, 1, NULL, NULL);
 INSERT INTO `ices_admin_rule` VALUES (13, '/thinkersystem/membersEdit', 'Members管理Edit界面', 1, '', 11, 1, NULL, NULL);
+INSERT INTO `ices_admin_rule` VALUES (14, '/thinkersystem/configs', '基本设置', 1, '', 1, 1, '2019-03-26 13:51:15', '2019-03-26 14:03:17');
+INSERT INTO `ices_admin_rule` VALUES (15, '/restful/adminconfigs', '基本设置Restful', 1, '', 14, 1, '2019-03-26 13:51:15', '2019-03-26 14:29:26');
 COMMIT;
 
 SET FOREIGN_KEY_CHECKS = 1;

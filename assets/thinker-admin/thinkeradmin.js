@@ -87,7 +87,7 @@ layui.define(['jquery', 'layer', 'laytpl'], function(exports){
          * 配置参数
          */
         config: {
-            editpwd: true,
+            editpwd: "/thinkeradmin/editpwd",
             captcha: "/captcha.html",
             login: "/thinkeradmin/login",
             dyconfig: "/thinkeradmin/config"
