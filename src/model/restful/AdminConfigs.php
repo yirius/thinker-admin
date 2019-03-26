@@ -9,6 +9,7 @@
 namespace Yirius\Admin\model\restful;
 
 
+use think\facade\Cache;
 use think\Request;
 use Yirius\Admin\Admin;
 use Yirius\Admin\model\AdminRestful;
@@ -45,6 +46,7 @@ class AdminConfigs extends AdminRestful
                 ['name', '=', $i]
             ]);
         }
+        Cache::rm("thinker_admin_configsvalue");
         Admin::tools()->jsonSend([], 1, "编辑网站参数成功");
     }
 
