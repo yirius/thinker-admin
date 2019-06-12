@@ -253,7 +253,6 @@ class Lists extends AdminModelBase
         $queryObject = $this->getModel()
             ->field($this->paramField)
             ->where($this->paramWhere)
-            ->page($this->paramPage, $this->paramLimit)
             ->order($this->paramOrder);
 
         if(!empty($this->paramAlias)){
@@ -276,7 +275,7 @@ class Lists extends AdminModelBase
         //some error with this Object, so colne one for use
         $count = (clone $queryObject)->count();
 
-        $selected = $queryObject->select();
+        $selected = $queryObject->page($this->paramPage, $this->paramLimit)->select();
 
         //if fetchSql
         if(is_string($selected)){

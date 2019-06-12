@@ -201,15 +201,18 @@ HTML
             $rulesTree = \Yirius\Admin\Admin::tools()->tree(AdminRule::all()->toArray(),
                 function ($data) {
                     return [
-                        'text' => $data['title'],
-                        'value' => $data['id']
+                        'title' => $data['title'],
+                        'id' => $data['id']
                     ];
                 }, [
-                    'parentid' => "mid"
+                    'parentid' => "mid",
+                    'sublist' => "children"
                 ]
             );
 
-            $form->tree("rules", "使用规则")->setData($rulesTree);
+            $form->tree("rules", "使用规则")
+                ->setData($rulesTree)
+                ->setShowCheckbox(true);
 
             $form->switchs("status", "状态");
 

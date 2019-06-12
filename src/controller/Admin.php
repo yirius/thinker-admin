@@ -19,14 +19,15 @@ class Admin
 {
     /**
      * @title config
-     * @description get dynamic config
-     * @createtime 2019/2/24 下午1:42
+     * @description
+     * @createtime 2019/6/12 2:27 PM
+     * @param int $access_type
      * @param string $access_token
      * @throws \think\db\exception\DataNotFoundException
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function config($access_token = '')
+    public function config($access_type = 0, $access_token = '')
     {
         if (empty($access_token)) {
             \Yirius\Admin\Admin::tools()->jsonSend([
@@ -35,8 +36,16 @@ class Admin
         } else {
             $member = \Yirius\Admin\Admin::jwt()->decode($access_token);
 
+            //判断是否存在自定义登录方法
+            $config_menu_func = config("thinkeradmin.auth.config_menu_func");
+            //存在config获取方法，同时不是超级管理员
+            if($config_menu_func instanceof \Closure && $access_type != 0){
+                $menu = call($config_menu_func, [$member, $access_type]);
+            }else{
+                $menu = \Yirius\Admin\Admin::auth()->setAccessType($access_type)->getAuthMenu($member['id']);
+            }
             \Yirius\Admin\Admin::tools()->jsonSend([
-                'menu' => \Yirius\Admin\Admin::auth()->getAuthMenu($member['id'])
+                'menu' => $menu
             ]);
         }
     }
@@ -53,16 +62,28 @@ class Admin
      * @throws \think\db\exception\ModelNotFoundException
      * @throws \think\exception\DbException
      */
-    public function login($username, $password, $vercode, $access_type = 0)
+    public function login($username, $password, $vercode, $access_type = 0, $showpass = 0)
     {
         //new static
         $tools = \Yirius\Admin\Admin::tools();
         $auth = \Yirius\Admin\Admin::auth()->setAccessType($access_type);
 
         //首先验证验证码输入
-        if (!captcha_check($vercode)) {
+        if (!captcha_check($vercode) && $showpass) {
             $tools->jsonSend([], 0, lang("incorrect verfiy"));
         }
+
+        //判断是否存在登陆错误次数过多无法登录
+        $loginErrorCount = config("thinkeradmin.auth.login_error_count");
+        if(!empty($loginErrorCount)){
+            //判断是否无法登陆了
+            $login_count = Cache::get("login_count_" . $username . "_" . $access_type, 0);
+
+            if($login_count > $loginErrorCount){
+                $tools->jsonSend([], 0, "登录密码错误次数超过限制，请您联系管理员");
+            }
+        }
+
         //利用Auth来校验用户信息
         $userinfo = $auth->getUserinfo($username);
         //查无此用户
@@ -73,6 +94,10 @@ class Admin
             $resultData = [];
             //判断是否是总后台登录
             if($access_type === 0){
+                //状态没打开
+                if($userinfo['status'] == 0){
+                    $tools->jsonSend([], 0, "出现了未知问题，您无法登录，请您联系客服");
+                }
                 //如果用户密码错误的话
                 if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
                     $resultData = false;
@@ -89,7 +114,7 @@ class Admin
                 //判断是否存在自定义登录方法
                 $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
                 if($login_verfiy_func instanceof \Closure){
-                    $resultData = call($login_verfiy_func, [$username, $password, $userinfo]);
+                    $resultData = call($login_verfiy_func, [$username, $password, $userinfo, $access_type]);
                 }else{
                     //如果用户密码错误的话
                     if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
@@ -107,8 +132,20 @@ class Admin
             }
             //如果是真等于false，说明失败了
             if($resultData === false){
+                if(!empty($loginErrorCount)){
+                    //是否开启登录次数
+                    if(Cache::has("login_count_" . $username . "_" . $access_type)){
+                        Cache::inc("login_count_" . $username . "_" . $access_type);
+                    }else{
+                        Cache::set("login_count_" . $username . "_" . $access_type, 1);
+                    }
+                }
                 $tools->jsonSend([], 0, lang("incorrect username or password"));
             }else{
+                if(!empty($loginErrorCount)) {
+                    //是否开启登录次数
+                    Cache::set("login_count_" . $username . "_" . $access_type, 0);
+                }
                 //首先赋值token
                 $resultData['access_token'] = \Yirius\Admin\Admin::jwt()->encode($resultData);
                 //然后赋值config

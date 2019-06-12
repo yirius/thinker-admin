@@ -117,7 +117,7 @@ HTML
                 $restfulUrl = explode("?", $this->table->getRestfulUrl());
                 $url = $restfulUrl[0] . "/{{d.id}}?__type=field&" . $restfulUrl[1];
             }else{
-                $url = $this->table->getRestfulUrl() . "/{{d.id}}";
+                $url = $this->table->getRestfulUrl() . "/{{d.id}}?__type=field";
             }
         }
 

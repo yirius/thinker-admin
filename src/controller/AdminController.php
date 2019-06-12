@@ -125,7 +125,7 @@ class AdminController extends Controller
             $logout = $code == 1001 ? 'layui.session.logout();' : '';
             response(<<<HTML
 <script>
-layui.layer.alert("{$msg}", {title: "温馨提示"}, function(index){
+parent.layui.layer.alert("{$msg}", {title: "温馨提示"}, function(index){
     layer.closeAll();
     {$logout}
 });
@@ -150,18 +150,30 @@ HTML
         }
 
         $userinfo = \Yirius\Admin\Admin::auth()
-            ->setAccessType($this->getToken("access_token"))
+            ->setAccessType($this->getToken("access_type"))
             ->getUserinfo($this->getToken("id"), "id");
 
         $resultData = true;
         //判断是否存在自定义登录方法
-        $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
-        if($login_verfiy_func instanceof \Closure){
-            $resultData = call($login_verfiy_func, [$this->getToken("username"), $password, $userinfo]);
-        }else{
+        if($this->getToken("access_token") == 0){
             //如果用户密码错误的话
             if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
                 $resultData = false;
+            }
+        }else{
+            $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
+            if($login_verfiy_func instanceof \Closure){
+                $resultData = call($login_verfiy_func, [
+                    $this->getToken("username"),
+                    $password,
+                    $userinfo,
+                    $this->getToken("access_type")
+                ]);
+            }else{
+                //如果用户密码错误的话
+                if ($userinfo['password'] != sha1($password . $userinfo['salt'])) {
+                    $resultData = false;
+                }
             }
         }
         if($resultData === false){

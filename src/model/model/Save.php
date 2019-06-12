@@ -52,13 +52,19 @@ class Save extends AdminModelBase
      * @title setValidate
      * @description
      * @createtime 2019/3/3 下午10:34
-     * @param array $validate
+     * @param array|Validate $validate
      * @param array $msg
      * @return $this
      */
-    public function setValidate(array $validate, array $msg)
+    public function setValidate($validate, array $msg = null)
     {
-        $this->validate = Validate::make($validate, $msg);
+        if($validate instanceof Validate){
+            $this->validate = $validate;
+        }else{
+            if(is_array($validate) && is_array($msg)){
+                $this->validate = Validate::make($validate, $msg);
+            }
+        }
 
         return $this;
     }

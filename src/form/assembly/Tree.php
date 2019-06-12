@@ -16,153 +16,109 @@ use Yirius\Admin\form\Assembly;
  * Class Tree
  *
  * @method Tree setData(array $data);
- * @method Tree setEmptText($text);
- * @method Tree setUrl($url);
- * @method Tree setRenderAfterExpand(bool $bool);
- * @method Tree setHighlightCurrent(bool $bool);
- * @method Tree setDefaultExpandAll(bool $bool);
- * @method Tree setExpandOnClickNode(bool $bool);
- * @method Tree setCheckOnClickNode(bool $bool);
- * @method Tree setDefaultExpandedKeys(array $expendKey);
- * @method Tree setAutoExpandParent(bool $bool);
- * @method Tree setShowCheckbox(bool $bool);
- * @method Tree setCheckStrictly(bool $bool);
- * @method Tree setDefaultCheckedKeys(array $checkKeys);
- * @method Tree setccordion(bool $bool);
- * @method Tree setIndent(int $indent);
- * @method Tree setLazy(bool $bool);
- * @method Tree setDraggable(bool $bool);
- * @method Tree setContextmenuList(array $list);
+ * @method Tree setShowCheckbox(bool $isShow)
+ * @method Tree setEdit(bool|array $edit)
+ * @method Tree setAccordion(bool $isAccordion)
+ * @method Tree setOnlyIconControl(bool $isOnlyIconControl)
+ * @method Tree setIsJump(bool $isIsJump)
+ * @method Tree setShowLine(bool $isShowLine)
+ * @method Tree setSpread(array $spread)
+ * @method Tree setDisabled(array $disabled)
  *
  * @method Tree getData();
- * @method Tree getEmptText();
- * @method Tree getUrl();
- * @method Tree getRenderAfterExpand();
- * @method Tree getHighlightCurrent();
- * @method Tree getDefaultExpandAll();
- * @method Tree getExpandOnClickNode();
- * @method Tree getCheckOnClickNode();
- * @method Tree getDefaultExpandedKeys();
- * @method Tree getAutoExpandParent();
- * @method Tree getShowCheckbox();
- * @method Tree getCheckStrictly();
- * @method Tree getDefaultCheckedKeys();
- * @method Tree getccordion();
- * @method Tree getIndent();
- * @method Tree getLazy();
- * @method Tree getDraggable();
- * @method Tree getContextmenuList();
+ * @method Tree getShowCheckbox()
+ * @method Tree getEdit()
+ * @method Tree getAccordion()
+ * @method Tree getOnlyIconControl()
+ * @method Tree getIsJump()
+ * @method Tree getShowLine()
+ * @method Tree getSpread()
+ * @method Tree getDisabled()
  *
  * @package Yirius\Admin\form\assembly
  */
 class Tree extends Assembly
 {
     /**
-     * @var string
-     */
-    protected $event = '';
-
-    /**
-     * @var string
-     */
-    protected $checkedEvent = '';
-
-    /**
      * @var array
      */
     protected $config = [
-        'renderAfterExpand' => false,
-        'showCheckbox' => true
+        'data' => [],
+        'checked' => [],
+        'spread' => [],
+        'disabled' => []
     ];
 
+    protected $clickEvent = '';
+
+    protected $checkedEvent = '';
+
+    protected $operateEvent = '';
+
     /**
-     * @title click
+     * @title setClickEvent
      * @description
-     * @createtime 2019/2/28 下午5:28
-     * @param $callback
+     * @createtime 2019/6/12 3:41 PM
+     * @param $clickEvent
      * @return $this
      */
-    public function click($callback)
+    public function setClickEvent($clickEvent)
     {
-       $this->event = <<<HTML
-layui.eleTree.on("nodeClick({$this->getId()})",function(d) {
-    {$callback}
-});
-HTML
-        ;
+        $this->clickEvent = $clickEvent;
 
         return $this;
     }
 
     /**
-     * @title checked
+     * @title setOperateEvent
      * @description
-     * @createtime 2019/2/28 下午5:31
-     * @param $callback
+     * @createtime 2019/6/12 3:41 PM
+     * @param $operateEvent
      * @return $this
      */
-    public function checked($callback)
+    public function setOperateEvent($operateEvent)
     {
-        $this->checkedEvent = $callback;
+        $this->operateEvent = $operateEvent;
 
         return $this;
     }
 
     /**
-     * @title contextmenu
+     * @title setCheckedEvent
      * @description
-     * @createtime 2019/2/28 下午5:31
-     * @param $callback
+     * @createtime 2019/6/12 3:41 PM
+     * @param $checkedEvent
      * @return $this
      */
-    public function contextmenu($callback)
+    public function setCheckedEvent($checkedEvent)
     {
-        $this->event = <<<HTML
-layui.eleTree.on("nodeContextmenu({$this->getId()})",function(d) {
-    {$callback}
-});
-HTML
-        ;
+        $this->checkedEvent = $checkedEvent;
 
         return $this;
     }
 
     /**
-     * @title drag
-     * @description
-     * @createtime 2019/2/28 下午5:31
-     * @param $callback
-     * @return $this
+     * @return string
      */
-    public function drag($callback)
+    public function getClickEvent()
     {
-        $this->event = <<<HTML
-layui.eleTree.on("nodeDrag({$this->getId()})",function(d) {
-    {$callback}
-});
-HTML
-        ;
-
-        return $this;
+        return $this->clickEvent;
     }
 
     /**
-     * @title append
-     * @description
-     * @createtime 2019/2/28 下午5:31
-     * @param $callback
-     * @return $this
+     * @return string
      */
-    public function append($callback)
+    public function getCheckedEvent()
     {
-        $this->event = <<<HTML
-layui.eleTree.on("nodeAppend({$this->getId()})",function(d) {
-    {$callback}
-});
-HTML
-        ;
+        return $this->checkedEvent;
+    }
 
-        return $this;
+    /**
+     * @return string
+     */
+    public function getOperateEvent()
+    {
+        return $this->operateEvent;
     }
 
     /**
@@ -173,23 +129,42 @@ HTML
      */
     public function render()
     {
+        //运算一遍数据
+        $this->setDataField($this->config['data']);
+
         //add script
         Admin::script(<<<HTML
 (function(){
-var currentEleTree = document.querySelector("#{$this->getId()}");
-currentEleTree.eleTree = layui.eleTree.render($.extend({
-    elem: "#{$this->getId()}"
+var currentEleTree = document.querySelector("#{$this->getId()}"), isLoaded = false, currentTreeInput = layui.jquery("#{$this->getId()}_input");
+currentEleTree.tree = layui.tree.render($.extend({
+    elem: "#{$this->getId()}",
+    id: "{$this->getId()}",
+    click: function(obj){
+        {$this->clickEvent}
+    },
+    oncheck: function(obj){
+        if(isLoaded){
+            this.checked = [];
+            this._eachChecked(layui.tree.getChecked('{$this->getId()}'));
+            currentTreeInput.val(this.checked.join(","));
+            {$this->checkedEvent}
+        }
+    },
+    operate: function(obj){
+        {$this->operateEvent}
+    },
+    _eachChecked: function(data){
+        var _this = this;
+        layui.each(data, function(n, v){
+            _this.checked.push(v.id);
+            if(v.children.length !== 0){
+                _this._eachChecked(v.children);
+            }
+        });
+    }
 }, {$this->getConfig()}));
-layui.eleTree.on("nodeChecked({$this->getId()})",function(d) {
-    //add checkEvent
-    var _checked = [];
-    layui.each(currentEleTree.eleTree.getChecked(false, true), function(n, v){
-        _checked.push(v.value);
-    });
-    $("#{$this->getId()}_input").val(_checked.join(","));
-    {$this->checkedEvent}
-});
-{$this->event}
+//防止错误触发
+isLoaded = true;
 })();
 HTML
         );
@@ -198,7 +173,7 @@ HTML
 <label class="layui-form-label">{$this->getLabel()}</label>
 <div class="{$this->getClass()}">
     <input type="hidden" name="{$this->getName()}" id="{$this->getId()}_input" lay-filter="{$this->getId()}_input" value="{$this->getValue()}" />
-    <div class="eleTree" id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttributes()} ></div>
+    <div id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttributes()} ></div>
 </div>
 HTML;
     }
@@ -210,9 +185,7 @@ HTML;
      */
     protected function afterSetForm()
     {
-        Admin::script('eleTree', 2);
-
-        Admin::style('eleTree', 1);
+        Admin::script('tree', 2);
     }
 
     /**
@@ -246,11 +219,39 @@ HTML;
      */
     public function setValue($value)
     {
+        $this->config['checked'] = is_array($value) ? $value : explode(",", $value);
+
         $this->value = is_array($value) ? join(",", $value) : $value;
 
-        $this->setDefaultCheckedKeys(is_array($value) ? $value : explode(",", $value));
-
         return $this;
+    }
+
+    /**
+     * @title setDataField
+     * @description
+     * @createtime 2019/6/12 3:17 PM
+     * @param array $data
+     */
+    protected function setDataField(array &$data)
+    {
+        foreach($data as $i => $v){
+            if(in_array($v['id'], $this->config['checked'])){
+                if(empty($v['children'])) {
+                    $data[$i]["checked"] = true;
+                }
+            }
+            if(in_array($v['id'], $this->config['spread'])){
+                if(!empty($v['children'])) {
+                    $data[$i]["spread"] = true;
+                }
+            }
+            if(in_array($v['id'], $this->config['disabled'])){
+                $data[$i]["disabled"] = true;
+            }
+            if(!empty($v['children'])){
+                $this->setDataField($data[$i]['children']);
+            }
+        }
     }
 
     /**

@@ -112,7 +112,11 @@ abstract class AdminRestful extends AdminController
             $adminSaveModel = ($this->restfulTable)::adminSave();
 
             if(!is_null($validate)){
-                $adminSaveModel->setValidate(...$validate);
+                if(is_array($validate)){
+                    $adminSaveModel->setValidate(...$validate);
+                }else{
+                    $adminSaveModel->setValidate($validate);
+                }
             }
 
             $isAdd = $adminSaveModel

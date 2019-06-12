@@ -14,8 +14,10 @@ return [
         ],
         'access_type' => 0,
         'login_field' => "username|phone",
-        'login_verfiy_func' => null,
-        'login_update_func' => null
+        'login_verfiy_func' => null,//用户登录校验配置
+        'login_update_func' => null,//自定义用户参数更新配置
+        'config_menu_func' => null,//自定义返回菜单配置
+        'login_error_count' => 0,//是否开启登陆错误参数，0为不开启
     ],
 
     //Rule相关配置
