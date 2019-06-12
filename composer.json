@@ -1,7 +1,7 @@
 {
     "name": "yirius/thinker-admin",
     "description": "use five line php code to create an administrator view",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "license": "MIT",
     "authors": [
         {
