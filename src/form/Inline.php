@@ -27,6 +27,7 @@ use Yirius\Admin\Layout;
  * @method Assembly\Switchs switchs($name, $label)
  * @method Assembly\Text text($name, $label)
  * @method Assembly\Textarea textarea($name, $label)
+ * @method Assembly\Transfer transfer($name, $label)
  * @method Assembly\Tree tree($name, $label)
  * @method Assembly\Upload upload($name, $label)
  * @method Assembly\WangEditor wangeditor($name, $label)
