@@ -1,7 +1,7 @@
 {
     "name": "yirius/thinker-admin",
-    "description": "use five line php code to create an administrator view",
-    "version": "1.1.0",
+    "description": "use few line php code to create an administrator view",
+    "version": "2.0.0",
     "license": "MIT",
     "authors": [
         {
@@ -9,7 +9,17 @@
             "email": "2951979767@qq.com"
         }
     ],
-    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0.0",
+        "topthink/framework": "5.1.*",
+        "firebase/php-jwt": "*"
+    },
+    "require-dev": {
+        "ext-json": "*",
+        "ext-gd": "*",
+        "ext-openssl":"*",
+        "topthink/think-testing": "*"
+    },
     "autoload": {
         "psr-4": {
             "Yirius\\Admin\\": "src/"
@@ -19,11 +29,6 @@
         ]
     },
     "autoload-dev": {},
-    "require": {
-        "yirius/icesjwt": ">=1.0",
-        "topthink/think-captcha": ">=2.0",
-        "topthink/think-image": ">=1.0",
-        "ext-json": "*"
-    },
+    "scripts": {},
     "extra": {}
 }
