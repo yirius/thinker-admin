@@ -11,13 +11,15 @@
     ],
     "require": {
         "php": ">=7.0.0",
-        "topthink/framework": "5.1.*",
-        "firebase/php-jwt": "*"
-    },
-    "require-dev": {
         "ext-json": "*",
         "ext-gd": "*",
         "ext-openssl":"*",
+        "topthink/framework": "5.1.*",
+        "firebase/php-jwt": "*",
+        "topthink/think-captcha": "2.0.*",
+        "topthink/think-migration": "*"
+    },
+    "require-dev": {
         "topthink/think-testing": "*"
     },
     "autoload": {
