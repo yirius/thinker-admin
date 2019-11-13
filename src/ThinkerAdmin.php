@@ -6,69 +6,77 @@ namespace Yirius\Admin;
 
 use Yirius\Admin\auth\Auth;
 use Yirius\Admin\auth\Jwt;
+use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Send;
 use Yirius\Admin\widgets\Tree;
 use Yirius\Admin\widgets\Validate;
+use Yirius\Admin\widgets\Widgets;
 
+/**
+ * Class ThinkerAdmin
+ * @method static Send Send()
+ * @method static Validate Validate()
+ * @method static Tree Tree()
+ * @method static Auth Auth()
+ * @method static Jwt Jwt()
+ * @method static Cache Cache()
+ * @package Yirius\Admin
+ */
 class ThinkerAdmin
 {
     /**
-     * @title      Send
-     * @description 返回输出实例
-     * @createtime 2019/11/12 7:25 下午
-     * @return Send
+     * @var array
+     */
+    protected static $extends = [
+        'send'     =>   Send::class,
+        'validate' =>   Validate::class,
+        'tree'     =>   Tree::class,
+        'auth'     =>   Auth::class,
+        'jwt'      =>   Jwt::class,
+        'cache'    =>   Cache::class
+    ];
+
+    /**
+     * @title      extend
+     * @description 继承新的类库
+     * @createtime 2019/11/13 11:05 下午
+     * @param      $name
+     * @param null $class
      * @author     yangyuance
      */
-    public static function Send()
+    public static function extend($name, $class = null)
     {
-        return (new Send());
+        if(is_array($name)){
+            static::$extends = array_merge(static::$extends, array_change_key_case($name, CASE_LOWER));
+        }else{
+            if(!is_null($class)){
+                static::$extends[strtolower($name)] = $class;
+            }
+        }
     }
 
     /**
-     * @title      Validate
-     * @description
-     * @createtime 2019/11/12 7:29 下午
-     * @return Validate
+     * @title      __callStatic
+     * @description 触发自定义类库
+     * @createtime 2019/11/13 10:58 下午
+     * @param $name
+     * @param $arguments
+     * @return null
      * @author     yangyuance
      */
-    public static function Validate()
+    public static function __callStatic($name, $arguments)
     {
-        return (new Validate());
-    }
-
-    /**
-     * @title      Tree
-     * @description
-     * @createtime 2019/11/12 10:55 下午
-     * @return Tree
-     * @author     yangyuance
-     */
-    public static function Tree()
-    {
-        return (new Tree());
-    }
-
-    /**
-     * @title      Tree
-     * @description
-     * @createtime 2019/11/12 10:55 下午
-     * @return Auth
-     * @author     yangyuance
-     */
-    public static function Auth()
-    {
-        return (new Auth());
-    }
-
-    /**
-     * @title      Jwt
-     * @description
-     * @createtime 2019/11/12 11:30 下午
-     * @return Jwt
-     * @author     yangyuance
-     */
-    public static function Jwt()
-    {
-        return (new Jwt());
+        if(isset(static::$extends[strtolower($name)])){
+            //判断是否存在该类
+            $newClass = (new static::$extends[strtolower($name)]);
+            //存在的话，判断参数
+            if(method_exists($newClass, "setArguments")){
+                $newClass->setArguments($arguments);
+            }
+            //返回实例化
+            return $newClass;
+        }else{
+            return null;
+        }
     }
 }

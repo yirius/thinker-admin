@@ -22,7 +22,13 @@ class Jwt
             'publickey' => '',
         ],
         'notbefore' => 0,
-        'expire' => 43200//0标识不过期
+        'expire' => 43200,//0标识不过期
+        //过期jwt返回重新登录状态
+        'expired_code' => 1001,
+        //设置多长时间内没有auth验证操作就不在续期token
+        'expired_operate_time' => 7200,
+        //如果当前设定时间内存在验证Auth的操作，就返回重新设置token的状态
+        'reexpired_code' => 1002
     ];
 
     /**
@@ -243,25 +249,25 @@ class Jwt
                 //将用户数据传递给过期回调
                 call_user_func($this->expiredCall, $payload, $err);
             }else{
-                ThinkerAdmin::Send()->json([], 1001, lang("authorization has expired"));
+                ThinkerAdmin::Send()->json([], $this->config['expired_code'], lang("authorization has expired"));
             }
         } catch (SignatureInvalidException $err) {
             if($this->signInvalidCall instanceof \Closure){
                 call_user_func($this->signInvalidCall, null, $err);
             }else{
-                ThinkerAdmin::Send()->json([], 1001, lang("incorrect authorization"));
+                ThinkerAdmin::Send()->json([], $this->config['expired_code'], lang("incorrect authorization"));
             }
         } catch (BeforeValidException $err) {
             if($this->beforeValidCall instanceof \Closure){
                 call_user_func($this->beforeValidCall, null, $err);
             }else{
-                ThinkerAdmin::Send()->json([], 1001, lang("need to relogin"));
+                ThinkerAdmin::Send()->json([], $this->config['expired_code'], lang("need to relogin"));
             }
         } catch (\Exception $err) {
             if($this->errorCall instanceof \Closure){
                 call_user_func($this->errorCall, null, $err);
             }else{
-                ThinkerAdmin::Send()->json([], 1001, lang("need to relogin with some error"));
+                ThinkerAdmin::Send()->json([], $this->config['expired_code'], lang("need to relogin with some error"));
             }
         }
     }

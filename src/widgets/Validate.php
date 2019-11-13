@@ -6,7 +6,7 @@ namespace Yirius\Admin\widgets;
 
 use Yirius\Admin\ThinkerAdmin;
 
-class Validate
+class Validate extends Widgets
 {
     /**
      * @title      make

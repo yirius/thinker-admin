@@ -4,6 +4,7 @@ namespace Yirius\Admin\extend;
 
 use think\App;
 use think\Controller;
+use think\facade\Cache;
 use Yirius\Admin\auth\Auth;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -74,14 +75,6 @@ class ThinkerController extends Controller
             }, $this->tokenAuth['except']);
         }
 
-        //判断那些是需要获取auth
-        if(isset($this->tokenAuth['nocheck'])){
-            //如果存在except，就是这些排除
-            $nocheck = array_map(function ($item) {
-                return strtolower($item);
-            }, $this->tokenAuth['nocheck']);
-        }
-
         if (isset($only) && !in_array($actionName, $only)) {
             //只验证这些
             $this->checkUrlAuth();
@@ -107,7 +100,52 @@ class ThinkerController extends Controller
             $paramToken = input('param.' . $tokenName, false);
 
             if($headerToken || $paramToken){
-                $this->tokenInfo = ThinkerAdmin::Jwt()->decode($headerToken ? $headerToken : $paramToken);
+                //获取TokenInfo，然后判断一下如果是1002的返回码，就
+                $this->tokenInfo = ThinkerAdmin::Jwt()
+                    ->setExpiredCall(function($payload, $err){
+                        $err = null;
+                        $lastUseTime = ThinkerAdmin::Cache()->getTokenCache("jwt", [
+                            'id' => $payload->payload->id,
+                            'access_type' => $payload->payload->access_type
+                        ], 0);
+
+                        if(time() - $lastUseTime <= config("thinkeradmin.jwt.expired_operate_time")){
+                            //如果还没超过操作时间
+                            $lastUseTime = null;
+                            $tokenData = [];
+                            foreach($payload->payload as $key => $item){
+                                $tokenData[$key] = $item;
+                            }
+
+                            //重新序列化参数
+                            $tokenData[config('thinkeradmin.auth.token_name')] =
+                                ThinkerAdmin::jwt()->encode($tokenData);
+
+                            //发送重新注册token的参数
+                            ThinkerAdmin::Send()->json(
+                                $tokenData,
+                                config("thinkeradmin.jwt.reexpired_code"),
+                                lang("authorization has expired")
+                            );
+                        } else {
+                            $lastUseTime = null;
+                            ThinkerAdmin::Send()->json(
+                                [],
+                                config("thinkeradmin.jwt.expired_code"),
+                                lang("authorization has expired")
+                            );
+                        }
+                    })
+                    ->decode($headerToken ? $headerToken : $paramToken);
+
+                //设置缓存判断当前的token状态, 缓存设置的过期时间
+                ThinkerAdmin::Cache()->setTokenCache(
+                    "jwt",
+                    $this->tokenInfo,
+                    time(),
+                    config("thinkeradmin.jwt.expired_operate_time")
+                );
+
                 $this->auth = ThinkerAdmin::Auth()->setAccessType($this->tokenInfo['access_type']);
             }else{
                 ThinkerAdmin::Send()->json([], 0, "不存在Auth信息，无法验证身份");

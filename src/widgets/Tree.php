@@ -4,7 +4,7 @@
 namespace Yirius\Admin\widgets;
 
 
-class Tree
+class Tree extends Widgets
 {
     /**
      * @var array

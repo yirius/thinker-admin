@@ -6,6 +6,7 @@ namespace Yirius\Admin\route\controller;
 
 use think\captcha\Captcha;
 use think\facade\Cache;
+use think\facade\Response;
 use think\facade\Validate;
 use think\Request;
 use Yirius\Admin\auth\AuthUser;
@@ -15,7 +16,7 @@ use Yirius\Admin\ThinkerAdmin;
 class Admin extends ThinkerController
 {
     protected $tokenAuth = [
-        'except' => ['captcha', 'login']
+        'except' => ['captcha', 'login', 'menus']
     ];
 
     /**
@@ -155,8 +156,25 @@ class Admin extends ThinkerController
         }
     }
 
+    /**
+     * @title      menus
+     * @description 获取到菜单
+     * @createtime 2019/11/13 2:17 下午
+     * @author     yangyuance
+     */
     public function menus()
     {
+        $this->getAuth();
 
+        //获取所有的菜单
+        $menus = $this->auth->getMenus($this->tokenInfo['id']);
+
+        //如果存在自定义菜单过滤，就使用
+        $menu_fliter = config("thinkeradmin.menu_fliter");
+        if($menu_fliter instanceof \Closure){
+            $menus = call_user_func($menu_fliter, $menus, $this->tokenInfo, $this->auth);
+        }
+
+        ThinkerAdmin::Send()->json($menus);
     }
 }

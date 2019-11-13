@@ -4,7 +4,7 @@
 namespace Yirius\Admin\widgets;
 
 
-class Send
+class Send extends Widgets
 {
     /**
      * @title      json
