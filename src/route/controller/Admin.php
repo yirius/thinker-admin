@@ -14,6 +14,10 @@ use Yirius\Admin\ThinkerAdmin;
 
 class Admin extends ThinkerController
 {
+    protected $tokenAuth = [
+        'except' => ['captcha', 'login']
+    ];
+
     /**
      * @title      captcha
      * @description
@@ -36,7 +40,7 @@ class Admin extends ThinkerController
 
     /**
      * @title            login
-     * @description
+     * @description 后台登录界面
      * @createtime       2019/11/12 7:29 下午
      * @param Request $request
      * @author           yangyuance
@@ -69,12 +73,10 @@ class Admin extends ThinkerController
 
         //判断是否已经超过了错误次数限制
         $loginErrorCount = config("thinkeradmin.auth.login_error_count");
+        $loginCacheName = "login_count_" . addslashes($params['username']) . "_" . $accessType;
         if(!empty($loginErrorCount)){
             //找到当前登录用户名的次数
-            $loginCount = Cache::get(
-                "login_count_" . addslashes($params['username']) . "_" . $accessType,
-                0
-            );
+            $loginCount = Cache::get($loginCacheName, 0);
             if($loginCount > $loginErrorCount){
                 $send->json([], 0, "登录密码错误次数超过限制，请您联系管理员");
             }
@@ -132,24 +134,29 @@ class Admin extends ThinkerController
         if($resultData === false){
             if(!empty($loginErrorCount)){
                 //是否开启登录次数
-                if(Cache::has("login_count_" . addslashes($params['username']) . "_" . $accessType)){
-                    Cache::inc("login_count_" . addslashes($params['username']) . "_" . $accessType);
+                if(Cache::has($loginCacheName)){
+                    Cache::inc($loginCacheName);
                 }else{
-                    Cache::set("login_count_" . addslashes($params['username']) . "_" . $accessType, 1);
+                    Cache::set($loginCacheName, 1);
                 }
             }
             $send->json([], 0, lang("incorrect username or password"));
         }else{
             if(!empty($loginErrorCount)) {
                 //是否开启登录次数
-                Cache::set("login_count_" . addslashes($params['username']) . "_" . $accessType, 0);
+                Cache::set($loginCacheName, 0);
             }
 
             //首先赋值token
-            $resultData['access_token'] = ThinkerAdmin::jwt()->encode($resultData);
+            $resultData[config('thinkeradmin.auth.token_name')] = ThinkerAdmin::jwt()->encode($resultData);
 
             //否则的话直接返回对应的jwt
             $send->json($resultData, 1, lang("login success"));
         }
+    }
+
+    public function menus()
+    {
+
     }
 }

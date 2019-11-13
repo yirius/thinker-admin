@@ -123,7 +123,7 @@ class AuthUser
      * @throws ModelNotFoundException
      * @author      yangyuance
      */
-    protected function _rulesSelect($userid, $type = 1)
+    public function _rulesSelect($userid, $type = 1)
     {
         //如果已经存在了
         if ($authList = cache("thinker_authlist_".$this->config['access_type']."_".$userid."_".$type)) {

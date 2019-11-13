@@ -155,4 +155,75 @@ class Auth
             return [];
         }
     }
+
+    /**
+     * @title      checkRule
+     * @description
+     * @createtime 2019/11/13 12:53 下午
+     * @param        $rules
+     * @param        $userid
+     * @param int    $type
+     * @param string $relation
+     * @return bool
+     * @author     yangyuance
+     */
+    public function checkRule($rules, $userid, $type = 1, $relation = 'or')
+    {
+        $useRules = $this->getRules($userid, $type);
+
+        if (is_string($rules)) {
+            $rules = explode(',', strtolower($rules));
+        }
+
+        $canUserRules = [];
+        foreach ($useRules as $useRule) {
+            if (in_array($useRule, $rules)) {
+                $canUserRules[] = $useRule;
+            }
+        }
+
+        if ('or' == $relation && !empty($canUserRules)) {
+            return true;
+        }
+
+        $diff = array_diff($rules, $canUserRules);
+        if ('and' == $relation && empty($diff)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * @title      checkUrl
+     * @description
+     * @createtime 2019/11/13 2:09 下午
+     * @param $url
+     * @param $userid
+     * @return bool
+     * @author     yangyuance
+     */
+    public function checkUrl($url, $userid)
+    {
+        try{
+            $useRules = $this->authUser->_rulesSelect($userid);
+        }catch (\Exception $exception){
+            $useRules = [];
+        }
+
+        //找到那些路径是可用的
+        $canUseUrl = [];
+        foreach($useRules as $useRule){
+            if(!empty($useRule['url'])){
+                $canUseUrl[] = strtolower($useRule['url']);
+            }
+        }
+
+        //判断当前Url是否可用
+        if(in_array(strtolower($url), $canUseUrl)){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
