@@ -81,8 +81,12 @@ class ThinkerController extends Controller
         } elseif (isset($except) && in_array($actionName, $except)) {
             //在数组内的不验证，直接过
         } else {
-            //其他情况都需要验证
-            $this->checkUrlAuth();
+            if(isset($this->tokenAuth['auth']) && empty($this->tokenAuth['auth'])){
+                //除非强制设置为false，否则都验证
+            }else{
+                //其他情况都需要验证
+                $this->checkUrlAuth();
+            }
         }
     }
 

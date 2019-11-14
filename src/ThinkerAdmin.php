@@ -6,6 +6,7 @@ namespace Yirius\Admin;
 
 use Yirius\Admin\auth\Auth;
 use Yirius\Admin\auth\Jwt;
+use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Send;
 use Yirius\Admin\widgets\Tree;
@@ -14,12 +15,15 @@ use Yirius\Admin\widgets\Widgets;
 
 /**
  * Class ThinkerAdmin
+ *
+ * 以下是widgets
  * @method static Send Send()
  * @method static Validate Validate()
  * @method static Tree Tree()
  * @method static Auth Auth()
  * @method static Jwt Jwt()
  * @method static Cache Cache()
+ *
  * @package Yirius\Admin
  */
 class ThinkerAdmin
@@ -28,12 +32,34 @@ class ThinkerAdmin
      * @var array
      */
     protected static $extends = [
+        //widgets添加
         'send'     =>   Send::class,
         'validate' =>   Validate::class,
         'tree'     =>   Tree::class,
         'auth'     =>   Auth::class,
         'jwt'      =>   Jwt::class,
-        'cache'    =>   Cache::class
+        'cache'    =>   Cache::class,
+        //界面展示添加
+        'table'    =>   ThinkerTable::class
+    ];
+
+    /**
+     *
+     * @var array
+     */
+    protected static $script = [
+        'file' => [],
+        'use' => [],
+        'script' => [],
+        'template' => []
+    ];
+
+    /**
+     * @var array
+     */
+    protected static $style = [
+        'file' => [],
+        'style' => []
     ];
 
     /**
@@ -53,6 +79,75 @@ class ThinkerAdmin
                 static::$extends[strtolower($name)] = $class;
             }
         }
+    }
+
+    /**
+     * @title      Table
+     * @description 快速初始化表格
+     * @createtime 2019/11/14 5:07 下午
+     * @param callable|null $callback
+     * @return ThinkerTable
+     * @author     yangyuance
+     */
+    public static function Table(callable $callback = null)
+    {
+        return (new ThinkerTable($callback));
+    }
+
+    /**
+     * @title      style
+     * @description
+     * @createtime 2019/11/14 6:32 下午
+     * @param      $style
+     * @param bool $isFile
+     * @author     yangyuance
+     */
+    public static function style($style, $isFile = false)
+    {
+        if ($isFile === 0) {
+            self::$style['style'][] = $style;
+        } else {
+            self::$style['file'][] = $style;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public static function getStyle()
+    {
+        return self::$style;
+    }
+
+    /**
+     * @title      script
+     * @description
+     * @createtime 2019/11/14 6:30 下午
+     * @param      $script
+     * @param bool $isFile
+     * @param bool $isUse
+     * @param bool $isTemplate
+     * @author     yangyuance
+     */
+    public static function script($script, $isFile = false, $isUse = false, $isTemplate = false)
+    {
+        if(!$isFile && !$isUse && !$isTemplate){
+            self::$script['script'][] = $script;
+        }else if($isTemplate){
+            self::$script['template'][] = $script;
+        }else if($isUse){
+            self::$script['use'][] = $script;
+        }else{
+            self::$script['file'][] = $script;
+        }
+    }
+
+    /**
+     * @return array
+     */
+    public static function getScript()
+    {
+        return self::$script;
     }
 
     /**
