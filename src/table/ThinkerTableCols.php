@@ -10,50 +10,50 @@ use Yirius\Admin\ThinkerAdmin;
 
 /**
  * Class ThinkerColumn
- * @method ThinkerColumn setField($value)
- * @method ThinkerColumn setTitle($value)
- * @method ThinkerColumn setWidth($value)
- * @method ThinkerColumn setMinWidth(int $value)
- * @method ThinkerColumn setType($value) 存在normal/checkbox/radio/numbers/space几种类型
-// * @method ThinkerColumn setAllChecked(bool $checked)
- * @method ThinkerColumn setFixed($value) 有left和right两个值
- * @method ThinkerColumn setHide(bool $isShow) 是否隐藏，初始不隐藏
- * @method ThinkerColumn setTotalRow(bool $value) 是否开启列合计
- * @method ThinkerColumn setTotalRowText($value) 列合计的名称
- * @method ThinkerColumn setSort(bool $value) 可以筛选
- * @method ThinkerColumn setUnresize(bool $value)
- * @method ThinkerColumn setEdit($value) text或者select
- * @method ThinkerColumn setEvent($value)
- * @method ThinkerColumn setStyle($value)
- * @method ThinkerColumn setAlign($value)
- * @method ThinkerColumn setColspan(int $value)
- * @method ThinkerColumn setRowspan(int $value)
- * @method ThinkerColumn setTemplet($value)
- * @method ThinkerColumn setToolbar($value)
+ * @method ThinkerTableCols setField($value)
+ * @method ThinkerTableCols setTitle($value)
+ * @method ThinkerTableCols setWidth($value)
+ * @method ThinkerTableCols setMinWidth(int $value)
+ * @method ThinkerTableCols setType($value) 存在normal/checkbox/radio/numbers/space几种类型
+* // * @method ThinkerColumn setAllChecked(bool $checked)
+ * @method ThinkerTableCols setFixed($value) 有left和right两个值
+ * @method ThinkerTableCols setHide(bool $isShow) 是否隐藏，初始不隐藏
+ * @method ThinkerTableCols setTotalRow(bool $value) 是否开启列合计
+ * @method ThinkerTableCols setTotalRowText($value) 列合计的名称
+ * @method ThinkerTableCols setSort(bool $value) 可以筛选
+ * @method ThinkerTableCols setUnresize(bool $value)
+ * @method ThinkerTableCols setEdit($value) text或者select
+ * @method ThinkerTableCols setEvent($value)
+ * @method ThinkerTableCols setStyle($value)
+ * @method ThinkerTableCols setAlign($value)
+ * @method ThinkerTableCols setColspan(int $value)
+ * @method ThinkerTableCols setRowspan(int $value)
+ * @method ThinkerTableCols setTemplet($value)
+ * @method ThinkerTableCols setToolbar($value)
  *
- * @method ThinkerColumn getField()
- * @method ThinkerColumn getTitle()
- * @method ThinkerColumn getWidth()
- * @method ThinkerColumn getMinWidth()
- * @method ThinkerColumn getType()
- * @method ThinkerColumn getAllChecked()
- * @method ThinkerColumn getFixed()
- * @method ThinkerColumn getHide()
- * @method ThinkerColumn getTotalRow()
- * @method ThinkerColumn getTotalRowText()
- * @method ThinkerColumn getSort()
- * @method ThinkerColumn getUnresize()
- * @method ThinkerColumn getEdit()
- * @method ThinkerColumn getEvent()
- * @method ThinkerColumn getStyle()
- * @method ThinkerColumn getAlign()
- * @method ThinkerColumn getColspan()
- * @method ThinkerColumn getRowspan()
- * @method ThinkerColumn getTemplet()
- * @method ThinkerColumn getToolbar()
+ * @method ThinkerTableCols getField()
+ * @method ThinkerTableCols getTitle()
+ * @method ThinkerTableCols getWidth()
+ * @method ThinkerTableCols getMinWidth()
+ * @method ThinkerTableCols getType()
+ * @method ThinkerTableCols getAllChecked()
+ * @method ThinkerTableCols getFixed()
+ * @method ThinkerTableCols getHide()
+ * @method ThinkerTableCols getTotalRow()
+ * @method ThinkerTableCols getTotalRowText()
+ * @method ThinkerTableCols getSort()
+ * @method ThinkerTableCols getUnresize()
+ * @method ThinkerTableCols getEdit()
+ * @method ThinkerTableCols getEvent()
+ * @method ThinkerTableCols getStyle()
+ * @method ThinkerTableCols getAlign()
+ * @method ThinkerTableCols getColspan()
+ * @method ThinkerTableCols getRowspan()
+ * @method ThinkerTableCols getTemplet()
+ * @method ThinkerTableCols getToolbar()
  * @package Yirius\Admin\table
  */
-class ThinkerColumn extends ThinkerLayout
+class ThinkerTableCols extends ThinkerLayout
 {
     /**
      * @var array
@@ -116,7 +116,7 @@ class ThinkerColumn extends ThinkerLayout
      * @param       $class
      * @param bool  $isHref
      * @param array $attrs
-     * @return ThinkerColumn
+     * @return ThinkerTableCols
      * @author     yangyuance
      */
     public function button($text, $event, $icon, $class, $isHref = false, $attrs = [])
@@ -137,7 +137,7 @@ class ThinkerColumn extends ThinkerLayout
      * @createtime 2019/11/14 6:41 下午
      * @param string $text
      * @param string $icon
-     * @return ThinkerColumn
+     * @return ThinkerTableCols
      * @author     yangyuance
      */
     public function edit($text = "编辑", $icon = "edit")
@@ -151,7 +151,7 @@ class ThinkerColumn extends ThinkerLayout
      * @createtime 2019/11/14 6:57 下午
      * @param string $text
      * @param string $icon
-     * @return ThinkerColumn
+     * @return ThinkerTableCols
      * @author     yangyuance
      */
     public function delete($text = "删除", $icon = "delete")
@@ -214,9 +214,9 @@ class ThinkerColumn extends ThinkerLayout
          */
         ThinkerAdmin::script(<<<HTML
 layui.form.on("switch(switch{$config['filter']})", function(obj){
-    var renderData = JSON.parse(obj.elem.dataset.json), beforePut = {$beforePut}, afterPut = {$afterPut};
-    if($.isFunction(beforePut)) renderData = beforePut(renderData);
-    layui.admin.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$config['filter']}"}, function(code,msg,data,all){if($.isFunction(afterPut)) afterPut(code,msg,data,all);});
+    var renderData = JSON.parse(obj.elem.dataset.json), beforePut = '{$beforePut}', afterPut = '{$afterPut}';
+    if(beforePut) renderData = (new Function('return'+beforePut))()(renderData);
+    layui.admin.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$config['filter']}"}, function(code,msg,data,all){if(afterPut) (new Function('return'+afterPut))()(code,msg,data,all);});
 });
 HTML
         );

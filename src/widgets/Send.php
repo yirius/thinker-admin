@@ -46,4 +46,18 @@ class Send extends Widgets
         ], 200, $header, "json")->send();
         exit();
     }
+
+    /**
+     * @title      html
+     * @description
+     * @createtime 2019/11/15 12:03 下午
+     * @param       $data
+     * @param array $header
+     * @author     yangyuance
+     */
+    public function html($data, $header = [])
+    {
+        response($data, 200, $header, "html")->send();
+        exit();
+    }
 }

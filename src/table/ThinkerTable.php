@@ -5,6 +5,7 @@ namespace Yirius\Admin\table;
 
 
 use Yirius\Admin\extend\ThinkerLayout;
+use Yirius\Admin\layout\ThinkerPage;
 use Yirius\Admin\ThinkerAdmin;
 
 /**
@@ -102,12 +103,12 @@ class ThinkerTable extends ThinkerLayout
      * @createtime 2019/11/14 6:43 下午
      * @param $field
      * @param $name
-     * @return ThinkerColumn
+     * @return ThinkerTableCols
      * @author     yangyuance
      */
     public function columns($field, $name)
     {
-        $columns = (new ThinkerColumn($field, $name, $this));
+        $columns = (new ThinkerTableCols($field, $name, $this));
 
         $this->columns[] = $columns;
 
@@ -141,6 +142,7 @@ class ThinkerTable extends ThinkerLayout
 
         $jsonConfig = json_encode($this->getConfig());
 
+        //组合table使用的script
         ThinkerAdmin::script(<<<HTML
 var _searchField = {};
 layui.form.on('submit({$this->getId()}_form_search)', function (data) {
@@ -150,8 +152,7 @@ layui.form.on('submit({$this->getId()}_form_search)', function (data) {
         where: _searchField
     });
 });
-var _{$this->getId()}_ins = layui.table.render($.extend({
-    elem: "#{$this->getId()}",
+var _{$this->getId()}_ins = layui.table.init('{$this->getId()}', $.extend({
     response: {
         statusName: layui.conf.response.statusName,
         statusCode: layui.conf.response.statusCode.ok,
@@ -171,22 +172,23 @@ HTML
     }
 
     /**
-     * @title show
+     * @title      send
      * @description
-     * @createtime 2019/3/3 下午10:49
-     * @param \Closure|null $closure
-     * @return mixed
+     * @createtime 2019/11/15 12:18 下午
+     * @param callable|null $callable
+     * @return string
+     * @author     yangyuance
      */
-    public function show(\Closure $closure = null)
+    public function send(callable $callable = null)
     {
-        if ($closure instanceof \Closure) {
-            return Admin::pageView(function (PageView $pageView) use ($closure) {
-                call($closure, [$pageView, $this->render(), $this->getSearch()]);
-            })->render();
+        if (is_callable($callable)) {
+           return  (new ThinkerPage(function($page) use($callable){
+               call($callable, [$page, $this]);
+            }))->render();
         } else {
-            return Admin::pageView(function (PageView $pageView) {
-                $pageView->card($this->render(), $this->getSearch());
-            })->render();
+            return (new ThinkerPage(function(ThinkerPage $page){
+                $page->card()->setBodyLayout($this);
+            }))->render();
         }
     }
 }

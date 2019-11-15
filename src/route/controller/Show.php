@@ -6,6 +6,11 @@ namespace Yirius\Admin\route\controller;
 
 use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\assemblys\Button;
+use Yirius\Admin\layout\ThinkerCard;
+use Yirius\Admin\layout\ThinkerCollapse;
+use Yirius\Admin\layout\ThinkerCollapseItem;
+use Yirius\Admin\layout\ThinkerCols;
+use Yirius\Admin\layout\ThinkerRows;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -23,16 +28,16 @@ class Show extends ThinkerController
      */
     public function index()
     {
-        echo ThinkerAdmin::Table(function(ThinkerTable $table){
-            $table->restful("111")->setOperateUrl("1231");
+        return ThinkerAdmin::Table(function(ThinkerTable $table){
+            $table->setData([
+                ['id' => 1111, 'id1' => 2222]
+            ]);
 
             $table->columns("id", "ceshi")->edit();
 
             $table->columns("id1", "ce1")->switchs("field")->render();
 
-            echo (new Button("id", "测试按钮"))->danger()->lg()->render();
-        })->render();
-
-        PRINT_R(ThinkerAdmin::getScript());
+//            echo (new Button("id", "测试按钮"))->danger()->lg()->render();
+        })->send();
     }
 }
