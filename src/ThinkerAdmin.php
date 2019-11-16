@@ -6,6 +6,7 @@ namespace Yirius\Admin;
 
 use Yirius\Admin\auth\Auth;
 use Yirius\Admin\auth\Jwt;
+use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Send;
@@ -95,6 +96,19 @@ class ThinkerAdmin
     }
 
     /**
+     * @title      Form
+     * @description 快速初始化表单
+     * @createtime 2019/11/16 9:50 下午
+     * @param callable|null $callback
+     * @return ThinkerForm
+     * @author     yangyuance
+     */
+    public static function Form(callable $callback = null)
+    {
+        return (new ThinkerForm($callback));
+    }
+
+    /**
      * @title      style
      * @description
      * @createtime 2019/11/14 6:32 下午
@@ -104,7 +118,7 @@ class ThinkerAdmin
      */
     public static function style($style, $isFile = false)
     {
-        if ($isFile === 0) {
+        if ($isFile === false) {
             self::$style['style'][] = $style;
         } else {
             self::$style['file'][] = $style;

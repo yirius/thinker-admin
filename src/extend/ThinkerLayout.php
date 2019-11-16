@@ -166,23 +166,41 @@ abstract class ThinkerLayout
     /**
      * @title      setAttrs
      * @description
-     * @createtime 2019/11/14 11:58 下午
-     * @param $attr
+     * @createtime 2019/11/16 10:49 下午
+     * @param      $attr
+     * @param null $value
      * @return $this
      * @author     yangyuance
      */
-    public function setAttrs($attr)
+    public function setAttrs($attr, $value = null)
     {
         //防止传递空参数
         if(empty($attr)){
             return $this;
         }
-
-        if(is_array($attr)){
-            $attr = join(" ", $attr);
+        if (is_array($attr)) {
+            if (is_null($value)) {
+                $this->attrs = array_merge($this->attrs, $attr);
+            }
+        } else {
+            $this->attrs[$attr] = $value;
         }
 
-        $this->attrs[] = $attr;
+        return $this;
+    }
+
+    /**
+     * @title offAttributes
+     * @description
+     * @createtime 2019/2/25 下午6:00
+     * @param $field
+     * @return $this
+     */
+    public function removeAttr($field)
+    {
+        if (isset($this->attrs[$field])) {
+            unset($this->attrs[$field]);
+        }
 
         return $this;
     }
@@ -196,7 +214,13 @@ abstract class ThinkerLayout
      */
     public function getAttrs()
     {
-        return join(" ", $this->attrs);
+        $result = [];
+
+        foreach ($this->attrs as $i => $attribute) {
+            $result[] = $i . '="' . $attribute . '"';
+        }
+
+        return join(" ", $result);
     }
 
     /**

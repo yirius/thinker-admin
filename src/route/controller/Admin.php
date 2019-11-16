@@ -11,6 +11,7 @@ use think\facade\Validate;
 use think\Request;
 use Yirius\Admin\auth\AuthUser;
 use Yirius\Admin\extend\ThinkerController;
+use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -218,8 +219,47 @@ class Admin extends ThinkerController
         })->send("规则管理");
     }
 
+    /**
+     * @title      rulesEdit
+     * @description
+     * @createtime 2019/11/16 10:28 下午
+     * @param int $id
+     * @author     yangyuance
+     */
     public function rulesEdit($id = 0)
     {
+        ThinkerAdmin::Form(function(ThinkerForm $form){
 
+            $form->text("22", "111");
+
+            $form->select("select", "测试Select")->setPlaceholder("--请选择--")->options([
+                ['text' => "测试", 'value' => 1],
+                ['text' => "测试2", 'value' => 2]
+            ]);
+
+            $form->selectplus("selectplus", "测试Select")->setPlaceholder("--请选择--")->options([
+                ['text' => "测试", 'value' => 1],
+                ['text' => "测试2", 'value' => 2]
+            ]);
+
+            $form->radio("radio", "测试radio")->options([
+                ['text' => "测试", 'value' => 1],
+                ['text' => "测试2", 'value' => 2]
+            ]);
+
+            $form->checkbox("checkbox", "测试Checkbox")->options([
+                ['text' => "测试", 'value' => 1],
+                ['text' => "测试2", 'value' => 2]
+            ])->primary();
+
+            $form->colorpicker("ColorPicker", "测试picker");
+
+            $form->date("date", "测试date");
+
+            $form->switchs("switchs", "测试switchs");
+
+            $form->tinyeditor("tinyeditor", "测试tinyeditor");
+
+        })->send("规则修改界面");
     }
 }

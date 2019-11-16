@@ -77,7 +77,7 @@ class ThinkerToolbar extends ThinkerLayout
             (new Button())->sm()
                 ->setText('<i class="layui-icon layui-icon-'. $icon .'"></i>'.$text)
                 ->setClass($class)
-                ->setAttrs(($isHref ? 'thinker-href' : 'lay-event') . '="'.$event.'"')
+                ->setAttrs(($isHref ? 'thinker-href' : 'lay-event'), $event)
                 ->setAttrs($attrs)
                 ->render()
         );

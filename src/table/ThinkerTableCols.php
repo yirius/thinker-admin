@@ -125,7 +125,7 @@ class ThinkerTableCols extends ThinkerLayout
             (new Button())->xs()
                 ->setText('<i class="layui-icon layui-icon-'. $icon .'"></i>'.$text)
                 ->setClass($class)
-                ->setAttrs(($isHref ? 'thinker-href' : 'lay-event') . '="'.$event.'"')
+                ->setAttrs(($isHref ? 'thinker-href' : 'lay-event'), $event)
                 ->setAttrs($attrs)
                 ->render()
         );
@@ -170,7 +170,7 @@ class ThinkerTableCols extends ThinkerLayout
     {
         $this->setWidth(50)->setAlign("center");
 
-        return $this->toolbar((new Button())->xs()->setAttrs('lay-event="expend"')->setAttrs('style="width: 20px;height: 20px;border-radius: 10px;line-height: 20px;cursor: pointer;padding: 0 0 0 3px;"')->setText('<i class="layui-icon layui-icon-add-1"></i>')->render());
+        return $this->toolbar((new Button())->xs()->setAttrs('lay-event', 'expend')->setAttrs('style="width: 20px;height: 20px;border-radius: 10px;line-height: 20px;cursor: pointer;padding: 0 0 0 3px;"')->setText('<i class="layui-icon layui-icon-add-1"></i>')->render());
     }
 
     /**

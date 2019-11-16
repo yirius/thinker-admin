@@ -31,6 +31,11 @@ abstract class Assembly extends ThinkerLayout
     protected $value = null;
 
     /**
+     * @var array
+     */
+    protected $class = ['layui-input-block'];
+
+    /**
      * @var null
      */
     protected $formIns = null;
@@ -46,5 +51,11 @@ abstract class Assembly extends ThinkerLayout
 
         //set assembly's config
         $this->setField($field)->setText($text)->setId("thinker_" . $field);
+
+        $this->_init();
+    }
+
+    protected function _init(){
+
     }
 }

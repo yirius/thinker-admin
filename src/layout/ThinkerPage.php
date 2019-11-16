@@ -154,7 +154,7 @@ class ThinkerPage extends ThinkerLayout
         $useScript = join("\n", $runScript['script']);
         //使用的src
         $srcScript = join("\n", array_map(function($value){
-            return "layui.link(layui.cache.base".$value.".css?v='+layui.conf.v);";
+            return "layui.link(layui.cache.base+'".$value.".js?v='+layui.conf.v);";
         }, $runScript['file']));
 
         //渲染面包屑
@@ -163,6 +163,13 @@ class ThinkerPage extends ThinkerLayout
             $breadcrumb = $this->breadcrumb->render();
         }
 
+        //判断所有的css
+        $runStyle = ThinkerAdmin::getStyle();
+        //得到需要引入的，然后渲染
+        $cssFiles = join("\n", array_map(function($value){
+            return "layui.link(layui.cache.base+'css/".$value.".css?v='+layui.conf.v);";
+        }, $runStyle['file']));
+
         return <<<HTML
 {$breadcrumb}
 <div class="layui-fluid {$this->getClass()}" id="{$this->getId()}" lay-title="{$this->title}" {$this->getAttrs()}>
@@ -170,6 +177,7 @@ class ThinkerPage extends ThinkerLayout
 {$templates}
 </div>
 <script>
+{$cssFiles}
 {$srcScript}
 layui.use({$useFiles}, function(){
     function load(){
