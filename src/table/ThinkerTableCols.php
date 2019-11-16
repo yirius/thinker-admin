@@ -168,7 +168,7 @@ class ThinkerTableCols extends ThinkerLayout
      */
     public function expend()
     {
-        $this->setWidth(55);
+        $this->setWidth(50)->setAlign("center");
 
         return $this->toolbar((new Button())->xs()->setAttrs('lay-event="expend"')->setAttrs('style="width: 20px;height: 20px;border-radius: 10px;line-height: 20px;cursor: pointer;padding: 0 0 0 3px;"')->setText('<i class="layui-icon layui-icon-add-1"></i>')->render());
     }
@@ -215,13 +215,13 @@ class ThinkerTableCols extends ThinkerLayout
         ThinkerAdmin::script(<<<HTML
 layui.form.on("switch(switch{$config['filter']})", function(obj){
     var renderData = JSON.parse(obj.elem.dataset.json), beforePut = '{$beforePut}', afterPut = '{$afterPut}';
-    if(beforePut) renderData = (new Function('return'+beforePut))()(renderData);
-    layui.admin.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$config['filter']}"}, function(code,msg,data,all){if(afterPut) (new Function('return'+afterPut))()(code,msg,data,all);});
+    if(beforePut) renderData = (new Function('return '+beforePut))()(renderData);
+    layui.admin.http.put(layui.laytpl("{$url}").render(renderData), {value: obj.elem.checked ? {$config['checkedValue']} : {$config['unCheckedValue']}, field: "{$config['filter']}"}, function(code,msg,data,all){if(afterPut) (new Function('return '+afterPut))()(code,msg,data,all);});
 });
 HTML
         );
 
-        $this->setTemplet("{$prefixName}_{$field}_templet");
+        $this->setTemplet("#{$prefixName}_{$field}_templet");
 
         //设置模板
         ThinkerAdmin::script(<<<HTML

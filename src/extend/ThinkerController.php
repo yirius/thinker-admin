@@ -169,8 +169,66 @@ class ThinkerController extends Controller
         //首先获取Auth信息
         $this->getAuth();
 
-        if(!$this->auth->checkUrl($this->urlPath, $this->tokenInfo['id'])){
+        if(!$this->auth->checkUrl($this->urlPath, $this->tokenInfo['id'], [1,2])){
             ThinkerAdmin::Send()->json([], 0, "Auth信息失败: 您暂无权限访问");
+        }
+    }
+
+    /**
+     * @title      checkLoginPwd
+     * @description
+     * @createtime 2019/11/16 8:44 下午
+     * @param bool $password
+     * @author     yangyuance
+     */
+    protected function checkLoginPwd($password = false)
+    {
+        //首先获取Auth信息
+        $this->getAuth();
+
+        $password = $this->request->param("password", $password);
+        if(empty($password)) {
+            ThinkerAdmin::Send()->json([], 0, lang("empty password"));
+        }
+
+        //获取用户信息
+        $userInfo = $this->auth->getUser($this->tokenInfo['id']);
+
+        //如果不存在用户
+        if(empty($userInfo)){
+            ThinkerAdmin::Send()->json([], 0, "用户名或密码错误");
+        }
+
+        //判断能否登录
+        if(isset($userInfo['status']) && $userInfo['status'] == 0){
+            ThinkerAdmin::Send()->json([], 0, "用户无法登录使用，请您联系管理员");
+        }
+
+
+        //有一个状态参数
+        $resultData = true;
+
+        if($this->tokenInfo['access_type'] === 0){
+            //总后台登录,使用自定义的算法
+            if ($userInfo['password'] != sha1($password.$userInfo['salt'])) {
+                $resultData = false;
+            }
+        }else{
+            //判断是否存在自定义登录方法
+            $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
+            if($login_verfiy_func instanceof \Closure){
+                $resultData = call($login_verfiy_func, [
+                    ['password' => $password], $userInfo, $this->tokenInfo['access_type']
+                ]);
+            }else{
+                if ($userInfo['password'] != sha1($password.$userInfo['salt'])) {
+                    $resultData = false;
+                }
+            }
+        }
+
+        if($resultData === false){
+            ThinkerAdmin::Send()->json([], 0, lang("incorrect username or password"));
         }
     }
 }

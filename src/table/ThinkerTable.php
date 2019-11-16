@@ -6,6 +6,9 @@ namespace Yirius\Admin\table;
 
 use Yirius\Admin\extend\ThinkerLayout;
 use Yirius\Admin\layout\ThinkerPage;
+use Yirius\Admin\table\event\TableEvent;
+use Yirius\Admin\table\event\ToolbarEvent;
+use Yirius\Admin\table\event\ColsEvent;
 use Yirius\Admin\ThinkerAdmin;
 
 /**
@@ -67,6 +70,22 @@ class ThinkerTable extends ThinkerLayout
     protected $columns = [];
 
     /**
+     * ThinkerToolbar
+     * @var null
+     */
+    protected $toolbarIns = null;
+
+    /**
+     * @var null
+     */
+    protected $colsEvent = null;
+
+    /**
+     * @var null
+     */
+    protected $tableEvent = null;
+
+    /**
      * ThinkerTable constructor.
      * @param callable|null $callback
      */
@@ -106,13 +125,76 @@ class ThinkerTable extends ThinkerLayout
      * @return ThinkerTableCols
      * @author     yangyuance
      */
-    public function columns($field, $name)
+    public function columns($field = "", $name = "")
     {
         $columns = (new ThinkerTableCols($field, $name, $this));
 
         $this->columns[] = $columns;
 
         return $columns;
+    }
+
+    /**
+     * @title      getColumnsCount
+     * @description
+     * @createtime 2019/11/15 6:31 下午
+     * @return int
+     * @author     yangyuance
+     */
+    public function getColumnsCount()
+    {
+        return count($this->columns);
+    }
+
+    /**
+     * @title      toolEvent
+     * @description cols对应的tool的函数
+     * @createtime 2019/11/15 5:58 下午
+     * @param callable|null $callable
+     * @return ColsEvent|null
+     * @author     yangyuance
+     */
+    public function colsEvent(callable $callable = null)
+    {
+        if(is_null($this->colsEvent)){
+            $this->colsEvent = (new ColsEvent($this, $callable));
+        }
+
+        return $this->colsEvent;
+    }
+
+    /**
+     * @title      event
+     * @description
+     * @createtime 2019/11/15 6:46 下午
+     * @param callable|null $callable
+     * @return TableEvent|null
+     * @author     yangyuance
+     */
+    public function event(callable $callable = null)
+    {
+        if(is_null($this->tableEvent)){
+            $this->tableEvent = (new TableEvent($this, $callable));
+        }
+
+        return $this->tableEvent;
+    }
+
+    /**
+     * @title      toolbar
+     * @description 便捷初始化toolbar
+     * @createtime 2019/11/15 4:31 下午
+     * @param callable|null $callable
+     * @return ThinkerToolbar
+     * @author     yangyuance
+     */
+    public function toolbar(callable $callable = null)
+    {
+        if(is_null($this->toolbarIns)){
+            $this->toolbarIns = (new ThinkerToolbar($this, $callable));
+        }
+
+        return $this->toolbarIns;
     }
 
     /**
@@ -128,6 +210,18 @@ class ThinkerTable extends ThinkerLayout
         if(!isset($this->config['url']) && !isset($this->config['data']))
         {
             return "table config's field must have [url] when data is empty";
+        }
+
+        //渲染toolbar
+        if(!is_null($this->toolbarIns)){
+            $this->toolbarIns->render();
+
+            $this->setToolbar("#" . $this->getId() . "_toolbar");
+        }
+
+        //渲染colsEvent
+        if(!is_null($this->colsEvent)){
+            $this->colsEvent->render();
         }
 
         $columns = [];
@@ -174,21 +268,26 @@ HTML
     /**
      * @title      send
      * @description
-     * @createtime 2019/11/15 12:18 下午
+     * @createtime 2019/11/15 6:49 下午
+     * @param               $title
      * @param callable|null $callable
      * @return string
      * @author     yangyuance
      */
-    public function send(callable $callable = null)
+    public function send($title, callable $callable = null)
     {
         if (is_callable($callable)) {
-           return  (new ThinkerPage(function($page) use($callable){
-               call($callable, [$page, $this]);
-            }))->render();
+           ThinkerAdmin::send()->html(
+               (new ThinkerPage(function($page) use($callable){
+                   call($callable, [$page, $this]);
+                }))->setTitle($title)->render()
+           );
         } else {
-            return (new ThinkerPage(function(ThinkerPage $page){
-                $page->card()->setBodyLayout($this);
-            }))->render();
+            ThinkerAdmin::send()->html(
+                (new ThinkerPage(function(ThinkerPage $page){
+                    $page->card()->setBodyLayout($this);
+                }))->setTitle($title)->render()
+            );
         }
     }
 }

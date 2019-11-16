@@ -11,6 +11,7 @@ use think\facade\Validate;
 use think\Request;
 use Yirius\Admin\auth\AuthUser;
 use Yirius\Admin\extend\ThinkerController;
+use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
 class Admin extends ThinkerController
@@ -176,5 +177,45 @@ class Admin extends ThinkerController
         }
 
         ThinkerAdmin::Send()->json($menus);
+    }
+
+    /**
+     * @title      rules
+     * @description
+     * @createtime 2019/11/15 6:47 下午
+     * @author     yangyuance
+     */
+    public function rules()
+    {
+        ThinkerAdmin::Table(function(ThinkerTable $table){
+            $table
+                ->restful("/restful/thinkeradmin/TeAdminRules")
+                ->setOperateUrl("thinkeradmin/Admin/rulesEdit");
+
+            $table->columns()->setType("checkbox");
+
+            $table->columns("id", "规则编号");
+
+            $table->columns("pid", "上级编号");
+
+            $table->columns("title", "规则名称");
+
+            $table->columns("status", "状态")->switchs("status");
+
+            $table->columns("type", "类型");
+
+            $table->columns("list_order", "排序(大在前)")->setSort(true);
+
+            $table->columns("op", "操作")->edit()->delete()->setWidth(150);
+
+            $table->toolbar()->add()->delete()->event()->add()->delete();
+
+            $table->setLimit(1000);
+        })->send("规则管理");
+    }
+
+    public function rulesEdit($id = 0)
+    {
+
     }
 }

@@ -7,6 +7,12 @@ namespace Yirius\Admin\layout;
 use Yirius\Admin\extend\ThinkerLayout;
 use Yirius\Admin\ThinkerAdmin;
 
+/**
+ * Class ThinkerPage
+ * @package Yirius\Admin\layout
+ * @method ThinkerPage setTitle($title);
+ * @method string getTitle();
+ */
 class ThinkerPage extends ThinkerLayout
 {
     /**
@@ -22,6 +28,11 @@ class ThinkerPage extends ThinkerLayout
      * @var array<ThinkerLayout>
      */
     protected $layouts = [];
+
+    /**
+     * @var null
+     */
+    protected $breadcrumb = null;
 
     /**
      * ThinkerPage constructor.
@@ -69,6 +80,57 @@ class ThinkerPage extends ThinkerLayout
     }
 
     /**
+     * @title      rows
+     * @description
+     * @createtime 2019/11/16 6:13 下午
+     * @param callable|null $callable
+     * @return ThinkerRows
+     * @author     yangyuance
+     */
+    public function rows(callable $callable = null)
+    {
+        $layout = (new ThinkerRows($callable));
+
+        $this->layouts[] = $layout;
+
+        return $layout;
+    }
+
+    /**
+     * @title      collapse
+     * @description
+     * @createtime 2019/11/16 6:16 下午
+     * @param callable|null $callable
+     * @return ThinkerCollapse
+     * @author     yangyuance
+     */
+    public function collapse(callable $callable = null)
+    {
+        $layout = (new ThinkerCollapse($callable));
+
+        $this->layouts[] = $layout;
+
+        return $layout;
+    }
+
+    /**
+     * @title      breadcrumb
+     * @description
+     * @createtime 2019/11/16 6:15 下午
+     * @param callable|null $callable
+     * @return ThinkerBreadcrumb|null
+     * @author     yangyuance
+     */
+    public function breadcrumb(callable $callable = null)
+    {
+        if(is_null($this->breadcrumb)){
+            $this->breadcrumb = (new ThinkerBreadcrumb($callable));
+        }
+
+        return $this->breadcrumb;
+    }
+
+    /**
      * @title       render
      * @description 每一个组件需要继承渲染接口
      * @createtime  2019/11/14 4:26 下午
@@ -95,11 +157,14 @@ class ThinkerPage extends ThinkerLayout
             return "layui.link(layui.cache.base".$value.".css?v='+layui.conf.v);";
         }, $runScript['file']));
 
-        return response(<<<HTML
-<div class="layui-breadcrumb thinker-breadcrumb" lay-filter="thinker-breadcrumb">
-    <a lay-href="/">首页</a>
-    <a><cite>表格编辑验证</cite></a>
-</div>
+        //渲染面包屑
+        $breadcrumb = "";
+        if(!is_null($this->breadcrumb)){
+            $breadcrumb = $this->breadcrumb->render();
+        }
+
+        return <<<HTML
+{$breadcrumb}
 <div class="layui-fluid {$this->getClass()}" id="{$this->getId()}" lay-title="{$this->title}" {$this->getAttrs()}>
 {$layouts}
 {$templates}
@@ -120,6 +185,6 @@ layui.use({$useFiles}, function(){
 });
 </script>
 HTML
-        );
+            ;
     }
 }

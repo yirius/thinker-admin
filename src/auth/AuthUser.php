@@ -74,9 +74,13 @@ class AuthUser
     {
         return db($this->config['auth_user'][$this->config['access_type']])
             ->cache(
-                'thinker_admin_authuser_' . $this->config['access_type'] . '_' . $value . "_" . $field,
+                ThinkerAdmin::Cache()->getAuthCacheName("user", [
+                    'access_type' => $this->config['access_type'],
+                    'id' => $field,
+                    'type' => $field
+                ]),
                 0,
-                'thinker_admin_auth'
+                'thinker_authinfo'
             )
             ->where($field, '=', $value)
             ->find();
@@ -104,9 +108,12 @@ class AuthUser
             ->where("b.status", 1)
             ->where("a.type", $this->config['access_type'])
             ->cache(
-                'thinker_admin_authgroup_' . $this->config['access_type'] . "_" . $userid,
+                ThinkerAdmin::Cache()->getAuthCacheName("group", [
+                    'access_type' => $this->config['access_type'],
+                    'id' => $userid
+                ]),
                 0,
-                'thinker_admin_auth'
+                'thinker_authinfo'
             )
             ->select();
     }
@@ -116,7 +123,7 @@ class AuthUser
      * @description 用户规则查询的底层逻辑
      * @createtime  2019/11/12 10:35 下午
      * @param     $userid
-     * @param int $type
+     * @param int|array $type
      * @return array|mixed
      * @throws DataNotFoundException
      * @throws DbException
@@ -126,7 +133,11 @@ class AuthUser
     public function _rulesSelect($userid, $type = 1)
     {
         //如果已经存在了
-        if ($authList = cache("thinker_authlist_".$this->config['access_type']."_".$userid."_".$type)) {
+        if ($authList = ThinkerAdmin::Cache()->getAuthCache("rulesall", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid,
+            'type' => $type
+        ])) {
             return $authList;
         }
 
@@ -149,13 +160,17 @@ class AuthUser
         $rules = db($this->config['auth_rule'])
             ->field('id,pid,name,title,url,icon,condition')
             ->cache(
-                "thinker_admin_authrulesall_" . $this->config['access_type'] . "_" . $userid . "_" . $type,
+                ThinkerAdmin::Cache()->getAuthCacheName("group", [
+                    'access_type' => $this->config['access_type'],
+                    'id' => $userid,
+                    'type' => $type
+                ]),
                 0,
-                'thinker_admin_auth'
+                'thinker_authinfo'
             )
             ->where('id', 'in', $ruleids)
             ->where('status', '=', 1)
-            ->where('type', '=', $type)
+            ->where('type', 'in', is_array($type) ? $type : [$type])
             ->order("list_order", "desc")
             ->select();
 
@@ -194,12 +209,11 @@ class AuthUser
                 }
             }
 
-            cache(
-                "thinker_authlist_".$this->config['access_type']."_".$userid."_".$type,
-                $authList,
-                0,
-                'thinker_admin_auth'
-            );
+            ThinkerAdmin::Cache()->setAuthCache("rulesall", [
+                'access_type' => $this->config['access_type'],
+                'id' => $userid,
+                'type' => $type
+            ], $authList);
 
             return $authList;
         } catch (\Exception $e) {
@@ -222,7 +236,11 @@ class AuthUser
      */
     public function getRules($userid, $type = 1)
     {
-        if($authRules = cache("thinker_authrules_".$this->config['access_type']."_".$userid."_".$type))
+        if($authRules = ThinkerAdmin::Cache()->getAuthCache("rules", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid,
+            'type' => $type
+        ]))
         {
             return $authRules;
         }
@@ -235,12 +253,11 @@ class AuthUser
             $useRules[] = $authRules[$i]['name'];
         }
 
-        cache(
-            "thinker_authrules_".$this->config['access_type']."_".$userid."_".$type,
-            $useRules,
-            0,
-            'thinker_admin_auth'
-        );
+        ThinkerAdmin::Cache()->setAuthCache("rules", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid,
+            'type' => $type
+        ], $useRules);
 
         return $useRules;
     }
@@ -248,14 +265,20 @@ class AuthUser
     /**
      * @title      getMenus
      * @description
-     * @createtime 2019/11/12 10:43 下午
+     * @createtime 2019/11/16 6:32 下午
      * @param $userid
      * @return array|mixed
+     * @throws DataNotFoundException
+     * @throws DbException
+     * @throws ModelNotFoundException
      * @author     yangyuance
      */
     public function getMenus($userid)
     {
-        if($authMenus = cache("thinker_authmenus_".$this->config['access_type']."_".$userid))
+        if($authMenus = ThinkerAdmin::Cache()->getAuthCache("menus", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid
+        ]))
         {
             return $authMenus;
         }
@@ -271,12 +294,10 @@ class AuthUser
             ];
         })->tree($this->_rulesSelect($userid, 1));
 
-        cache(
-            "thinker_authmenus_".$this->config['access_type']."_".$userid,
-            $useMenus,
-            0,
-            'thinker_admin_auth'
-        );
+        ThinkerAdmin::Cache()->setAuthCache("menus", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid
+        ], $useMenus);
 
         return $useMenus;
     }

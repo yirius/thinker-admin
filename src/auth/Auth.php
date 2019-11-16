@@ -197,16 +197,17 @@ class Auth
     /**
      * @title      checkUrl
      * @description
-     * @createtime 2019/11/13 2:09 下午
-     * @param $url
-     * @param $userid
+     * @createtime 2019/11/15 7:21 下午
+     * @param     $url
+     * @param     $userid
+     * @param int|array $type
      * @return bool
      * @author     yangyuance
      */
-    public function checkUrl($url, $userid)
+    public function checkUrl($url, $userid, $type = 1)
     {
         try{
-            $useRules = $this->authUser->_rulesSelect($userid);
+            $useRules = $this->authUser->_rulesSelect($userid, $type);
         }catch (\Exception $exception){
             $useRules = [];
         }
