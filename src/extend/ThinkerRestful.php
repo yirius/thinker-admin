@@ -95,7 +95,7 @@ class ThinkerRestful extends ThinkerController
     /**
      * @var array
      */
-    protected $_CanEditFields = [];
+    protected $_CanEditFields = ['status'];
 
     /**
      * @var string
@@ -142,7 +142,7 @@ class ThinkerRestful extends ThinkerController
         //发送json
         ThinkerAdmin::Send()->json(
             $saveResult['saveData'],
-            0,
+            1,
             (empty($updateWhere) ? $this->_SavedMsg : $this->_EditedMsg)
         );
     }
@@ -222,7 +222,7 @@ class ThinkerRestful extends ThinkerController
                 //发送json
                 ThinkerAdmin::Send()->json(
                     $saveResult['saveData'],
-                    0,
+                    1,
                     $this->_EditedMsg
                 );
 
@@ -380,13 +380,13 @@ class ThinkerRestful extends ThinkerController
         if($flag === true){
             $this->_afterDelete([]);
 
-            ThinkerAdmin::Send()->json([], 0, lang("delete success"));
+            ThinkerAdmin::Send()->json([], 1, lang("delete success"));
         }else if($flag === false){
             ThinkerAdmin::Send()->json([], 0, lang("delete error"));
         }else{
             $this->_afterDelete($flag);
 
-            ThinkerAdmin::Send()->json([], 0, lang("not delete all", [
+            ThinkerAdmin::Send()->json([], 1, lang("not delete all", [
                 'arr' => join(",", $flag)
             ]));
         }

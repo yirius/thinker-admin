@@ -194,21 +194,25 @@ class Admin extends ThinkerController
 
             $table->columns()->setType("checkbox");
 
-            $table->columns("id", "规则编号");
+            $table->columns("id", "规则编号")->setWidth(80);
 
-            $table->columns("pid", "上级编号");
+            $table->columns("pid", "上级编号")->setWidth(80);
 
-            $table->columns("title", "规则名称");
+            $table->columns("title", "规则名称")->setMinWidth(120);
 
-            $table->columns("status", "状态")->switchs("status");
+            $table->columns("status", "状态")->switchs("status")->setWidth(80);
 
-            $table->columns("type", "类型");
+            $table->columns("type", "类型")->setWidth(80);
 
-            $table->columns("list_order", "排序(大在前)")->setSort(true);
+            $table->columns("list_order", "排序(大在前)")->setSort(true)->setWidth(80);
+
+            $table->columns("url", "对应网址")->setMinWidth(120);
 
             $table->columns("op", "操作")->edit()->delete()->setWidth(150);
 
             $table->toolbar()->add()->delete()->event()->add()->delete();
+
+            $table->colsEvent()->edit()->delete();
 
             $table->setLimit(1000);
         })->send("规则管理");

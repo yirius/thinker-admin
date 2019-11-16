@@ -5,6 +5,7 @@ namespace Yirius\Admin\extend;
 use think\App;
 use think\Controller;
 use think\facade\Cache;
+use think\Route;
 use Yirius\Admin\auth\Auth;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -53,6 +54,11 @@ class ThinkerController extends Controller
             $routeInfo = $this->request->routeInfo();
             //判断url是否有其他参数
             $this->urlPath = "/".$routeInfo['rule'];
+            //因为restful最后会存在附加id，所以需要判断并去除
+            if(in_array($actionName, ['read', 'update', 'delete']) &&
+                strpos($this->urlPath, "/<id>") >= 0){
+                $this->urlPath = str_replace("/<id>", "", $this->urlPath);
+            }
             //判断是否有自定义参数
             if(strpos($this->urlPath, "/<") >= 0){
                 foreach($routeInfo['var'] as $i => $item){
