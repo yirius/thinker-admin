@@ -152,6 +152,21 @@ abstract class ThinkerLayout
     }
 
     /**
+     * @title      removeClass
+     * @description
+     * @createtime 2019/11/16 11:33 下午
+     * @param $class
+     * @return $this
+     * @author     yangyuance
+     */
+    public function removeClass($class)
+    {
+        $this->class = array_merge(array_diff($this->class, [$class]));
+
+        return $this;
+    }
+
+    /**
      * @title      getUseClass
      * @description 返回使用的class
      * @createtime 2019/11/14 5:45 下午

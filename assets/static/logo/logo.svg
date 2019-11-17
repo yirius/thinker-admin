@@ -1,0 +1,25 @@
+<svg version="1.0" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="100%" height="100%" viewBox="0 0 62.000000 62.000000" preserveAspectRatio="xMidYMid meet"
+     color-interpolation-filters="sRGB" class="el-tooltip" style="margin: auto;">
+    <g fill="#913234" class="icon-text-wrapper icon-svg-group iconsvg"
+       transform="translate(1,0)">
+        <g class="iconsvg-imagesvg" transform="translate(0,0)">
+            <rect fill="#913234" fill-opacity="0" stroke-width="2" x="0" y="0" width="60" height="61.76005273566258"
+                  class="image-rect"></rect>
+            <svg x="0" y="0" width="60" height="61.76005273566258" class="image-svg-svg">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 151.7 156.15">
+                    <g>
+                        <g>
+                            <path fill="#FF0000"
+                                  d="M123.1 147.9V81.83l28.6-16.51V48.8L80.19 90.09v16.52l28.61-16.52v66.06l14.3-8.25z"></path>
+                            <path fill="#3D85C6"
+                                  d="M118.76 57.8L61.55 24.77l28.6-16.51L75.85 0 4.33 41.29l14.31 8.26 28.6-16.52 57.21 33.03 14.31-8.26z"></path>
+                            <path fill="#F1C232"
+                                  d="M42.91 156.15V90.09l28.6 16.52V90.09L0 48.8v16.52l28.61 16.51v66.07l14.3 8.25z"></path>
+                        </g>
+                    </g>
+                </svg>
+            </svg> <!---->
+        </g>
+    </g>
+</svg>

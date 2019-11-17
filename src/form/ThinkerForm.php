@@ -12,18 +12,120 @@ class ThinkerForm extends ThinkerLayout
 {
     use setExtend;
 
-    public function __construct(callable $callable = null)
+    /**
+     * @var bool
+     */
+    protected $footerTrigger = false;
+
+    /**
+     * @var string
+     */
+    protected $footerHtml = '';
+
+    /**
+     * Form tab's content
+     * @var array|ThinkerTab
+     */
+    protected $tabs = [];
+
+    /**
+     * @title      footer
+     * @description
+     * @createtime 2019/11/16 11:40 下午
+     * @param $footerHtml
+     * @return $this
+     * @author     yangyuance
+     */
+    public function footer($footerHtml)
     {
-        parent::__construct();
+        $this->footerTrigger = true;
 
-        //judge thinkeradmin's config extends
-        if (config('thinkeradmin.form.extends')) {
-            $this->setExtends(config('thinkeradmin.form.extends'));
+        $this->footerHtml = $footerHtml;
+
+        return $this;
+    }
+
+    /**
+     * @title      submitEvent
+     * @description
+     * @createtime 2019/11/16 11:42 下午
+     * @param      $url
+     * @param int  $id
+     * @param null $successCall
+     * @param null $beforeSubmit
+     * @return $this
+     * @author     yangyuance
+     */
+    public function submit($url, $id = 0, $successCall = null, $beforeSubmit = null)
+    {
+        $doneCall = is_null($successCall) ? 'layui.admin.reloadTable();layer.closeAll();layer.msg(res.msg);' : $successCall;
+
+        $beforeEvent = is_null($beforeSubmit) ? '' : htmlspecialchars($beforeSubmit);
+
+        //judge restful url
+        $requestMethod = 'post';
+
+        if($id != 0){
+            $requestMethod = "put";
+            if(strpos($url, "?") != false){
+                $viewUrl = explode("?", $url);
+                $url = $viewUrl[0] . "/" . $id . "?" . $viewUrl[1];
+            }else{
+                $url = $url . "/" . $id;
+            }
         }
 
-        if(is_callable($callable)){
-            call($callable, [$this]);
-        }
+        ThinkerAdmin::script(<<<HTML
+layui.form.on("submit({$this->getId()}-submit)", function (obj) {
+    var beforeEvent = '{$beforeEvent}';
+    if(beforeEvent){
+        beforeEvent = new Function('return function(obj){' + beforeEvent + "}")();
+        obj = beforeEvent(obj);
+    }
+    layui.admin.http.{$requestMethod}("{$url}", obj.field, function(code, msg, data, all){
+        {$successCall}
+    });
+    return false;
+});
+HTML
+        );
+
+        return $this;
+    }
+
+    /**
+     * @title      inline
+     * @description
+     * @createtime 2019/11/16 11:35 下午
+     * @param callable $callable
+     * @return ThinkerInline
+     * @author     yangyuance
+     */
+    public function inline(callable $callable = null)
+    {
+        $inline = (new ThinkerInline($callable));
+
+        $this->assemblys[] = $inline;
+
+        return $inline;
+    }
+
+    /**
+     * @title      tab
+     * @description
+     * @createtime 2019/11/16 11:49 下午
+     * @param               $tabName
+     * @param callable|null $callable
+     * @return ThinkerTab
+     * @author     yangyuance
+     */
+    public function tab($tabName, callable $callable = null)
+    {
+        $tab = (new ThinkerTab($callable))->setTitle($tabName);
+
+        $this->tabs[] = $tab;
+
+        return $tab;
     }
 
     /**
@@ -35,20 +137,57 @@ class ThinkerForm extends ThinkerLayout
      */
     public function render()
     {
-        //splicing assembly html
-        $splicingHtml = "";
-        foreach ($this->assemblys as $i => $v) {
-            $splicingHtml .= '<div class="layui-form-item">' . $v->render() . '</div>';
+        if(!$this->footerTrigger){
+            $this->footer('<button class="layui-btn" lay-submit="" lay-filter="'.$this->getId().'-submit">立即提交</button>');
         }
 
+        //所有组件的渲染
+        $assemblys = join("\n", array_map(function(ThinkerLayout $value){
+            return '<div class="layui-form-item">' . ($value->render()) . "</div>";
+        }, $this->assemblys));
+
+        $footer = '';
+        if(!empty($this->footerHtml)){
+            $footer = '<div class="layui-form-item">
+    <div class="layui-input-block">
+        <div class="layui-footer">
+            '.$this->footerHtml.'
+        </div>
+    </div>
+</div>';
+        }
 
         //return all string
         return <<<HTML
 <form class="layui-form" lay-filter="{$this->getId()}" id="{$this->getId()}">
-{$splicingHtml}
+{$this->parseTabs()}
+{$assemblys}
+{$footer}
 </form>
 HTML
             ;
+    }
+
+    /**
+     * @title parseTabs
+     * @description
+     * @createtime 2019/3/12 下午11:56
+     * @return string
+     */
+    protected function parseTabs()
+    {
+        if(empty($this->tabs)){
+            return '';
+        }else{
+            //judge tabs and make string
+            $tabsHtml = ['title' => [], 'content' => []];
+            foreach($this->tabs as $i => $v){
+                $tabsHtml['title'][] = "<li class='".($i==0?'layui-this':'')."'>" . $v->getTitle() . "</li>";
+                $tabsHtml['content'][] = '<div class="layui-tab-item '.($i==0?'layui-show':'').'">' . $v->render() . '</div>';
+            }
+
+            return '<div class="layui-tab"><ul class="layui-tab-title">'.join("", $tabsHtml['title']).'</ul><div class="layui-tab-content">'.join("", $tabsHtml['content']).'</div>';
+        }
     }
 
     /**

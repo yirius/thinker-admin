@@ -87,7 +87,7 @@ HTML;
      * @param $placeholder
      * @return $this
      */
-    public function setPlaceholder($placeholder)
+    public function setPlaceholder($placeholder = "--请选择--")
     {
         $this->placeholder = $placeholder;
 

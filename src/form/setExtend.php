@@ -82,6 +82,24 @@ trait setExtend
     protected $value = [];
 
     /**
+     * setExtend constructor.
+     * @param callable|null $callable
+     */
+    public function __construct(callable $callable = null)
+    {
+        parent::__construct();
+
+        //judge thinkeradmin's config extends
+        if (config('thinkeradmin.form.extends')) {
+            $this->setExtends(config('thinkeradmin.form.extends'));
+        }
+
+        if(is_callable($callable)){
+            call($callable, [$this]);
+        }
+    }
+
+    /**
      * @title setExtends
      * @description
      * @createtime 2019/2/24 下午2:14

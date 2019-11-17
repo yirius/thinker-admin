@@ -120,8 +120,11 @@ class ThinkerRestful extends ThinkerController
      * @param array   $updateWhere
      * @author     yangyuance
      */
-    public function save(Request $request, $updateWhere = [])
+    public function save(Request $request, $updateWhere = null)
     {
+        //传递的参数不一定正确
+        $updateWhere = empty($updateWhere) ? [] : $updateWhere;
+
         $param = $request->param();
 
         if(!empty($this->_Validate)){

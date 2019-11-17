@@ -80,9 +80,10 @@ HTML
      */
     public function render()
     {
-        $checked = empty($this->value) ? '' : "checked='checked'";
-
-        $value = empty($this->value) ? 0 : 1;
+        $checked = "";
+        if($this->getValue() == $this->useValue){
+            $checked = "checked='checked'";
+        }
 
         if(!$this->isOn){
             $this->on("");
@@ -92,7 +93,7 @@ HTML
 <label class="layui-form-label">{$this->getText()}</label>
 <div class="{$this->getClass()}">
     <input type="checkbox" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->filltext}" value="{$this->useValue}" {$checked} {$this->getAttrs()}>
-    <input type="hidden" name="{$this->getField()}" value="{$value}" id="{$this->getId()}" />
+    <input type="hidden" name="{$this->getField()}" value="{$this->useValue}" id="{$this->getId()}" />
 </div>
 HTML;
     }

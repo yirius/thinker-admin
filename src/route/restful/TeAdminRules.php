@@ -11,4 +11,8 @@ class TeAdminRules extends ThinkerRestful
 {
     protected $_UseTable = \Yirius\Admin\route\model\TeAdminRules::class;
 
+    protected $_Where = [
+        "pid", "type",
+        "url" => ['url', 'like', '%_var%']
+    ];
 }

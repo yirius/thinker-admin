@@ -12,6 +12,8 @@ use think\Request;
 use Yirius\Admin\auth\AuthUser;
 use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\ThinkerForm;
+use Yirius\Admin\form\ThinkerInline;
+use Yirius\Admin\route\model\TeAdminRules;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -193,6 +195,16 @@ class Admin extends ThinkerController
                 ->restful("/restful/thinkeradmin/TeAdminRules")
                 ->setOperateUrl("thinkeradmin/Admin/rulesEdit");
 
+            $table->search(function(ThinkerInline $inline){
+                $inline->text("pid", "上级编号");
+                $inline->select("type", "规则类型")->options([
+                    ['text' => "菜单栏目", 'value' => 1],
+                    ['text' => "非菜单界面", 'value' => 2],
+                    ['text' => "界面权限", 'value' => 3],
+                ])->setPlaceholder();
+                $inline->text("url", "网址");
+            });
+
             $table->columns()->setType("checkbox");
 
             $table->columns("id", "规则编号")->setWidth(80);
@@ -228,38 +240,29 @@ class Admin extends ThinkerController
      */
     public function rulesEdit($id = 0)
     {
-        ThinkerAdmin::Form(function(ThinkerForm $form){
+        ThinkerAdmin::Form(function(ThinkerForm $form) use($id){
+            $form->setValue($id == 0 ? [] : TeAdminRules::get(['id' => intval($id)])->toArray());
 
-            $form->text("22", "111");
+            $form->text("pid", "上级编号");
 
-            $form->select("select", "测试Select")->setPlaceholder("--请选择--")->options([
-                ['text' => "测试", 'value' => 1],
-                ['text' => "测试2", 'value' => 2]
+            $form->text("name", "规则英文");
+
+            $form->text("title", "规则名称");
+
+            $form->switchs("status", "规则状态");
+
+            $form->select("type", "规则类型")->options([
+                ['text' => "菜单栏目", 'value' => 1],
+                ['text' => "非菜单界面", 'value' => 2],
+                ['text' => "界面权限", 'value' => 3],
             ]);
 
-            $form->selectplus("selectplus", "测试Select")->setPlaceholder("--请选择--")->options([
-                ['text' => "测试", 'value' => 1],
-                ['text' => "测试2", 'value' => 2]
-            ]);
+            $form->text("url", "对应网址");
 
-            $form->radio("radio", "测试radio")->options([
-                ['text' => "测试", 'value' => 1],
-                ['text' => "测试2", 'value' => 2]
-            ]);
+            $form->text("icon", "对应图标");
 
-            $form->checkbox("checkbox", "测试Checkbox")->options([
-                ['text' => "测试", 'value' => 1],
-                ['text' => "测试2", 'value' => 2]
-            ])->primary();
+            $form->text("list_order", "规则排序");
 
-            $form->colorpicker("ColorPicker", "测试picker");
-
-            $form->date("date", "测试date");
-
-            $form->switchs("switchs", "测试switchs");
-
-            $form->tinyeditor("tinyeditor", "测试tinyeditor");
-
-        })->send("规则修改界面");
+        })->submit("/restful/thinkeradmin/TeAdminRules", $id)->send("规则修改界面");
     }
 }

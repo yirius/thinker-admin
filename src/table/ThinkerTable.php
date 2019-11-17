@@ -5,6 +5,7 @@ namespace Yirius\Admin\table;
 
 
 use Yirius\Admin\extend\ThinkerLayout;
+use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\layout\ThinkerPage;
 use Yirius\Admin\table\event\TableEvent;
 use Yirius\Admin\table\event\ToolbarEvent;
@@ -84,6 +85,11 @@ class ThinkerTable extends ThinkerLayout
      * @var null
      */
     protected $tableEvent = null;
+
+    /**
+     * @var ThinkerForm
+     */
+    protected $search = null;
 
     /**
      * ThinkerTable constructor.
@@ -181,6 +187,40 @@ class ThinkerTable extends ThinkerLayout
     }
 
     /**
+     * @title      search
+     * @description
+     * @createtime 2019/11/17 12:01 上午
+     * @param callable|null $callback
+     * @return ThinkerForm
+     * @author     yangyuance
+     */
+    public function search(callable $callback = null)
+    {
+        if(is_null($this->search)){
+            $this->search = (new ThinkerForm(function(ThinkerForm $form) use($callback){
+                $form->footer('')->inline($callback)
+                    ->button("_search_button", '<i class="layui-icon layui-icon-search thinkeradmin-button-btn"></i>')
+                    ->setAttrs('lay-submit', '')
+                    ->setId($this->getId() . '_form_search');
+            }));
+        }
+
+        return $this->search;
+    }
+
+    /**
+     * @title      getSearch
+     * @description
+     * @createtime 2019/11/17 12:01 上午
+     * @return string
+     * @author     yangyuance
+     */
+    public function getSearch()
+    {
+        return is_null($this->search) ? '' : $this->search->render();
+    }
+
+    /**
      * @title      toolbar
      * @description 便捷初始化toolbar
      * @createtime 2019/11/15 4:31 下午
@@ -245,6 +285,7 @@ layui.form.on('submit({$this->getId()}_form_search)', function (data) {
     layui.table.reload('{$this->getId()}', {
         where: _searchField
     });
+    return false;
 });
 var _{$this->getId()}_ins = layui.table.init('{$this->getId()}', $.extend({
     response: {
@@ -285,7 +326,9 @@ HTML
         } else {
             ThinkerAdmin::send()->html(
                 (new ThinkerPage(function(ThinkerPage $page){
-                    $page->card()->setBodyLayout($this);
+                    $page->card()->setBodyLayout($this)
+                        ->setHeaderLayout($this->getSearch())
+                        ->setCardClass("thinker-pad-tb20", "header");
                 }))->setTitle($title)->render()
             );
         }

@@ -45,6 +45,10 @@ class ThinkerCard extends ThinkerLayout
      */
     public function setHeaderLayout($layout)
     {
+        if(empty($layout)){
+            return $this;
+        }
+
         return $this->setLayouts($layout, "header");
     }
 
