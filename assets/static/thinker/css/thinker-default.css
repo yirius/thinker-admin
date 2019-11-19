@@ -3075,6 +3075,25 @@ textarea::-webkit-input-placeholder {
     margin-left: 110px;
     max-width: 110px;
 }
+.layui-laypage-limits select{
+    position: relative;
+    color: #555;
+    text-shadow: none;
+    cursor: pointer;
+    width: 100%;
+    border: none;
+    background: transparent;
+    background-image: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+.layui-laypage-limits select:hover{
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+.layui-laypage-limits select:focus {
+    outline: none;
+}
+
 /* 自定义参数 */
 .table-action-area {
     padding-top: .15rem;

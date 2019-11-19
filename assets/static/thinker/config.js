@@ -96,7 +96,9 @@ layui.define(function (exports) {
         //全局 table 配置
         //参数请参照 https://www.layui.com/doc/modules/table.html
         table: {
-            page: true,
+            page: {
+                layout: ['refresh', 'prev', 'page', 'next', 'skip', 'count', 'limit']
+            },
             size: 'sm',
             even: true,
             skin: 'line',
