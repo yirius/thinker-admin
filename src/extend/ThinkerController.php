@@ -198,7 +198,7 @@ class ThinkerController extends Controller
         }
 
         //获取用户信息
-        $userInfo = $this->auth->getUser($this->tokenInfo['id']);
+        $userInfo = $this->auth->getUser($this->tokenInfo['id'], "id");
 
         //如果不存在用户
         if(empty($userInfo)){

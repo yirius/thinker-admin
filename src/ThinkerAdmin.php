@@ -10,6 +10,7 @@ use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Send;
+use Yirius\Admin\widgets\Tools;
 use Yirius\Admin\widgets\Tree;
 use Yirius\Admin\widgets\Validate;
 use Yirius\Admin\widgets\Widgets;
@@ -24,6 +25,7 @@ use Yirius\Admin\widgets\Widgets;
  * @method static Auth Auth()
  * @method static Jwt Jwt()
  * @method static Cache Cache()
+ * @method static Tools Tools()
  *
  * @package Yirius\Admin
  */
@@ -40,8 +42,7 @@ class ThinkerAdmin
         'auth'     =>   Auth::class,
         'jwt'      =>   Jwt::class,
         'cache'    =>   Cache::class,
-        //界面展示添加
-        'table'    =>   ThinkerTable::class
+        'tools'    =>   Tools::class,
     ];
 
     /**

@@ -122,7 +122,7 @@ class Cache extends Widgets
             if(is_array($tokenInfo['type'])){
                 $tokenInfo['type'] = join("_", $tokenInfo['type']);
             }
-            return "thinker_authinfo_".$prevName."_".$tokenInfo['id']."_".$tokenInfo['access_type']."_".$tokenInfo['access_type'];
+            return "thinker_authinfo_".$prevName."_".$tokenInfo['id']."_".$tokenInfo['access_type']."_".$tokenInfo['type'];
         }
 
         return "thinker_authinfo_".$prevName."_".$tokenInfo['id']."_".$tokenInfo['access_type'];

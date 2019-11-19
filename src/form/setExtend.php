@@ -85,13 +85,17 @@ trait setExtend
      * setExtend constructor.
      * @param callable|null $callable
      */
-    public function __construct(callable $callable = null)
+    public function __construct(callable $callable = null, $value = null)
     {
         parent::__construct();
 
         //judge thinkeradmin's config extends
         if (config('thinkeradmin.form.extends')) {
             $this->setExtends(config('thinkeradmin.form.extends'));
+        }
+
+        if(is_array($value)){
+            $this->setValue($value);
         }
 
         if(is_callable($callable)){
@@ -164,8 +168,12 @@ trait setExtend
      * @param $value
      * @return $this
      */
-    public function setValue(array $value)
+    public function setValue($value)
     {
+        if(!is_array($value)){
+            $value = $value->toArray();
+        }
+
         $this->value = $value;
 
         return $this;

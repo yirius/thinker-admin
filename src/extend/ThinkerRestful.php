@@ -131,7 +131,7 @@ class ThinkerRestful extends ThinkerController
             $param = ThinkerAdmin::Validate()->make($param, $this->_Validate[0], $this->_Validate[1]);
         }
 
-        $param = $this->_beforeSave($param);
+        $param = $this->_beforeSave($param, $updateWhere);
 
         $saveResult = $this->__defaultSave($param, $updateWhere);
 
@@ -158,7 +158,7 @@ class ThinkerRestful extends ThinkerController
      * @return mixed
      * @author     yangyuance
      */
-    protected function _beforeSave(array $params)
+    protected function _beforeSave(array $params, $updateWhere)
     {
         return $params;
     }
@@ -217,7 +217,8 @@ class ThinkerRestful extends ThinkerController
 
                 //触发完成任务
                 $this->_afterUpdate(
-                    true,
+                    $id,
+                    $field,
                     $saveResult['saveData'],
                     $saveResult['result']
                 );
@@ -263,7 +264,7 @@ class ThinkerRestful extends ThinkerController
      * @param Model $model
      * @author     yangyuance
      */
-    protected function _afterUpdate($isUpdate, array $saveData, Model $model)
+    protected function _afterUpdate($id, $field, array $saveData, Model $model)
     {
 
     }

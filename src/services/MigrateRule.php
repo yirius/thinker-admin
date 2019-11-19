@@ -28,6 +28,8 @@ class MigrateRule
 
     protected $restful = '';
 
+    protected $operatePage = true;
+
     protected $tableConf = ['add', 'del', 'edit', 'exports'];
 
     /**
@@ -151,6 +153,16 @@ class MigrateRule
     }
 
     /**
+     * @param bool $operatePage
+     */
+    public function setOperatePage(bool $operatePage)
+    {
+        $this->operatePage = $operatePage;
+
+        return $this;
+    }
+
+    /**
      * @title      getResult
      * @description
      * @createtime 2019/9/30 12:28 上午
@@ -211,19 +223,21 @@ class MigrateRule
             }
             //判断是否存在添加和修改，存在就需要新增对应界面
             if(in_array("add", $this->tableConf) || in_array("edit", $this->tableConf)){
-                $result[] = [
-                    'id' => ++$this->id,
-                    'pid' => $pid,
-                    'name' => $this->name . ":editpage",
-                    'title' => $this->title . "-新增/修改界面",
-                    'status' => $this->status,
-                    'type' => 2,
-                    'url' => $this->url . "Edit",
-                    'icon' => '',
-                    'list_order' => --$this->list_order,
-                    'create_time' => date("Y-m-d H:i:s"),
-                    'update_time' => date("Y-m-d H:i:s")
-                ];
+                if($this->operatePage){
+                    $result[] = [
+                        'id' => ++$this->id,
+                        'pid' => $pid,
+                        'name' => $this->name . ":editpage",
+                        'title' => $this->title . "-新增/修改界面",
+                        'status' => $this->status,
+                        'type' => 2,
+                        'url' => $this->url . "Edit",
+                        'icon' => '',
+                        'list_order' => --$this->list_order,
+                        'create_time' => date("Y-m-d H:i:s"),
+                        'update_time' => date("Y-m-d H:i:s")
+                    ];
+                }
             }
         }
 

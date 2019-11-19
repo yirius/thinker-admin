@@ -95,10 +95,13 @@ class Auth
      * @return array|null
      * @author     yangyuance
      */
-    public function getUser($value)
+    public function getUser($value, $field = null)
     {
         try{
-            return $this->authUser->getUser($value, $this->config['login_field'][$this->config['access_type']]);
+            if(is_null($field)){
+                $field = $this->config['login_field'][$this->config['access_type']];
+            }
+            return $this->authUser->getUser($value, $field);
         }catch (\Exception $exception){
             return null;
         }

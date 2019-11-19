@@ -115,6 +115,7 @@ HTML;
             $url,
             $sendData,
             "delete",
+            null,
             $afterDelete
         ));
     }

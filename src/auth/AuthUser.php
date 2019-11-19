@@ -76,7 +76,7 @@ class AuthUser
             ->cache(
                 ThinkerAdmin::Cache()->getAuthCacheName("user", [
                     'access_type' => $this->config['access_type'],
-                    'id' => $field,
+                    'id' => $value,
                     'type' => $field
                 ]),
                 0,

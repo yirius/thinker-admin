@@ -152,6 +152,8 @@ HTML;
         return join("", $result);
     }
 
+    private $_TempValue = [];
+
     /**
      * @title checkValue
      * @description base value checked
@@ -164,15 +166,22 @@ HTML;
         if(!empty($option['checked'])){
             return "selected='selected'";
         }else{
-            if(!is_array($this->value)){
-                if($this->value == "" || $this->value == null){
-                    $this->value = [];
-                }else{
-                    $this->value = explode(",", $this->value);
+            //如果不存在，就设置一下
+            if(empty($this->_TempValue)){
+                $value = $this->getValue();
+
+                if(!is_array($value)){
+                    if($value == "" || $value == null){
+                        $value = [];
+                    }else{
+                        $value = explode(",", $value);
+                    }
                 }
+
+                $this->_TempValue = $value;
             }
             //check value
-            if(in_array($option['value'], $this->value)){
+            if(in_array($option['value'], $this->_TempValue)){
                 return "selected='selected'";
             }else{
                 return "";

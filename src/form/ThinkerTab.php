@@ -49,7 +49,7 @@ class ThinkerTab extends ThinkerLayout
      */
     public function inline(callable $callable = null)
     {
-        $inline = (new ThinkerInline($callable));
+        $inline = (new ThinkerInline($callable, $this->getValue()));
 
         $this->assemblys[] = $inline;
 

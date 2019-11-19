@@ -58,7 +58,7 @@ class ThinkerForm extends ThinkerLayout
      */
     public function submit($url, $id = 0, $successCall = null, $beforeSubmit = null)
     {
-        $doneCall = is_null($successCall) ? 'layui.admin.reloadTable();layer.closeAll();layer.msg(res.msg);' : $successCall;
+        $doneCall = is_null($successCall) ? 'layui.admin.reloadTable();layui.layer.closeAll();layui.layer.msg(msg);' : $successCall;
 
         $beforeEvent = is_null($beforeSubmit) ? '' : htmlspecialchars($beforeSubmit);
 
@@ -77,14 +77,18 @@ class ThinkerForm extends ThinkerLayout
 
         ThinkerAdmin::script(<<<HTML
 layui.form.on("submit({$this->getId()}-submit)", function (obj) {
-    var beforeEvent = '{$beforeEvent}';
-    if(beforeEvent){
-        beforeEvent = new Function('return function(obj){' + beforeEvent + "}")();
-        obj = beforeEvent(obj);
+    try{
+        var beforeEvent = '{$beforeEvent}';
+        if(beforeEvent){
+            beforeEvent = new Function('return function(obj){' + beforeEvent + "}")();
+            obj = beforeEvent(obj);console.log(obj);
+        }
+        layui.admin.http.{$requestMethod}("{$url}", obj.field, function(code, msg, data, all){
+            {$doneCall}
+        });
+    }catch(e){
+        console.error(e);
     }
-    layui.admin.http.{$requestMethod}("{$url}", obj.field, function(code, msg, data, all){
-        {$successCall}
-    });
     return false;
 });
 HTML
@@ -103,7 +107,7 @@ HTML
      */
     public function inline(callable $callable = null)
     {
-        $inline = (new ThinkerInline($callable));
+        $inline = (new ThinkerInline($callable, $this->getValue()));
 
         $this->assemblys[] = $inline;
 
@@ -121,7 +125,7 @@ HTML
      */
     public function tab($tabName, callable $callable = null)
     {
-        $tab = (new ThinkerTab($callable))->setTitle($tabName);
+        $tab = (new ThinkerTab($callable, $this->getValue()))->setTitle($tabName);
 
         $this->tabs[] = $tab;
 

@@ -95,17 +95,26 @@ HTML
      * @return string
      * @author     yangyuance
      */
-    public function _verfiy($title, $url, array $sendData = [], $method = "delete", $afterDelete = '')
+    public function _verfiy($title, $url, array $sendData = [], $method = "delete", $beforeDelete = '', $afterDelete = '')
     {
         $sendData = json_encode($sendData);
+
+        $beforeDelete = str_replace(["\n", "\r", "'"], ["","", "\'"], $beforeDelete);
 
         return <<<HTML
 parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
     parent.layer.close(index);
     parent.layer.confirm('{$title}', function(index) {
         parent.layer.close(index);
+        var beforeDelete = '{$beforeDelete}', sendData = {};
+        if(beforeDelete){
+            beforeDelete = (new Function('return function(){' + beforeDelete + '}'))();
+        }
+        if($.isFunction(beforeDelete)){
+            sendData = beforeDelete() || {};
+        }
         var url = layui.laytpl('{$url}').render(obj.data || {});
-        layui.admin.http.{$method}(url, $.extend({password: value}, {$sendData}), function(res){
+        layui.admin.http.{$method}(url, $.extend({password: value}, sendData, {$sendData}), function(res){
             layui.admin.reloadTable();
             {$afterDelete}
         });
