@@ -14,8 +14,6 @@ use Yirius\Admin\ThinkerAdmin;
 
 class Switchs extends Assembly
 {
-    protected $isOn = false;
-
     protected $filltext = '开|关';
 
     /**
@@ -35,6 +33,8 @@ class Switchs extends Assembly
 
     protected $useValue = 1;
 
+    protected $notUseValue = 0;
+
     /**
      * @title      usevalue
      * @description
@@ -51,6 +51,21 @@ class Switchs extends Assembly
     }
 
     /**
+     * @title      notUseValue
+     * @description
+     * @createtime 2019/11/20 3:33 下午
+     * @param $value
+     * @return $this
+     * @author     yangyuance
+     */
+    public function notUseValue($value)
+    {
+        $this->notUseValue = $value;
+
+        return $this;
+    }
+
+    /**
      * @title on
      * @description
      * @createtime 2019/3/3 下午9:44
@@ -59,11 +74,8 @@ class Switchs extends Assembly
      */
     public function on($callback)
     {
-        $this->isOn = true;
-
         ThinkerAdmin::script(<<<HTML
 layui.form.on("switch({$this->getId()})", function(obj){
-$("#{$this->getId()}").val(obj.elem.checked ? 1 : 0);
 {$callback}
 });
 HTML
@@ -85,15 +97,10 @@ HTML
             $checked = "checked='checked'";
         }
 
-        if(!$this->isOn){
-            $this->on("");
-        }
-
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
-    <input type="checkbox" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->filltext}" value="{$this->useValue}" {$checked} {$this->getAttrs()}>
-    <input type="hidden" name="{$this->getField()}" value="{$this->useValue}" id="{$this->getId()}" />
+    <input type="checkbox" lay-filter="{$this->getId()}" lay-skin="switch" lay-text="{$this->filltext}" name="{$this->getField()}" value="{$this->useValue}" data-notuse="{$this->notUseValue}" id="{$this->getId()}" {$checked} {$this->getAttrs()}>
 </div>
 HTML;
     }

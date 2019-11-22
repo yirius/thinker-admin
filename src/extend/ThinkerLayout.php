@@ -6,7 +6,6 @@ namespace Yirius\Admin\extend;
 /**
  * Class ThinkerLayout
  * @package Yirius\Admin\extend
- * @method self getId();
  */
 abstract class ThinkerLayout
 {
@@ -101,6 +100,18 @@ abstract class ThinkerLayout
         $this->id = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、'], "_", $id);
 
         return $this;
+    }
+
+    /**
+     * @title      getId
+     * @description
+     * @createtime 2019/11/20 2:56 下午
+     * @return string
+     * @author     yangyuance
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**

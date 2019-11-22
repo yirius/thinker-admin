@@ -13,7 +13,6 @@ use Yirius\Admin\extend\ThinkerLayout;
  * @method ThinkerCols sm(int $value);
  * @method ThinkerCols md(int $value);
  * @method ThinkerCols lg(int $value);
- * @method ThinkerCols space(int $value);
  *
  * @method ThinkerCols xsOffset(int $value);
  * @method ThinkerCols smOffset(int $value);
@@ -87,11 +86,11 @@ HTML;
     public function __call($name, $arguments)
     {
         //一些默认操作，不需要重写了
-        if(in_array($name, ['xs', 'sm', 'md', 'lg', 'space'])){
+        if(in_array($name, ['xs', 'sm', 'md', 'lg'])){
             $this->setClass("layui-col-" . $name . (isset($arguments[0]) ? intval($arguments[0]) : 6));
             return $this;
         }else if(in_array($name, ['xsOffset', 'smOffset', 'mdOffset', 'lgOffset', 'spaceOffset'])){
-            $this->setClass("layui-col-" . $name . "-offset-" . (isset($arguments[0]) ? intval($arguments[0]) : 6));
+            $this->setClass("layui-col-".substr($name, 0, 2)."-offset" . (isset($arguments[0]) ? intval($arguments[0]) : 6));
             return $this;
         }else if(in_array($name, ['xsBlock', 'smBlock', 'mdBlock', 'lgBlock'])){
             $this->setClass("layui-show-".substr($name, 0, 2)."-block");

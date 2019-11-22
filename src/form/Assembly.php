@@ -55,6 +55,26 @@ abstract class Assembly extends ThinkerLayout
         $this->_init();
     }
 
+    /**
+     * @title      getLabel
+     * @description 获取label的html
+     * @createtime 2019/11/19 7:24 下午
+     * @return string
+     * @author     yangyuance
+     */
+    public function getLabel()
+    {
+        $text = $this->getText();
+
+        if(empty($text)){
+            $this->removeClass('layui-input-block')->setClass('layui-input-inline');
+
+            return '';
+        }else{
+            return '<label class="layui-form-label">'.$text.'</label>';
+        }
+    }
+
     protected function _init(){
 
     }

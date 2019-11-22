@@ -6,6 +6,10 @@ namespace Yirius\Admin\layout;
 
 use Yirius\Admin\extend\ThinkerLayout;
 
+/**
+ * Class ThinkerRows
+ * @package Yirius\Admin\layout
+ */
 class ThinkerRows extends ThinkerLayout
 {
     use setLayout;
@@ -24,16 +28,33 @@ class ThinkerRows extends ThinkerLayout
     }
 
     /**
-     * @title      columns
+     * @title      cols
      * @description
-     * @createtime 2019/11/15 2:19 下午
+     * @createtime 2019/11/19 7:15 下午
      * @param callable|null $callable
-     * @return $this
+     * @return ThinkerCols
      * @author     yangyuance
      */
     public function cols(callable $callable = null)
     {
-        $this->layouts[] = (new ThinkerCols($callable));
+        $cols = (new ThinkerCols($callable));
+
+        $this->layouts[] = $cols;
+
+        return $cols;
+    }
+
+    /**
+     * @title      space
+     * @description
+     * @createtime 2019/11/19 8:25 下午
+     * @param $value
+     * @return $this
+     * @author     yangyuance
+     */
+    public function space($value)
+    {
+        $this->setClass("layui-col-space".$value);
 
         return $this;
     }
@@ -47,9 +68,7 @@ class ThinkerRows extends ThinkerLayout
      */
     public function render()
     {
-        $layouts = join("\n", array_map(function(ThinkerLayout $value){
-            return $value->render();
-        }, $this->layouts));
+        $layouts = join("\n", $this->layouts);
 
         return <<<HTML
 <div class="layui-row {$this->getClass()}" {$this->getAttrs()}>

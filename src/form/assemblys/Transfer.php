@@ -103,7 +103,7 @@ HTML
         );
 
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <input type="hidden" name="{$this->getField()}" id="{$this->getId()}_input" lay-filter="{$this->getId()}_input" value="{$this->getValue()}" />
     <div id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttrs()} ></div>

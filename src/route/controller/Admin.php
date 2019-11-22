@@ -11,14 +11,22 @@ use think\facade\Validate;
 use think\Request;
 use Yirius\Admin\auth\AuthUser;
 use Yirius\Admin\extend\ThinkerController;
+use Yirius\Admin\form\assemblys\Tree;
 use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\form\ThinkerInline;
+use Yirius\Admin\layout\ThinkerCard;
+use Yirius\Admin\layout\ThinkerCols;
+use Yirius\Admin\layout\ThinkerPage;
+use Yirius\Admin\layout\ThinkerRows;
 use Yirius\Admin\route\model\TeAdminRules;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
 class Admin extends ThinkerController
 {
+    /**
+     * @var array
+     */
     protected $tokenAuth = [
         'except' => ['captcha', 'login', 'menus']
     ];
@@ -183,6 +191,87 @@ class Admin extends ThinkerController
     }
 
     /**
+     * @title      getRuleTree
+     * @description
+     * @createtime 2019/11/20 2:35 下午
+     * @return ThinkerCard
+     * @author     yangyuance
+     */
+    protected function getRuleTree()
+    {
+        //序列化所有的菜单
+        $treeData = ThinkerAdmin::Tree()
+            ->setConfig([
+                'sublist' => "children"
+            ])
+            ->tree(TeAdminRules::select()->toArray());
+
+        return (new ThinkerCard())->setBodyLayout(
+            (new Tree("tree"))
+                ->setData($treeData)
+                ->setEdit(['add', 'update', 'del'])
+                ->setBeforeOperateEvent(<<<HTML
+if(type == "add"){
+    return false;
+}else{
+    console.log(obj);
+    if(type == "update"){
+        layui.form.val("tree_rules", obj.data);
+        layui.form.render();
+    }
+    return true;
+}
+HTML
+                )
+                ->setOperateEvent(<<<HTML
+//console.log(obj);
+HTML
+                )
+                ->setClickEvent(<<<HTML
+//console.log(obj);
+HTML
+                )
+        );
+    }
+
+    /**
+     * @title      getRulesForm
+     * @description
+     * @createtime 2019/11/20 2:41 下午
+     * @return string
+     * @author     yangyuance
+     */
+    protected function getRulesForm()
+    {
+        return ThinkerAdmin::Form(function(ThinkerForm $form){
+            $form->setId("tree_rules");
+
+            $form->hidden("id", "")->setValue(0);
+
+            $form->text("pid", "上级编号");
+
+            $form->text("name", "规则英文");
+
+            $form->text("title", "规则名称");
+
+            $form->switchs("status", "规则状态");
+
+            $form->select("type", "规则类型")->options([
+                ['text' => "菜单栏目", 'value' => 1],
+                ['text' => "非菜单界面", 'value' => 2],
+                ['text' => "界面权限", 'value' => 3],
+            ]);
+
+            $form->text("url", "对应网址");
+
+            $form->text("icon", "对应图标");
+
+            $form->text("list_order", "规则排序");
+
+        })->submit("/restful/thinkeradmin/TeAdminRules{{d.id?'/'+d.id:''}}")->render();
+    }
+
+    /**
      * @title      rules
      * @description
      * @createtime 2019/11/15 6:47 下午
@@ -190,6 +279,21 @@ class Admin extends ThinkerController
      */
     public function rules()
     {
+        ThinkerAdmin::send()->html(
+            (new ThinkerPage(function(ThinkerPage $page){
+                $rows = $page->rows()->space(10);
+                $rows->cols()->sm(7)->layout(
+                    $this->getRuleTree()
+                );
+                $rows->cols()->sm(5)->layout(
+                    (new ThinkerCard())->setBodyLayout(
+                        $this->getRulesForm()
+                    )
+                );
+            }))->setTitle("规则管理")->render()
+        );
+
+        exit;
         ThinkerAdmin::Table(function(ThinkerTable $table){
             $table
                 ->restful("/restful/thinkeradmin/TeAdminRules")

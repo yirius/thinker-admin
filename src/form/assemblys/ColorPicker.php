@@ -116,7 +116,7 @@ class ColorPicker extends Assembly
         ThinkerAdmin::script("colorpicker", false, true);
 
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <div id="{$this->getId()}" lay-filter="{$this->getId()}" data-color="{$this->getValue()}" {$this->getAttrs()} lay-colorpicker=""></div>
     <input type="hidden" id="{$this->getId()}_hidden" name="{$this->getField()}" value="{$this->getValue()}"/>

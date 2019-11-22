@@ -80,7 +80,7 @@ class Slider extends Assembly
     public function render()
     {
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <div id="{$this->getId()}" lay-filter="{$this->getId()}" data-value="{$this->getValue()}" {$this->getAttrs()} lay-slider=""></div>
     <input type="hidden" id="{$this->getId()}_hidden" name="{$this->getField()}" value="{$this->getValue()}"/>

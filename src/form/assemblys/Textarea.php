@@ -25,7 +25,7 @@ class Textarea extends Text
     public function render()
     {
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <textarea class="{$this->getInputClass()}" name="{$this->getField()}" id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttrs()} placeholder="{$this->placeholder}">{$this->getValue()}</textarea>
 </div>

@@ -82,7 +82,7 @@ HTML
     public function render()
     {
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     {$this->getOptions()}
 </div>

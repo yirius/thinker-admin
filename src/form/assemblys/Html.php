@@ -41,7 +41,7 @@ class Html extends Assembly
         }
 
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     {$this->getValue()}
 </div>

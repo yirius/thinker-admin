@@ -55,6 +55,8 @@ class Tree extends Assembly
 
     protected $operateEvent = '';
 
+    protected $beforeOperateEvent = '';
+
     /**
      * @title setClickEvent
      * @description
@@ -98,6 +100,21 @@ class Tree extends Assembly
     }
 
     /**
+     * @title      setBeforeOperateEvent
+     * @description
+     * @createtime 2019/11/20 2:31 下午
+     * @param $beforeOperateEvent
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setBeforeOperateEvent($beforeOperateEvent)
+    {
+        $this->beforeOperateEvent = $beforeOperateEvent;
+
+        return $this;
+    }
+
+    /**
      * @return string
      */
     public function getClickEvent()
@@ -132,11 +149,13 @@ class Tree extends Assembly
         //运算一遍数据
         $this->setDataField($this->config['data']);
 
+        $jsonConfig = json_encode($this->getConfig());
+
         //add script
         ThinkerAdmin::script(<<<HTML
 (function(){
 var currentEleTree = document.querySelector("#{$this->getId()}"), isLoaded = false, currentTreeInput = layui.jquery("#{$this->getId()}_input");
-currentEleTree.tree = layui.tree.render($.extend({
+currentEleTree.protree = layui.protree.render($.extend({
     elem: "#{$this->getId()}",
     id: "{$this->getId()}",
     click: function(obj){
@@ -150,6 +169,9 @@ currentEleTree.tree = layui.tree.render($.extend({
             {$this->checkedEvent}
         }
     },
+    beforeOperate: function(type, obj){
+        {$this->beforeOperateEvent}
+    },
     operate: function(obj){
         {$this->operateEvent}
     },
@@ -162,7 +184,7 @@ currentEleTree.tree = layui.tree.render($.extend({
             }
         });
     }
-}, {$this->getConfig()}));
+}, {$jsonConfig}));
 //防止错误触发
 isLoaded = true;
 })();
@@ -170,7 +192,7 @@ HTML
         );
 
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <input type="hidden" name="{$this->getField()}" id="{$this->getId()}_input" lay-filter="{$this->getId()}_input" value="{$this->getValue()}" />
     <div id="{$this->getId()}" lay-filter="{$this->getId()}" {$this->getAttrs()} ></div>
@@ -185,7 +207,7 @@ HTML;
      */
     protected function _init()
     {
-        ThinkerAdmin::script('tree', false, true);
+        ThinkerAdmin::script('protree', false, true);
     }
 
     /**

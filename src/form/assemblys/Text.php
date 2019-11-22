@@ -59,7 +59,7 @@ HTML
     public function render()
     {
         return <<<HTML
-<label class="layui-form-label">{$this->getText()}</label>
+{$this->getLabel()}
 <div class="{$this->getClass()}">
     <input type="{$this->inputType}" class="{$this->getInputClass()}" name="{$this->getField()}" id="{$this->getId()}" lay-filter="{$this->getId()}" value="{$this->getValue()}" placeholder="{$this->placeholder}" {$this->getAttrs()} />
 </div>

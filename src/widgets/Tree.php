@@ -100,8 +100,8 @@ class Tree extends Widgets
                     foreach ($this->itemEach as $key) {
                         $tempTree[$key] = isset($v[$key]) ? $v[$key] : '';
                     }
-                } else if ($this->itemEach instanceof \Closure) {
-                    $tempTree = call_user_func($this->itemEach, $v);
+                } else if (is_callable($this->itemEach)) {
+                    $tempTree = call($this->itemEach, [$v]);
                 }
             }
             //加入其下级

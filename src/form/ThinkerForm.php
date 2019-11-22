@@ -77,13 +77,22 @@ class ThinkerForm extends ThinkerLayout
 
         ThinkerAdmin::script(<<<HTML
 layui.form.on("submit({$this->getId()}-submit)", function (obj) {
+    //找到switch，然后给其赋值
+    var switchs = $(obj.form).find('input[lay-skin="switch"]');
+    layui.each(switchs, function(n,v){
+        if(!v.checked){
+            obj.field[v.name] = v.dataset.notuse;
+        }
+    });
+    
     try{
         var beforeEvent = '{$beforeEvent}';
         if(beforeEvent){
             beforeEvent = new Function('return function(obj){' + beforeEvent + "}")();
-            obj = beforeEvent(obj);console.log(obj);
+            obj = beforeEvent(obj);
         }
-        layui.admin.http.{$requestMethod}("{$url}", obj.field, function(code, msg, data, all){
+        var url = layui.laytpl("{$url}").render(obj.field);
+        layui.admin.http.{$requestMethod}(url, obj.field, function(code, msg, data, all){
             {$doneCall}
         });
     }catch(e){
