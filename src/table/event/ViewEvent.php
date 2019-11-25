@@ -64,7 +64,7 @@ HTML
         $sendData = json_encode($sendData);
 
         return <<<HTML
-var checkStatus = layui.table.checkStatus(obj.config.id);
+var checkStatus = layui.tableplus.checkStatus(obj.config.id);
 if(checkStatus.data.length == 0){
     layui.admin.modal.error("您尚未选择任何条目");
     return;

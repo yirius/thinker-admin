@@ -272,7 +272,7 @@ class ThinkerTable extends ThinkerLayout
         $columns = json_encode($columns);
 
         //引用table
-        ThinkerAdmin::script("table", false, true);
+        ThinkerAdmin::script("tableplus", false, true);
 
         $jsonConfig = json_encode($this->getConfig());
 
@@ -282,12 +282,12 @@ var _searchField = {};
 layui.form.on('submit({$this->getId()}_form_search)', function (data) {
     _searchField = data.field;
     //执行重载
-    layui.table.reload('{$this->getId()}', {
+    layui.tableplus.reload('{$this->getId()}', {
         where: _searchField
     });
     return false;
 });
-var _{$this->getId()}_ins = layui.table.init('{$this->getId()}', $.extend({
+var _{$this->getId()}_ins = layui.tableplus.init('{$this->getId()}', $.extend({
     response: {
         statusName: layui.conf.response.statusName,
         statusCode: layui.conf.response.statusCode.ok,

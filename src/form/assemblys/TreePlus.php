@@ -15,29 +15,29 @@ use Yirius\Admin\ThinkerAdmin;
 /**
  * Class Tree
  *
- * @method Tree setData(array $data);
- * @method Tree setShowCheckbox(bool $isShow)
- * @method Tree setEdit(bool|array $edit)
- * @method Tree setAccordion(bool $isAccordion)
- * @method Tree setOnlyIconControl(bool $isOnlyIconControl)
- * @method Tree setIsJump(bool $isIsJump)
- * @method Tree setShowLine(bool $isShowLine)
- * @method Tree setSpread(array $spread)
- * @method Tree setDisabled(array $disabled)
+ * @method TreePlus setData(array $data);
+ * @method TreePlus setShowCheckbox(bool $isShow)
+ * @method TreePlus setEdit(bool|array $edit)
+ * @method TreePlus setAccordion(bool $isAccordion)
+ * @method TreePlus setOnlyIconControl(bool $isOnlyIconControl)
+ * @method TreePlus setIsJump(bool $isIsJump)
+ * @method TreePlus setShowLine(bool $isShowLine)
+ * @method TreePlus setSpread(array $spread)
+ * @method TreePlus setDisabled(array $disabled)
  *
- * @method Tree getData();
- * @method Tree getShowCheckbox()
- * @method Tree getEdit()
- * @method Tree getAccordion()
- * @method Tree getOnlyIconControl()
- * @method Tree getIsJump()
- * @method Tree getShowLine()
- * @method Tree getSpread()
- * @method Tree getDisabled()
+ * @method TreePlus getData();
+ * @method TreePlus getShowCheckbox()
+ * @method TreePlus getEdit()
+ * @method TreePlus getAccordion()
+ * @method TreePlus getOnlyIconControl()
+ * @method TreePlus getIsJump()
+ * @method TreePlus getShowLine()
+ * @method TreePlus getSpread()
+ * @method TreePlus getDisabled()
  *
  * @package Yirius\Admin\form\assembly
  */
-class Tree extends Assembly
+class TreePlus extends Assembly
 {
     /**
      * @var array
@@ -155,7 +155,7 @@ class Tree extends Assembly
         ThinkerAdmin::script(<<<HTML
 (function(){
 var currentEleTree = document.querySelector("#{$this->getId()}"), isLoaded = false, currentTreeInput = layui.jquery("#{$this->getId()}_input");
-currentEleTree.tree = layui.tree.render($.extend({
+currentEleTree.treeplus = layui.treeplus.render($.extend({
     elem: "#{$this->getId()}",
     id: "{$this->getId()}",
     click: function(obj){
@@ -164,7 +164,9 @@ currentEleTree.tree = layui.tree.render($.extend({
     oncheck: function(obj){
         if(isLoaded){
             this.checked = [];
-            this._eachChecked(layui.tree.getChecked('{$this->getId()}'));
+            this._eachChecked(layui.treeplus.getChecked('{$this->getId()}'));
+            console.log(currentTreeInput);
+            console.log(this.checked.join(","));
             currentTreeInput.val(this.checked.join(","));
             {$this->checkedEvent}
         }
@@ -187,6 +189,7 @@ currentEleTree.tree = layui.tree.render($.extend({
 }, {$jsonConfig}));
 //防止错误触发
 isLoaded = true;
+layui.form.render();
 })();
 HTML
         );
@@ -207,7 +210,7 @@ HTML;
      */
     protected function _init()
     {
-        ThinkerAdmin::script('tree', false, true);
+        ThinkerAdmin::script('treeplus', false, true);
     }
 
     /**

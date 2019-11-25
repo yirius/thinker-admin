@@ -41,7 +41,7 @@ class TableEvent extends ViewEvent
     public function event($eventName, $callback)
     {
         ThinkerAdmin::script(<<<HTML
-layui.table.on('{$eventName}({$this->tableIns->getId()})', function(obj){
+layui.tableplus.on('{$eventName}({$this->tableIns->getId()})', function(obj){
 {$callback}
 });
 HTML

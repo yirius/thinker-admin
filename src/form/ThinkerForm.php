@@ -60,18 +60,20 @@ class ThinkerForm extends ThinkerLayout
     {
         $doneCall = is_null($successCall) ? 'layui.admin.reloadTable();layui.layer.closeAll();layui.layer.msg(msg);' : $successCall;
 
-        $beforeEvent = is_null($beforeSubmit) ? '' : htmlspecialchars($beforeSubmit);
+        $beforeEvent = is_null($beforeSubmit) ? '' : str_replace(["\n", "\r", "'"], ["","","\'"], $beforeSubmit);
 
         //judge restful url
         $requestMethod = 'post';
 
-        if($id != 0){
+        if(!empty($id)){
             $requestMethod = "put";
-            if(strpos($url, "?") != false){
-                $viewUrl = explode("?", $url);
-                $url = $viewUrl[0] . "/" . $id . "?" . $viewUrl[1];
-            }else{
-                $url = $url . "/" . $id;
+            if($id !== true){
+                if(strpos($url, "?") != false){
+                    $viewUrl = explode("?", $url);
+                    $url = $viewUrl[0] . "/" . $id . "?" . $viewUrl[1];
+                }else{
+                    $url = $url . "/" . $id;
+                }
             }
         }
 
@@ -84,15 +86,33 @@ layui.form.on("submit({$this->getId()}-submit)", function (obj) {
             obj.field[v.name] = v.dataset.notuse;
         }
     });
+    //判断tree的参数，去掉
+    var treeChecks = $(obj.form).find('input[name^="layuiTreeCheck_"]');
+    layui.each(treeChecks, function(n,v){
+        if(obj.field[v.name]){
+            delete obj.field[v.name];
+        }
+    });
     
     try{
-        var beforeEvent = '{$beforeEvent}';
+        var beforeEvent = '{$beforeEvent}', 
+            requestMethod = '{$requestMethod}',
+            sendData = obj.field || {},
+            url = layui.laytpl("{$url}").render(sendData);
         if(beforeEvent){
-            beforeEvent = new Function('return function(obj){' + beforeEvent + "}")();
-            obj = beforeEvent(obj);
+            beforeEvent = new Function('return ' + beforeEvent)();
+            var returnData = beforeEvent(obj, url);
+            if(returnData.data){
+                sendData = returnData.data;
+            }
+            if(returnData.url){
+                url = returnData.url;
+            }
+            if(returnData.method){
+                requestMethod = returnData.method;
+            }
         }
-        var url = layui.laytpl("{$url}").render(obj.field);
-        layui.admin.http.{$requestMethod}(url, obj.field, function(code, msg, data, all){
+        layui.admin.http[requestMethod](url, sendData, function(code, msg, data, all){
             {$doneCall}
         });
     }catch(e){

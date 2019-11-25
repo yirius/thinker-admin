@@ -160,7 +160,7 @@ HTML
     public function render()
     {
         ThinkerAdmin::script(<<<HTML
-layui.table.on('tool({$this->tableIns->getId()})', function(obj){
+layui.tableplus.on('tool({$this->tableIns->getId()})', function(obj){
 {$this->event}
 });
 HTML

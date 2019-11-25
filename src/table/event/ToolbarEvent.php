@@ -140,7 +140,7 @@ $(document).off("change", "#{$this->tableIns->getId()}_xlsximport")
         }
         var parseData = '{$parseData}';
         if(parseData) useSheet = (new Function('return '+parseData))()(useSheet);
-        layui.table.reload('{$this->tableIns->getId()}', {
+        layui.tableplus.reload('{$this->tableIns->getId()}', {
             data: useSheet,
             limit: useSheet.length,
             limits: [useSheet.length]
@@ -154,7 +154,7 @@ HTML
         $sendData = json_encode($sendData);
 
         $this->event("submitexcel", <<<HTML
-var resultData = layui.table.cache[obj.config.id];
+var resultData = layui.tableplus.cache[obj.config.id];
 if(resultData.length == 0){
     layui.admin.modal.error("您尚未导入excel");
     return;
@@ -186,7 +186,7 @@ HTML
     public function render()
     {
         ThinkerAdmin::script(<<<HTML
-layui.table.on('toolbar({$this->tableIns->getId()})', function(obj){
+layui.tableplus.on('toolbar({$this->tableIns->getId()})', function(obj){
 {$this->event}
 });
 HTML
