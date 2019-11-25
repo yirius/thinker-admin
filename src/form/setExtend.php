@@ -9,6 +9,7 @@ use Yirius\Admin\form\assemblys\ColorPicker;
 use Yirius\Admin\form\assemblys\Date;
 use Yirius\Admin\form\assemblys\Hidden;
 use Yirius\Admin\form\assemblys\Html;
+use Yirius\Admin\form\assemblys\IconPicker;
 use Yirius\Admin\form\assemblys\Password;
 use Yirius\Admin\form\assemblys\Radio;
 use Yirius\Admin\form\assemblys\Select;
@@ -21,6 +22,7 @@ use Yirius\Admin\form\assemblys\Textarea;
 use Yirius\Admin\form\assemblys\TinyEditor;
 use Yirius\Admin\form\assemblys\Transfer;
 use Yirius\Admin\form\assemblys\Tree;
+use Yirius\Admin\form\assemblys\TreePlus;
 use Yirius\Admin\ThinkerAdmin;
 
 /**
@@ -42,7 +44,9 @@ use Yirius\Admin\ThinkerAdmin;
  * @method Textarea textarea($name, $label)
  * @method Transfer transfer($name, $label)
  * @method Tree tree($name, $label)
+ * @method TreePlus treeplus($name, $label)
  * @method TinyEditor tinyeditor($name, $label)
+ * @method IconPicker iconpicker($name, $label)
  */
 trait setExtend
 {
@@ -67,7 +71,9 @@ trait setExtend
         'textarea' => Textarea::class,
         'transfer' => Transfer::class,
         'tree' => Tree::class,
+        'treeplus' => TreePlus::class,
         'tinyeditor' => TinyEditor::class,
+        'iconpicker' => IconPicker::class,
     ];
 
     /**
@@ -212,7 +218,7 @@ trait setExtend
     {
         if ($className = $this->getExtends($method)) {
             $assembly = new $className(...$arguments);
-            $this->setAssemblys($assembly);
+            $this->setAssemblys($assembly->setFormIns($this));
             return $assembly;
         }
 

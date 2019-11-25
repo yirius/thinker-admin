@@ -51,10 +51,10 @@
 
     if(typeof layui.tinymce !== "undefined"){
         $("textarea[lay-tinymce]").each(function(n, v){
-            v.tinymce = layui.tinymce.render({
+            v.tinymce = layui.tinymce.render($.extend({
                 elem: "#" + v.id,
                 height: 400
-            });
+            }, $(v).data()));
         });
     }
 

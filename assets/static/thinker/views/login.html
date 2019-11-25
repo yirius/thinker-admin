@@ -169,7 +169,7 @@
                             <script type="text/html" template>
                                 <div class="layui-form-item">
                                     <label class="layui-icon label-icon layui-icon-username"></label>
-                                    <input type="text" name="username" value="{{ layui.admin.session.get('login_username') || '' }}" lay-verify="phone" lay-verType="tips" placeholder="登录用户名" maxlength="11" autocomplete="off" class="layui-input">
+                                    <input type="text" name="username" value="{{ layui.admin.session.get('login_username') || '' }}" lay-verify="require" lay-verType="tips" placeholder="登录用户名" maxlength="11" autocomplete="off" class="layui-input">
                                 </div>
                                 <div class="layui-form-item password-block">
                                     <label class="layui-icon label-icon layui-icon-password"></label>

@@ -73,7 +73,7 @@ parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, funct
     parent.layer.close(index);
     parent.layer.confirm('{$title}', function(index) {
         parent.layer.close(index);
-        layui.admin.http.{$method}('{$url}', $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(res){
+        layui.admin.http.{$method}('{$url}', $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(code, msg, data, all){
             layui.admin.reloadTable();
             {$afterDelete}
         });
@@ -114,7 +114,7 @@ parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, funct
             sendData = beforeDelete() || {};
         }
         var url = layui.laytpl('{$url}').render(obj.data || {});
-        layui.admin.http.{$method}(url, $.extend({password: value}, sendData, {$sendData}), function(res){
+        layui.admin.http.{$method}(url, $.extend({password: value}, sendData, {$sendData}), function(code, msg, data, all){
             layui.admin.reloadTable();
             {$afterDelete}
         });

@@ -36,14 +36,15 @@ abstract class Assembly extends ThinkerLayout
     protected $class = ['layui-input-block'];
 
     /**
-     * @var null
+     * @var ThinkerLayout|null
      */
     protected $formIns = null;
 
     /**
      * Assembly constructor.
-     * @param $field
-     * @param $text
+     * @param string           $field
+     * @param string           $text
+     * @param ThinkerForm|null $form
      */
     public function __construct($field = "", $text = "")
     {
@@ -53,6 +54,31 @@ abstract class Assembly extends ThinkerLayout
         $this->setField($field)->setText($text)->setId("thinker_" . $field);
 
         $this->_init();
+    }
+
+    /**
+     * @title      setFormIns
+     * @description
+     * @createtime 2019/11/25 7:16 下午
+     * @param ThinkerLayout $form
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setFormIns(ThinkerLayout $form)
+    {
+        $this->formIns = $form;
+
+        $this->setId($form->getId() . "_" . $this->getField());
+
+        return $this;
+    }
+
+    /**
+     * @return ThinkerForm|null
+     */
+    public function getFormIns()
+    {
+        return $this->formIns;
     }
 
     /**

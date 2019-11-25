@@ -1,0 +1,79 @@
+<div class="layui-fluid" id="VIEW-index" lay-title="FORM展示界面">
+    <div class="layui-card">
+        <div class="layui-card-header">卡片面板</div>
+        <div class="layui-card-body">
+            <div class="layui-form">
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    加入一个text/password<br>
+                    (new ThinkerForm())->text("title", "输入框");
+                </blockquote>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">输入框</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="title" required  lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    加入一个selectplus<br>
+                    (new ThinkerForm())->selectplus("select", "选择框");
+                </blockquote>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择框</label>
+                    <div class="layui-input-block">
+                        <div id="selectplus"></div>
+                    </div>
+                </div>
+                <blockquote class="layui-elem-quote layui-quote-nm">
+                    加入一个selectplus<br>
+                    (new ThinkerForm())->selectplus("select", "选择框");
+                </blockquote>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">选择框</label>
+                    <div class="layui-input-block">
+                        <div id="iconplus"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'form', 'selectplus', 'iconplus'], function(admin, form, selectplus, iconplus) {
+        form.render();
+
+        selectplus.render({
+            el: '#selectplus',
+            filterable: true,
+            toolbar: {
+                show: true,
+            },
+            theme: {
+                color: '#0081ff',
+            },
+            data: [
+                {name: '水果', value: 1, selected: true, disabled: true},
+                {name: '蔬菜', value: 2, selected: true},
+                {name: '桌子', value: 3, disabled: true},
+                {name: '北京', value: 4},
+            ]
+        });
+
+        //图标选择器
+        iconplus.render({
+            // 选择器，推荐使用input
+            elem: '#iconplus', //选择器ID
+            // 数据类型：fontClass/layui_icon，
+            type: 'layui_icon',
+            // 是否开启搜索：true/false
+            search: true,
+            // 是否开启分页
+            page: true,
+            // 每页显示数量，默认12
+            limit: 12,
+            // 点击回调
+            click: function (data) {
+                //console.log(data);
+            }
+        });
+    })
+</script>

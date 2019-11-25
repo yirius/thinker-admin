@@ -31,7 +31,7 @@ layui.define(function (exports) {
             //网站logo
             logo: './static/logo/logo.svg',
             //默认视图文件名
-            entry: '/thinkeradmin/Show/index',//layui.cache.base.replace(".", "") + 'views/index',
+            entry: '/thinkeradmin/Show/index',
             //视图文件后缀名
             engine: '.html',
             //layout的路径
@@ -96,9 +96,7 @@ layui.define(function (exports) {
         //全局 table 配置
         //参数请参照 https://www.layui.com/doc/modules/table.html
         table: {
-            page: {
-                layout: ['refresh', 'prev', 'page', 'next', 'skip', 'count', 'limit']
-            },
+            page: true,
             size: 'sm',
             even: true,
             skin: 'line',
@@ -111,19 +109,19 @@ layui.define(function (exports) {
             request: {
                 pageName: 'page', //页码的参数名称，默认：page
                 limitName: 'limit' //每页数据量的参数名，默认：limit
-            }
+            },
         },
-        //Table的toolbar，加上刷新
-        toolbar: {
-            icon: {
+        //设置table对应的上方defaulttoolbar自定义按钮等
+        tableToolbar: {
+            layout: {
                 refresh: {
                     title: '刷新',
                     layEvent: 'LAYTABLE_REFRESH',
                     icon: 'layui-icon-refresh'
                 }
             },
-            events: {
-                LAYTABLE_REFRESH: function(that, _this){
+            event: {
+                LAYTABLE_REFRESH: function(that, $this){
                     that.reload();
                 }
             }
@@ -151,11 +149,30 @@ layui.define(function (exports) {
                 notShow: function(){
                     return false;
                 }
+            },{
+                title: "清理缓存",
+                event: "clearcache",
+                notShow: function(){
+                    if(layui.view.session.get("access_type") === 0){
+                        return false;
+                    }
+                    return true;
+                }
             }]
         },
         //后台对应的事件触发
         events: {
+            userinfo(){
+                layui.view.tab.change("/thinkeradmin/Admin/userinfo");
+            },
+            clearcache(){
+                parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+                    parent.layer.close(index);
+                    layui.admin.http.post('/thinkeradmin/Admin/clearcache', {password: value}, function(res){
 
+                    });
+                });
+            }
         },
         //第三方扩展
         extend: {
@@ -172,13 +189,16 @@ layui.define(function (exports) {
             clipboard: 'lay/extends/clipboard',
             //excel带入
             excel: 'lay/extends/excel',
-            xlsx: 'lay/extends/xlsx',
-            FileSaver: 'lay/extends/FileSaver',
-            jszip: 'lay/extends/jszip',
             //加强select
-            formSelects: 'lay/extends/formSelects',
+            selectplus: 'lay/extends/selectplus',
             //加强输入框
             tinymce: 'lay/extends/tinymce',
+            //选择iconFonts
+            iconplus: 'lay/extends/iconplus',
+            //选择protree
+            treeplus: 'lay/extends/treeplus',
+            //tableplus表格加强
+            tableplus: 'lay/extends/tableplus',
         },
     })
 });

@@ -17,7 +17,8 @@
         "topthink/framework": "5.1.*",
         "firebase/php-jwt": "*",
         "topthink/think-captcha": "2.0.*",
-        "topthink/think-migration": "*"
+        "topthink/think-migration": "*",
+        "hisune/echarts-php": "*"
     },
     "require-dev": {
         "topthink/think-testing": "*"
