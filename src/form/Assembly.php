@@ -74,7 +74,11 @@ abstract class Assembly extends ThinkerLayout
     }
 
     /**
-     * @return ThinkerForm|null
+     * @title      getFormIns
+     * @description
+     * @createtime 2019/11/27 4:12 下午
+     * @return ThinkerLayout|null
+     * @author     yangyuance
      */
     public function getFormIns()
     {

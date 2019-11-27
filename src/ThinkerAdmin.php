@@ -9,6 +9,8 @@ use Yirius\Admin\auth\Jwt;
 use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\widgets\Cache;
+use Yirius\Admin\widgets\Encrypt;
+use Yirius\Admin\widgets\Http;
 use Yirius\Admin\widgets\Send;
 use Yirius\Admin\widgets\Tools;
 use Yirius\Admin\widgets\Tree;
@@ -26,6 +28,8 @@ use Yirius\Admin\widgets\Widgets;
  * @method static Jwt Jwt()
  * @method static Cache Cache()
  * @method static Tools Tools()
+ * @method static Http Http()
+ * @method static Encrypt Encrypt()
  *
  * @package Yirius\Admin
  */
@@ -43,6 +47,8 @@ class ThinkerAdmin
         'jwt'      =>   Jwt::class,
         'cache'    =>   Cache::class,
         'tools'    =>   Tools::class,
+        'http'     =>   Http::class,
+        'encrypt'  =>   Encrypt::class,
     ];
 
     /**
@@ -177,14 +183,26 @@ class ThinkerAdmin
     public static function __callStatic($name, $arguments)
     {
         if(isset(static::$extends[strtolower($name)])){
+            //获取到父类名称，判断是否一个widget
+            $parentClassName = get_parent_class(static::$extends[strtolower($name)]);
+
             //判断是否存在该类
-            $newClass = (new static::$extends[strtolower($name)]);
-            //存在的话，判断参数
-            if(method_exists($newClass, "setArguments")){
-                $newClass->setArguments($arguments);
+            if($parentClassName == "Yirius\\Admin\\widgets\\Widgets"){
+                unset($parentClassName);
+                return static::$extends[strtolower($name)]::getInstance(
+                    isset($arguments[0]) ? $arguments[0] : null
+                );
+            }else{
+                unset($parentClassName);
+                //否则是其他的参数
+                $newClass = (new static::$extends[strtolower($name)]);
+                //存在的话，判断参数
+                if(method_exists($newClass, "setArguments")){
+                    $newClass->setArguments($arguments);
+                }
+                //返回实例化
+                return $newClass;
             }
-            //返回实例化
-            return $newClass;
         }else{
             return null;
         }

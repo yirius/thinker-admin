@@ -206,7 +206,7 @@ class ThinkerRestful extends ThinkerController
             $value = $request->param("value");
             if(in_array($field, $this->_CanEditFields)){
 
-                $value = $this->_beforeUpdate($field, $value);
+                $value = $this->_beforeUpdate($id, $field, $value);
 
                 //执行保存方法
                 $saveResult = $this->__defaultSave([
@@ -250,7 +250,7 @@ class ThinkerRestful extends ThinkerController
      * @return mixed
      * @author     yangyuance
      */
-    protected function _beforeUpdate($field, $value)
+    protected function _beforeUpdate($id, $field, $value)
     {
         return $value;
     }

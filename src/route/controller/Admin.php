@@ -9,6 +9,7 @@ use think\facade\Cache;
 use think\Request;
 use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\ThinkerForm;
+use Yirius\Admin\services\Upload;
 use Yirius\Admin\ThinkerAdmin;
 
 class Admin extends ThinkerController
@@ -17,7 +18,7 @@ class Admin extends ThinkerController
      * @var array
      */
     protected $tokenAuth = [
-        'except' => ['captcha', 'login', 'menus', 'clearcache', 'userinfo']
+        'except' => ['captcha', 'login', 'menus', 'clearcache', 'userinfo', 'upload']
     ];
 
     /**
@@ -172,8 +173,8 @@ class Admin extends ThinkerController
 
         //如果存在自定义菜单过滤，就使用
         $menu_fliter = config("thinkeradmin.menu_fliter");
-        if($menu_fliter instanceof \Closure){
-            $menus = call_user_func($menu_fliter, $menus, $this->tokenInfo, $this->auth);
+        if(is_callable($menu_fliter)){
+            $menus = call($menu_fliter, [$menus, $this->tokenInfo, $this->auth]);
         }
 
         ThinkerAdmin::Send()->json($menus);
@@ -209,5 +210,18 @@ class Admin extends ThinkerController
             $form->password("password", "修改密码");
 
         })->send("个人信息");
+    }
+
+    /**
+     * @title      upload
+     * @description
+     * @createtime 2019/11/25 11:13 下午
+     * @author     yangyuance
+     */
+    public function upload($isimage = true)
+    {
+        ThinkerAdmin::Send()->json(
+            (new Upload())->upload(true, $isimage)
+        );
     }
 }

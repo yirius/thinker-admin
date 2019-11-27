@@ -33,7 +33,7 @@ class System
             ->setConfig([
                 'sublist' => "children"
             ])
-            ->tree(TeAdminRules::select()->toArray());
+            ->tree(TeAdminRules::order("pid asc,list_order desc")->select()->toArray());
 
         if(isset($treeData[0])){
             $treeData[0]['spread'] = true;

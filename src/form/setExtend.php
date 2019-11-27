@@ -23,6 +23,7 @@ use Yirius\Admin\form\assemblys\TinyEditor;
 use Yirius\Admin\form\assemblys\Transfer;
 use Yirius\Admin\form\assemblys\Tree;
 use Yirius\Admin\form\assemblys\TreePlus;
+use Yirius\Admin\form\assemblys\Upload;
 use Yirius\Admin\ThinkerAdmin;
 
 /**
@@ -47,6 +48,7 @@ use Yirius\Admin\ThinkerAdmin;
  * @method TreePlus treeplus($name, $label)
  * @method TinyEditor tinyeditor($name, $label)
  * @method IconPicker iconpicker($name, $label)
+ * @method Upload upload($name, $label)
  */
 trait setExtend
 {
@@ -74,6 +76,7 @@ trait setExtend
         'treeplus' => TreePlus::class,
         'tinyeditor' => TinyEditor::class,
         'iconpicker' => IconPicker::class,
+        'upload' => Upload::class,
     ];
 
     /**

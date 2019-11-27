@@ -15,7 +15,7 @@ use Yirius\Admin\ThinkerAdmin;
  * @method ThinkerTableCols setWidth($value)
  * @method ThinkerTableCols setMinWidth(int $value)
  * @method ThinkerTableCols setType($value) 存在normal/checkbox/radio/numbers/space几种类型
-* // * @method ThinkerColumn setAllChecked(bool $checked)
+ * @method ThinkerTableCols setAllChecked(bool $checked)
  * @method ThinkerTableCols setFixed($value) 有left和right两个值
  * @method ThinkerTableCols setHide(bool $isShow) 是否隐藏，初始不隐藏
  * @method ThinkerTableCols setTotalRow(bool $value) 是否开启列合计
@@ -119,15 +119,17 @@ class ThinkerTableCols extends ThinkerLayout
      * @return ThinkerTableCols
      * @author     yangyuance
      */
-    public function button($text, $event, $icon, $class, $isHref = false, $attrs = [])
+    public function button($text, $event, $icon, $class, $isHref = false, $attrs = [], $ifTpl = null)
     {
+        $buttonHtml = (new Button())->xs()
+            ->setText('<i class="layui-icon layui-icon-'. $icon .'"></i>'.$text)
+            ->setClass($class)
+            ->setAttrs(($isHref ? 'thinker-href' : 'lay-event'), $event)
+            ->setAttrs($attrs)
+            ->render();
+
         return $this->toolbar(
-            (new Button())->xs()
-                ->setText('<i class="layui-icon layui-icon-'. $icon .'"></i>'.$text)
-                ->setClass($class)
-                ->setAttrs(($isHref ? 'thinker-href' : 'lay-event'), $event)
-                ->setAttrs($attrs)
-                ->render()
+            is_null($ifTpl) ? $buttonHtml : '{{# '.$ifTpl.'{ }}'.$buttonHtml.'{{# } }}'
         );
     }
 
@@ -248,7 +250,16 @@ HTML
         if(empty($this->toolHtml)){
             unset($config['toolbar']);
         }else{
-            $config['toolbar'] = "<div>".$this->toolHtml."</div>";
+            $config['templet'] = "#{$this->tableIns->getId()}_{$this->getField()}_templet";
+//            $this->setTemplet("#{$this->tableIns->getId()}_{$this->getField()}_templet");
+            //设置模板
+            ThinkerAdmin::script(<<<HTML
+<script type="text/html" id="{$this->tableIns->getId()}_{$this->getField()}_templet">
+{$this->toolHtml}
+</script>
+HTML
+                , false, false, true);
+//            $config['toolbar'] = "<div>".$this->toolHtml."</div>";
         }
 
         return $config;
