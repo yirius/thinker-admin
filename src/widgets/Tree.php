@@ -9,7 +9,7 @@ class Tree extends Widgets
     /**
      * @var array
      */
-    protected $config = [
+    protected $treeconfig = [
         'parentid' => "pid",
         'id' => "id",
         'topindex' => 0,
@@ -29,9 +29,9 @@ class Tree extends Widgets
      * @return $this
      * @author     yangyuance
      */
-    public function setConfig(array $config)
+    public function setTreeconfig(array $config)
     {
-        $this->config = array_merge($this->config, $config);
+        $this->treeconfig = array_merge($this->treeconfig, $config);
 
         return $this;
     }
@@ -66,15 +66,15 @@ class Tree extends Widgets
         //first, add all data to array and set key = pid
         $pidForList = [];
         for ($i = 0; $i < count($data); $i++) {
-            if (!isset($pidForList[$data[$i][$this->config['parentid']]])){
-                $pidForList[$data[$i][$this->config['parentid']]] = [];
+            if (!isset($pidForList[$data[$i][$this->treeconfig['parentid']]])){
+                $pidForList[$data[$i][$this->treeconfig['parentid']]] = [];
             }
-            $pidForList[$data[$i][$this->config['parentid']]][] = $data[$i];
+            $pidForList[$data[$i][$this->treeconfig['parentid']]][] = $data[$i];
         }
         //use key to sort, asc
         ksort($pidForList);
 
-        return $this->subTree($pidForList, $this->config['topindex']);
+        return $this->subTree($pidForList, $this->treeconfig['topindex']);
     }
 
     /**
@@ -105,14 +105,14 @@ class Tree extends Widgets
                 }
             }
             //加入其下级
-            $tempTree[$this->config['sublist']] = [];
+            $tempTree[$this->treeconfig['sublist']] = [];
             //judge pidForList is have this pid
-            if (isset($pidForList[$v[$this->config['id']]])) {
-                $tempTree[$this->config['sublist']] = $this->subTree($pidForList, $v[$this->config['id']]);
+            if (isset($pidForList[$v[$this->treeconfig['id']]])) {
+                $tempTree[$this->treeconfig['sublist']] = $this->subTree($pidForList, $v[$this->treeconfig['id']]);
             }
             //如果不存在下级，直接去掉下级
-            if(empty($tempTree[$this->config['sublist']])){
-                unset($tempTree[$this->config['sublist']]);
+            if(empty($tempTree[$this->treeconfig['sublist']])){
+                unset($tempTree[$this->treeconfig['sublist']]);
             }
             $subTree[] = $tempTree;
         }

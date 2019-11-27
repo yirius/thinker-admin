@@ -18,7 +18,7 @@ class Admin extends ThinkerController
      * @var array
      */
     protected $tokenAuth = [
-        'except' => ['captcha', 'login', 'menus', 'clearcache', 'userinfo', 'upload']
+        'auth' => false
     ];
 
     /**
@@ -111,8 +111,9 @@ class Admin extends ThinkerController
             }else{
                 $resultData = [
                     'id' => $userInfo['id'],
-                    'username' => $userInfo['username'],
-                    'access_type' => $accessType
+                    'username' => isset($userInfo['realname']) ? $userInfo['realname'] : $userInfo['username'],
+                    'access_type' => $accessType,
+                    'theme' => isset($userInfo['theme']) ? $userInfo['theme'] : ""
                 ];
             }
         }else{
@@ -126,8 +127,9 @@ class Admin extends ThinkerController
                 }else{
                     $resultData = [
                         'id' => $userInfo['id'],
-                        'username' => $userInfo['username'],
-                        'access_type' => $accessType
+                        'username' => isset($userInfo['realname']) ? $userInfo['realname'] : $userInfo['username'],
+                        'access_type' => $accessType,
+                        'theme' => isset($userInfo['theme']) ? $userInfo['theme'] : ""
                     ];
                 }
             }
@@ -205,11 +207,74 @@ class Admin extends ThinkerController
     {
         $this->getAuth();
 
+        /**
+         * 获取到提交的信息
+         */
+        if($this->request->isPost()){
+            $params = ThinkerAdmin::Validate()->make(input('param.'), [
+                'realname' => "require",
+                'oldpassword' => "require",
+                'password' => "require|length:6",
+                'repassword' => "require"
+            ], [
+                'realname.require' => "展示姓名必须填写",
+                'oldpassword.require' => "旧密码必须填写",
+                'password.require' => "新密码必须填写",
+                'password.length' => "新密码必须填写超过6位",
+                'repassword.require' => "重复新密码必须填写"
+            ]);
+
+            $userInfo = $this->auth->getUser($this->tokenInfo['id'], "id");
+
+            if($params['password'] == $params['repassword']){
+                if(sha1($params['oldpassword'].$userInfo['salt']) == $userInfo['password']){
+                    $salt = ThinkerAdmin::Tools()->rand();
+                    $flag = db($this->auth->getConfig("auth_user")[$this->auth->getAccessType()])
+                        ->where('id', '=', $this->tokenInfo['id'])
+                        ->update([
+                            'salt' => $salt,
+                            'password' => sha1($params['password'] . $salt),
+                            'realname' => $params['realname'],
+                            'theme' => input('param.theme', '')
+                        ]);
+
+                    if($flag){
+                        ThinkerAdmin::Cache()->clearAuthCache();
+                        ThinkerAdmin::Send()->json([], 1, "修改个人信息成功");
+                    }else{
+                        ThinkerAdmin::Send()->json([], 0, "修改失败");
+                    }
+                }else{
+                    ThinkerAdmin::Send()->json([], 0, "旧密码输入不正确");
+                }
+            }else{
+                ThinkerAdmin::Send()->json([], 0, "重复密码输入不正确");
+            }
+        }
+
         ThinkerAdmin::Form(function(ThinkerForm $form){
 
-            $form->password("password", "修改密码");
+            $userInfo = $this->auth->getUser($this->tokenInfo['id'], "id");
 
-        })->send("个人信息");
+            $form->text("realname", "展示姓名")
+                ->setValue(isset($userInfo['realname']) ? $userInfo['realname'] : "");
+
+            $form->password("oldpassword", "旧密码");
+
+            $form->password("password", "新密码");
+
+            $form->password("repassword", "重复密码");
+
+            $form->select("theme", "侧边栏颜色")->options([
+                ['text' => "深色模式", 'value' => ""],
+                ['text' => "浅色模式", 'value' => "thinker-theme-white"],
+            ])->on(<<<HTML
+layui.admin.session.set("theme_class", obj.value);
+layui.$("#"+layui.conf.views.sidebar).attr("class", 'layui-side '+obj.value);
+HTML
+            )->setPlaceholder()->setValue(isset($userInfo['theme']) ? $userInfo['theme'] : "");
+
+        })->submit("/thinkeradmin/Admin/userinfo")->send("个人信息");
     }
 
     /**

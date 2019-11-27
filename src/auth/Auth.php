@@ -18,8 +18,6 @@ class Auth
         'auth_group_access' => 'teadmin_group_access',
         //权限规则表
         'auth_rule' => 'teadmin_rules',
-        //菜单组
-        'auth_menu' => 'teadmin_menu',
         //登录使用的用户表组
         'auth_user' => [
             'teadmin_member'
@@ -53,6 +51,23 @@ class Auth
 
         //声明AuthUser
         $this->authUser = (new AuthUser())->setConfig($this->config);
+    }
+
+    /**
+     * @title      getConfig
+     * @description
+     * @createtime 2019/11/27 8:46 下午
+     * @param null $name
+     * @return array
+     * @author     yangyuance
+     */
+    public function getConfig($name = null)
+    {
+        if(is_null($name)){
+            return $this->config;
+        }else{
+            return isset($this->config[$name]) ? $this->config[$name] : $this->config;
+        }
     }
 
     /**

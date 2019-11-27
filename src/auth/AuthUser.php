@@ -284,7 +284,7 @@ class AuthUser
         }
 
         //找到底层的数据
-        $useMenus = ThinkerAdmin::Tree()->setConfig([
+        $useMenus = ThinkerAdmin::Tree()->setTreeconfig([
             'sublist' => "childs"
         ])->setItemEach(function($value){
             return [

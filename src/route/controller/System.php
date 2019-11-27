@@ -30,7 +30,7 @@ class System
     {
         //序列化所有的菜单
         $treeData = ThinkerAdmin::Tree()
-            ->setConfig([
+            ->setTreeconfig([
                 'sublist' => "children"
             ])
             ->tree(TeAdminRules::order("pid asc,list_order desc")->select()->toArray());
