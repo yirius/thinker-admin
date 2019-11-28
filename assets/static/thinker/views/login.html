@@ -361,10 +361,11 @@ layui.use(['admin','helper','util','qrcode','form'],function(admin,helper,util,q
         admin.http.post(layui.conf.apis.login, data.field, function(code, msg, res, all){
             loading.hide();
 
-            var token = res[layui.conf.tokenName];
+            var token = res[layui.conf.tokenName], theme = res.theme || "";
             delete res[layui.conf.tokenName];
+            delete res.theme;
 
-            admin.session.login(token, { user: res });
+            admin.session.login(token, { user: res, theme_class: theme });
 
             if(data.field.autoLogin != 'on'){
                 admin.session.set('login_username', '');

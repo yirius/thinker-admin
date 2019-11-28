@@ -76,6 +76,9 @@ class ThinkerController extends Controller
             $routeInfo = null;
         }
 
+        //记录，以便以后使用
+        $_SERVER['__REQUESTURL'] = $this->urlPath;
+
         //如果存在only，就是只验证指定规则
         if(isset($this->tokenAuth['only'])){
             $only = array_map(function ($item) {

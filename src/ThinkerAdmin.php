@@ -10,6 +10,7 @@ use Yirius\Admin\form\ThinkerForm;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Encrypt;
+use Yirius\Admin\widgets\File;
 use Yirius\Admin\widgets\Http;
 use Yirius\Admin\widgets\Send;
 use Yirius\Admin\widgets\Tools;
@@ -30,6 +31,7 @@ use Yirius\Admin\widgets\Widgets;
  * @method static Tools Tools()
  * @method static Http Http()
  * @method static Encrypt Encrypt()
+ * @method static File File()
  *
  * @package Yirius\Admin
  */
@@ -49,6 +51,7 @@ class ThinkerAdmin
         'tools'    =>   Tools::class,
         'http'     =>   Http::class,
         'encrypt'  =>   Encrypt::class,
+        'file'     =>   File::class,
     ];
 
     /**

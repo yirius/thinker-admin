@@ -124,7 +124,7 @@ class ThinkerTableCols extends ThinkerLayout
         $buttonHtml = (new Button())->xs()
             ->setText('<i class="layui-icon layui-icon-'. $icon .'"></i>'.$text)
             ->setClass($class)
-            ->setAttrs(($isHref ? 'thinker-href' : 'lay-event'), $event)
+            ->setAttrs(($isHref ? 'lay-href' : 'lay-event'), $event)
             ->setAttrs($attrs)
             ->render();
 

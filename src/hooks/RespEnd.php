@@ -18,22 +18,29 @@ class RespEnd
     public function run($params)
     {
         if(config('thinkeradmin.log.http')){
-            $logConfig = config("log.");
-            $logConfig['path'] = app()->getRuntimePath() . 'http' . DIRECTORY_SEPARATOR;
+            $nohttp = config('thinkeradmin.log.nohttp');
+            if(empty($nohttp)) $nohttp = [];
+            $requestUrl = empty($_SERVER['__REQUESTURL']) ? $_SERVER['PATH_INFO'] : $_SERVER['__REQUESTURL'];
+            $requestUrl = str_replace(".html", "", $requestUrl);
+            //只记录执行http记录的
+            if(!in_array(strtolower($requestUrl), $nohttp)){
+                $logConfig = config("log.");
+                $logConfig['path'] = app()->getRuntimePath() . 'http' . DIRECTORY_SEPARATOR;
 
-            $useTime = ceil((microtime(true) - $_SERVER['__STARTTIME'])*10000);
+                $useTime = ceil((microtime(true) - $_SERVER['__STARTTIME'])*10000);
 
-            try{
-                Log::init($logConfig)->write(json_encode([
-                    'usetime' => $useTime,
-                    'usememory' => ceil(memory_get_usage()/1024/1024),
-                    'params' => input('param.')
-                ]), "info", true);
-            }catch (\Exception $exception){
+                try{
+                    Log::init($logConfig)->write(json_encode([
+                        'usetime' => $useTime . "ms",
+                        'usememory' => ceil(memory_get_usage()/1024) . "KB",
+                        'params' => input('param.')
+                    ]), "info", true);
+                }catch (\Exception $exception){
 
+                }
+                $logConfig['path'] = "";
+                Log::init($logConfig);
             }
-            $logConfig['path'] = "";
-            Log::init($logConfig);
         }
     }
 }

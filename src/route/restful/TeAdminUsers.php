@@ -85,5 +85,10 @@ class TeAdminUsers extends ThinkerRestful
         thinker_log($this->tokenInfo, "编辑字段:".$field);
     }
 
+    protected function _afterDelete(array $errorIds)
+    {
+        thinker_log($this->tokenInfo, "删除用户信息");
+    }
+
     protected $_NotDelete = [1];
 }

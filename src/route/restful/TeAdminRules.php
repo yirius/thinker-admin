@@ -83,5 +83,10 @@ class TeAdminRules extends ThinkerRestful
         thinker_log($this->tokenInfo, "编辑字段:".$field);
     }
 
+    protected function _afterDelete(array $errorIds)
+    {
+        thinker_log($this->tokenInfo, "删除规则信息");
+    }
+
     protected $_NotDelete = [];
 }

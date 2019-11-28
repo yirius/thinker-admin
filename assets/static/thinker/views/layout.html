@@ -76,6 +76,11 @@
         </script>
     </div>
 
+    <style>
+        .layui-nav .layui-badge, .layui-nav .layui-badge-dot{
+            right: 25px;
+        }
+    </style>
     <!-- 侧边菜单 -->
     <div class="layui-side" id="app-sidebar">
         <div class="layui-side-scroll">
@@ -85,6 +90,9 @@
                     lay-url="{{ layui.conf.apis.menu }}"
                     lay-done="layui.element.render('nav','thinker-sidebar');layui.admin.sidebarFocus()"
             >
+                {{# if(layui.admin.session.get("theme_class")){
+                layui.$("#"+layui.conf.views.sidebar).attr("class", 'layui-side '+layui.admin.session.get("theme_class"));
+                }  }}
                 <div class="layui-logo">
                     <img src="{{layui.conf.views.logo}}" style="height: 25px"/>
                     <span>{{layui.conf.views.name}}</span>
@@ -103,7 +111,7 @@
                         layui.each(data,function(i,child){
                         html += '
                         <dd><a style="padding-left:'+(index == 0 ? 50 : 50 + index * 20)+'px"
-                               target="'+(child.target||'')+'" lay-href="'+ (child.href||'') +'">' + child.title + '</a>';
+                               target="'+(child.target||'')+'" lay-href="'+ (child.href||'') +'">' + child.title + (child.notice ? '<span class="layui-badge">'+child.notice+'</span>':'') + '</a>';
                             if(child.childs) html += __createSlidebar(child.childs,index+1);
                             html += '
                         </dd>
