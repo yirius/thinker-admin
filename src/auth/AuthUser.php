@@ -72,18 +72,25 @@ class AuthUser
      */
     public function getUser($value, $field)
     {
-        return db($this->config['auth_user'][$this->config['access_type']])
-            ->cache(
-                ThinkerAdmin::Cache()->getAuthCacheName("user", [
-                    'access_type' => $this->config['access_type'],
-                    'id' => $value,
-                    'type' => $field
-                ]),
-                0,
-                'thinker_authinfo'
-            )
-            ->where($field, '=', $value)
-            ->find();
+        $userInfo = ThinkerAdmin::Cache()->getAuthCache("user", [
+            'access_type' => $this->config['access_type'],
+            'id' => $value,
+            'type' => $field
+        ]);
+
+        if(empty($userInfo)){
+            $userInfo = db($this->config['auth_user'][$this->config['access_type']])
+                ->where($field, '=', $value)
+                ->find();
+
+            ThinkerAdmin::Cache()->setAuthCache("user", [
+                'access_type' => $this->config['access_type'],
+                'id' => $value,
+                'type' => $field
+            ], $userInfo);
+        }
+
+        return $userInfo;
     }
 
     /**
@@ -99,23 +106,29 @@ class AuthUser
      */
     public function getGroups($userid)
     {
+        $groups = ThinkerAdmin::Cache()->getAuthCache("group", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid
+        ]);
+
+        if(empty($groups)){
+            $groups = db($this->config['auth_group_access'])
+                ->alias('a')
+                ->field('a.uid,a.group_id,b.title,b.rules')
+                ->join($this->config['auth_group'] . " b", "a.group_id=b.id", 'LEFT')
+                ->where("a.uid", intval($userid))
+                ->where("b.status", 1)
+                ->where("a.type", $this->config['access_type'])
+                ->select();
+
+            ThinkerAdmin::Cache()->setAuthCache("group", [
+                'access_type' => $this->config['access_type'],
+                'id' => $userid
+            ], $groups);
+        }
+
         //查询这个用户id对应的用户组和权限
-        return db($this->config['auth_group_access'])
-            ->alias('a')
-            ->field('a.uid,a.group_id,b.title,b.rules')
-            ->join($this->config['auth_group'] . " b", "a.group_id=b.id", 'LEFT')
-            ->where("a.uid", intval($userid))
-            ->where("b.status", 1)
-            ->where("a.type", $this->config['access_type'])
-            ->cache(
-                ThinkerAdmin::Cache()->getAuthCacheName("group", [
-                    'access_type' => $this->config['access_type'],
-                    'id' => $userid
-                ]),
-                0,
-                'thinker_authinfo'
-            )
-            ->select();
+        return $groups;
     }
 
     /**
@@ -156,23 +169,28 @@ class AuthUser
             return [];
         }
 
-        //查询到所有规则可用的
-        $rules = db($this->config['auth_rule'])
-            ->field('id,pid,name,title,url,icon,condition')
-            ->cache(
-                ThinkerAdmin::Cache()->getAuthCacheName("group", [
-                    'access_type' => $this->config['access_type'],
-                    'id' => $userid,
-                    'type' => $type
-                ]),
-                0,
-                'thinker_authinfo'
-            )
-            ->where('id', 'in', $ruleids)
-            ->where('status', '=', 1)
-            ->where('type', 'in', is_array($type) ? $type : [$type])
-            ->order("list_order", "desc")
-            ->select();
+        $rules = ThinkerAdmin::Cache()->getAuthCache("group", [
+            'access_type' => $this->config['access_type'],
+            'id' => $userid,
+            'type' => $type
+        ]);
+
+        if(empty($rules)){
+            //查询到所有规则可用的
+            $rules = db($this->config['auth_rule'])
+                ->field('id,pid,name,title,url,icon,condition')
+                ->where('id', 'in', $ruleids)
+                ->where('status', '=', 1)
+                ->where('type', 'in', is_array($type) ? $type : [$type])
+                ->order("list_order", "desc")
+                ->select();
+
+            ThinkerAdmin::Cache()->setAuthCache("group", [
+                'access_type' => $this->config['access_type'],
+                'id' => $userid,
+                'type' => $type
+            ], $rules);
+        }
 
         //保存规则
         $authList = [];

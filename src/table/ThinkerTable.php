@@ -238,6 +238,42 @@ class ThinkerTable extends ThinkerLayout
     }
 
     /**
+     * @title      checkbox
+     * @description
+     * @createtime 2019/11/28 3:55 下午
+     * @return ThinkerTableCols
+     * @author     yangyuance
+     */
+    public function checkbox()
+    {
+        return $this->columns("", "")->setType("checkbox");
+    }
+
+    /**
+     * @title      radio
+     * @description
+     * @createtime 2019/11/28 3:55 下午
+     * @return ThinkerTableCols
+     * @author     yangyuance
+     */
+    public function radio()
+    {
+        return $this->columns("", "")->setType("radio");
+    }
+
+    /**
+     * @title      numbers
+     * @description
+     * @createtime 2019/11/28 3:55 下午
+     * @return ThinkerTableCols
+     * @author     yangyuance
+     */
+    public function numbers()
+    {
+        return $this->columns("", "")->setType("numbers");
+    }
+
+    /**
      * @title       render
      * @description 每一个组件需要继承渲染接口
      * @createtime  2019/11/14 4:26 下午
@@ -270,6 +306,22 @@ class ThinkerTable extends ThinkerLayout
         }
 
         $columns = json_encode($columns);
+
+        //判断是否使用了sort排序
+        if(is_null($this->tableEvent)){
+            ThinkerAdmin::script(<<<HTML
+layui.tableplus.on('sort({$this->getId()})', function(obj){
+    layui.tableplus.reload('{$this->getId()}', {
+        initSort: obj,
+        where: {
+          sort: obj.field,
+          order: obj.type || "desc"
+        }
+    });
+});
+HTML
+            );
+        }
 
         //引用table
         ThinkerAdmin::script("tableplus", false, true);

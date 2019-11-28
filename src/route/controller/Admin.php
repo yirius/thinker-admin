@@ -155,6 +155,13 @@ class Admin extends ThinkerController
             //首先赋值token
             $resultData[config('thinkeradmin.auth.token_name')] = ThinkerAdmin::jwt()->encode($resultData);
 
+            //记录本次登录的ip地址
+            if(config('thinkeradmin.auth.singleLogin')){
+                ThinkerAdmin::Cache()->setAuthCache("loginip", $resultData, $this->request->ip());
+            }
+
+            thinker_log($resultData, "用户登录", true);
+
             //否则的话直接返回对应的jwt
             $send->json($resultData, 1, lang("login success"));
         }
@@ -240,6 +247,13 @@ class Admin extends ThinkerController
 
                     if($flag){
                         ThinkerAdmin::Cache()->clearAuthCache();
+
+                        thinker_log([
+                            'id' => $this->tokenInfo['id'],
+                            'username' => $params['realname'],
+                            'access_type' => $this->tokenInfo['access_type']
+                        ], "修改个人资料");
+
                         ThinkerAdmin::Send()->json([], 1, "修改个人信息成功");
                     }else{
                         ThinkerAdmin::Send()->json([], 0, "修改失败");

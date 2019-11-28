@@ -214,12 +214,12 @@ class Auth
 
     /**
      * @title      checkUrl
-     * @description
-     * @createtime 2019/11/15 7:21 下午
+     * @description 检查url是否可以使用，可用的话，就返回对应的name
+     * @createtime 2019/11/28 3:29 下午
      * @param     $url
      * @param     $userid
-     * @param int|array $type
-     * @return bool
+     * @param int $type
+     * @return bool|mixed
      * @author     yangyuance
      */
     public function checkUrl($url, $userid, $type = 1)
@@ -231,16 +231,17 @@ class Auth
         }
 
         //找到那些路径是可用的
-        $canUseUrl = [];
+        $canUseUrl = [];$canUseName = [];
         foreach($useRules as $useRule){
             if(!empty($useRule['url'])){
                 $canUseUrl[] = strtolower($useRule['url']);
+                $canUseName[] = $useRule['name'];
             }
         }
 
         //判断当前Url是否可用
         if(in_array(strtolower($url), $canUseUrl)){
-            return true;
+            return $canUseName[array_search(strtolower($url), $canUseUrl)];
         }else{
             return false;
         }

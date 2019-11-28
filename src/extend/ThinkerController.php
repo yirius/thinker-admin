@@ -7,6 +7,7 @@ use think\Controller;
 use think\facade\Cache;
 use think\Route;
 use Yirius\Admin\auth\Auth;
+use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
 class ThinkerController extends Controller
@@ -31,6 +32,12 @@ class ThinkerController extends Controller
      * @var string
      */
     protected $urlPath = '';
+
+    /**
+     * Table对应的name，方便查找edit/del等参数
+     * @var string
+     */
+    protected $urlName = '';
 
     /**
      * @title      initialize
@@ -148,6 +155,20 @@ class ThinkerController extends Controller
                     })
                     ->decode($headerToken ? $headerToken : $paramToken);
 
+                //判断登录的ip是否一致
+                if(config('thinkeradmin.auth.singleLogin')){
+                    $recordIp = ThinkerAdmin::Cache()
+                        ->getAuthCache("loginip", $this->tokenInfo, "");
+                    if(empty($recordIp)){
+                        ThinkerAdmin::Cache()
+                            ->setAuthCache("loginip", $this->tokenInfo, $this->request->ip());
+                    }else{
+                        if($this->request->ip() != $recordIp){
+                            ThinkerAdmin::Send()->json([], 0, "该账号存在他人登录，您已被强制下线");
+                        }
+                    }
+                }
+
                 //设置缓存判断当前的token状态, 缓存设置的过期时间
                 ThinkerAdmin::Cache()->setTokenCache(
                     "jwt",
@@ -175,7 +196,9 @@ class ThinkerController extends Controller
         //首先获取Auth信息
         $this->getAuth();
 
-        if(!$this->auth->checkUrl($this->urlPath, $this->tokenInfo['id'], [1,2])){
+        $this->urlName = $this->auth->checkUrl($this->urlPath, $this->tokenInfo['id'], [1,2]);
+
+        if($this->urlName === false){
             ThinkerAdmin::Send()->json([], 0, "Auth信息失败: 您暂无权限访问");
         }
     }
@@ -236,5 +259,48 @@ class ThinkerController extends Controller
         if($resultData === false){
             ThinkerAdmin::Send()->json([], 0, lang("incorrect username or password"));
         }
+    }
+
+    /**
+     * @title      renderTableRule
+     * @description
+     * @createtime 2019/11/28 3:43 下午
+     * @param ThinkerTable $table
+     * @param string       $title
+     * @return \Yirius\Admin\table\ThinkerTableCols
+     * @author     yangyuance
+     */
+    protected function renderTableRule(ThinkerTable $table, $title = "操作")
+    {
+        //按钮是否存在
+        $isShowAdd = $this->auth->checkRule($this->urlName.":add", $this->tokenInfo['id'], [3]);
+        $isShowDelete = $this->auth->checkRule($this->urlName.":del", $this->tokenInfo['id'], [3]);
+        $isShowEdit = $this->auth->checkRule($this->urlName.":edit", $this->tokenInfo['id'], [3]);
+
+        //实例化操作栏
+        $opColumn = $table->columns("op", $title);
+
+        //判断后方按钮
+        if($isShowEdit && $isShowDelete){
+            $opColumn->edit()->delete()->setWidth(145);
+            $table->colsEvent()->edit()->delete();
+        }elseif($isShowEdit){
+            $opColumn->edit()->setWidth(81);
+            $table->colsEvent()->edit();
+        }elseif($isShowDelete){
+            $opColumn->delete()->setWidth(81);
+            $table->colsEvent()->delete();
+        }
+
+        //判断上方按钮
+        if($isShowAdd && $isShowDelete){
+            $table->toolbar()->add()->delete()->event()->add()->delete();
+        }elseif($isShowAdd){
+            $table->toolbar()->add()->event()->add();
+        }elseif($isShowDelete){
+            $table->toolbar()->delete()->event()->delete();
+        }
+
+        return $opColumn;
     }
 }

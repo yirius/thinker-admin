@@ -15,8 +15,10 @@ class TeAdminUsers extends ThinkerRestful
     protected $_UseTable = \Yirius\Admin\route\model\TeAdminUsers::class;
 
     protected $_Where = [
-        "pid", "type",
-        "url" => ['url', 'like', '%_var%']
+        "id", "status",
+        "username" => ['username', 'like', '%_var%'],
+        "phone"    => ['phone', 'like', '%_var%'],
+        "realname" => ['realname', 'like', '%_var%']
     ];
 
     protected $_Validate = [[
@@ -74,6 +76,13 @@ class TeAdminUsers extends ThinkerRestful
             $groups = explode(",", $groups);
             TeAdminRolesAccess::setAccess($groups, $model->getLastInsID());
         }
+
+        thinker_log($this->tokenInfo, $isUpdate ? "编辑用户信息" : "新增用户信息");
+    }
+
+    protected function _afterUpdate($id, $field, array $saveData, Model $model)
+    {
+        thinker_log($this->tokenInfo, "编辑字段:".$field);
     }
 
     protected $_NotDelete = [1];

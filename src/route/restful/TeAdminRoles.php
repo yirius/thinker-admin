@@ -5,6 +5,7 @@ namespace Yirius\Admin\route\restful;
 
 
 use think\db\Query;
+use think\Model;
 use Yirius\Admin\extend\ThinkerRestful;
 
 class TeAdminRoles extends ThinkerRestful
@@ -25,4 +26,14 @@ class TeAdminRoles extends ThinkerRestful
     ]];
 
     protected $_NotDelete = [1];
+
+    protected function _afterSave($isUpdate, array $saveData, Model $model)
+    {
+        thinker_log($this->tokenInfo, $isUpdate ? "编辑角色信息" : "新增角色信息");
+    }
+
+    protected function _afterUpdate($id, $field, array $saveData, Model $model)
+    {
+        thinker_log($this->tokenInfo, "编辑字段:".$field);
+    }
 }

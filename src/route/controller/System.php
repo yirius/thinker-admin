@@ -4,10 +4,11 @@
 namespace Yirius\Admin\route\controller;
 
 
+use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\assemblys\Button;
-use Yirius\Admin\form\assemblys\Tree;
 use Yirius\Admin\form\assemblys\TreePlus;
 use Yirius\Admin\form\ThinkerForm;
+use Yirius\Admin\form\ThinkerInline;
 use Yirius\Admin\layout\ThinkerCard;
 use Yirius\Admin\layout\ThinkerPage;
 use Yirius\Admin\route\model\TeAdminRoles;
@@ -17,7 +18,7 @@ use Yirius\Admin\route\model\TeAdminUsers;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
-class System
+class System extends ThinkerController
 {
     /**
      * @title      getRuleTree
@@ -37,6 +38,9 @@ class System
 
         if(isset($treeData[0])){
             $treeData[0]['spread'] = true;
+            if(isset($treeData[0]['children'][0])){
+                $treeData[0]['children'][0]['spread'] = true;
+            }
         }
 
         //点击打开快捷添加界面
@@ -177,7 +181,7 @@ HTML
             $form->select("pid", "上级编号")->options(
                 TeAdminRules::adminSelect()
                     ->setWhere([
-                        ['type', 'in', [1,2]]
+                        ['type', 'in', [1]]
                     ])
                     ->getResult()
             );
@@ -200,8 +204,7 @@ HTML
             $form->checkbox("tableconf[]", "界面设置")->options([
                 ['text' => "添加", 'value' => "add"],
                 ['text' => "删除", 'value' => "del"],
-                ['text' => "修改", 'value' => "edit"],
-                ['text' => "导出", 'value' => "exports"],
+                ['text' => "修改", 'value' => "edit"]
             ]);
 
             $form->text("list_order", "规则排序");
@@ -221,20 +224,29 @@ HTML
             $table->restful("/restful/thinkeradmin/TeAdminRoles")
                 ->setOperateUrl("/thinkeradmin/System/rolesEdit");
 
-            $table->columns("id", "ID");
+            $table->search(function (ThinkerInline $inline){
 
-            $table->columns("title", "角色名称");
+                $inline->text("title", "角色名称");
 
-            $table->columns("status", "角色状态")->switchs("status");
+                $inline->select("status", "角色状态")->options([
+                    ['text' => "可使用", 'value' => 1],
+                    ['text' => "已禁止", 'value' => 0],
+                ])->setPlaceholder();
+
+            });
+
+            $table->checkbox();
+
+            $table->columns("id", "ID")->setSort(true)->setMinWidth(80);
+
+            $table->columns("title", "角色名称")->setMinWidth(120);
+
+            $table->columns("status", "角色状态")->switchs("status")->setMinWidth(150);
 
             $table->columns("rules", "规则数量")
-                ->setTemplet("<div>{{d.rules.split(',').length}}种</div>");
+                ->setTemplet("<div>{{d.rules.split(',').length}}种</div>")->setMinWidth(80);
 
-            $table->columns("op", "操作")->edit()->delete();
-
-            $table->toolbar()->add()->delete()->event()->add()->delete();
-
-            $table->colsEvent()->edit()->delete();
+            $this->renderTableRule($table);
 
         })->send("角色管理");
     }
@@ -250,26 +262,17 @@ HTML
     {
         ThinkerAdmin::Form(function(ThinkerForm $form) use($id){
 
-            $value = $id == 0 ? [] : TeAdminRoles::get(['id' => $id]);
-
-            $form->setValue($value);
+            $form->setValue($id == 0 ? [] : TeAdminRoles::get(['id' => $id]));
 
             $form->text("title", "规则名称");
 
             $form->switchs("status", "状态");
 
             //序列化所有的菜单
-            $useRules = empty($value['rules']) ? [] : explode(",", $value['rules']);
             $treeData = ThinkerAdmin::Tree()
-                ->setConfig([
+                ->setTreeconfig([
                     'sublist' => "children"
                 ])
-                ->setItemEach(functioN($value) use($useRules){
-                    if(in_array($value['id'], $useRules)){
-                        $value['checked'] = true;
-                    }
-                    return $value;
-                })
                 ->tree(TeAdminRules::select()->toArray());
 
             $form->tree("rules", "使用规则")->setData($treeData)->setShowCheckbox(true);
@@ -289,23 +292,36 @@ HTML
             $table->restful("/restful/thinkeradmin/TeAdminUsers")
                 ->setOperateUrl("/thinkeradmin/System/usersEdit");
 
-            $table->columns("id", "ID");
+            $table->search(function (ThinkerInline $inline){
+
+                $inline->text("username", "用户名称");
+
+                $inline->text("phone", "手机号");
+
+                $inline->text("realname", "展示姓名");
+
+                $inline->select("status", "角色状态")->options([
+                    ['text' => "可使用", 'value' => 1],
+                    ['text' => "已禁止", 'value' => 0],
+                ])->setPlaceholder();
+
+            });
+
+            $table->checkbox();
+
+            $table->columns("id", "ID")->setSort(true);
 
             $table->columns("username", "用户名称");
 
             $table->columns("phone", "手机号");
 
-            $table->columns("realname", "真实姓名");
+            $table->columns("realname", "展示姓名");
 
             $table->columns("status", "角色状态")->switchs("status");
 
-            $table->columns("op", "操作")->edit()->delete();
+            $this->renderTableRule($table);
 
-            $table->toolbar()->add()->delete()->event()->add()->delete();
-
-            $table->colsEvent()->edit()->delete();
-
-        })->send("角色管理");
+        })->send("用户管理");
     }
 
     /**
@@ -319,9 +335,7 @@ HTML
     {
         ThinkerAdmin::Form(function(ThinkerForm $form) use($id){
 
-            $value = $id == 0 ? [] : TeAdminUsers::get(['id' => $id]);
-
-            $form->setValue($value);
+            $form->setValue($id == 0 ? [] : TeAdminUsers::get(['id' => $id]));
 
             $form->text("username", "用户名称");
 

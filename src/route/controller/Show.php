@@ -11,6 +11,7 @@ use Yirius\Admin\layout\ThinkerCollapse;
 use Yirius\Admin\layout\ThinkerCollapseItem;
 use Yirius\Admin\layout\ThinkerCols;
 use Yirius\Admin\layout\ThinkerRows;
+use Yirius\Admin\route\model\TeAdminLogs;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 

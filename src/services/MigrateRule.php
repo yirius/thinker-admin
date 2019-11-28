@@ -30,7 +30,7 @@ class MigrateRule
 
     protected $operatePage = true;
 
-    protected $tableConf = ['add', 'del', 'edit', 'exports'];
+    protected $tableConf = ['add', 'del', 'edit'];
 
     /**
      * @param mixed $id
@@ -199,9 +199,6 @@ class MigrateRule
                         break;
                     case "edit":
                         $title = "修改";
-                        break;
-                    case "exports":
-                        $title = "导出";
                         break;
                     default:
                         $title = $i;
