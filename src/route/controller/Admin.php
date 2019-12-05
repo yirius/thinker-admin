@@ -9,7 +9,7 @@ use think\facade\Cache;
 use think\Request;
 use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\ThinkerForm;
-use Yirius\Admin\services\Upload;
+use Yirius\Admin\services\ThinkerUpload;
 use Yirius\Admin\ThinkerAdmin;
 
 class Admin extends ThinkerController
@@ -104,6 +104,8 @@ class Admin extends ThinkerController
         //有一个状态参数
         $resultData = null;
 
+        $configUserName = config("thinkeradmin.auth.username");
+        
         if($accessType === 0){
             //总后台登录,使用自定义的算法
             if ($userInfo['password'] != sha1($params['password'].$userInfo['salt'])) {
@@ -111,7 +113,8 @@ class Admin extends ThinkerController
             }else{
                 $resultData = [
                     'id' => $userInfo['id'],
-                    'username' => isset($userInfo['realname']) ? $userInfo['realname'] : $userInfo['username'],
+                    'username' => isset($configUserName[$accessType]) ?
+                        $userInfo[$configUserName[$accessType]] : $userInfo['username'],
                     'access_type' => $accessType,
                     'theme' => isset($userInfo['theme']) ? $userInfo['theme'] : ""
                 ];
@@ -127,7 +130,8 @@ class Admin extends ThinkerController
                 }else{
                     $resultData = [
                         'id' => $userInfo['id'],
-                        'username' => isset($userInfo['realname']) ? $userInfo['realname'] : $userInfo['username'],
+                        'username' => isset($configUserName[$accessType]) ?
+                            $userInfo[$configUserName[$accessType]] : $userInfo['username'],
                         'access_type' => $accessType,
                         'theme' => isset($userInfo['theme']) ? $userInfo['theme'] : ""
                     ];
@@ -300,7 +304,7 @@ HTML
     public function upload($isimage = true)
     {
         ThinkerAdmin::Send()->json(
-            (new Upload())->upload(true, $isimage)
+            (new ThinkerUpload())->upload(true, $isimage)
         );
     }
 }

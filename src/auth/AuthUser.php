@@ -146,13 +146,13 @@ class AuthUser
     public function _rulesSelect($userid, $type = 1)
     {
         //如果已经存在了
-        if ($authList = ThinkerAdmin::Cache()->getAuthCache("rulesall", [
-            'access_type' => $this->config['access_type'],
-            'id' => $userid,
-            'type' => $type
-        ])) {
-            return $authList;
-        }
+//        if ($authList = ThinkerAdmin::Cache()->getAuthCache("rulesall", [
+//            'access_type' => $this->config['access_type'],
+//            'id' => $userid,
+//            'type' => $type
+//        ])) {
+//            return $authList;
+//        }
 
         //首先找到用户组
         $userGroups = $this->getGroups($userid);

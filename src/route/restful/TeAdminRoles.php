@@ -17,6 +17,27 @@ class TeAdminRoles extends ThinkerRestful
         "title" => ['title', 'like', '%_var%']
     ];
 
+    protected $_UseQuery = true;
+
+    /**
+     * @title      _indexQuery
+     * @description 判断身份
+     * @createtime 2019/12/4 4:49 下午
+     * @param Query $query
+     * @return Query
+     * @author     yangyuance
+     */
+    protected function _indexQuery(Query $query)
+    {
+        if(empty($this->tokenInfo['access_type'])){
+            return $query;
+        }else{
+            return $query
+                ->where('access_type', '=', $this->tokenInfo['access_type'])
+                ->where('userid', '=', $this->tokenInfo['id']);
+        }
+    }
+
     protected $_Validate = [[
         'title' => "require",
         'rules'  => "require",

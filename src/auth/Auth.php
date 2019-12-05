@@ -118,6 +118,7 @@ class Auth
             }
             return $this->authUser->getUser($value, $field);
         }catch (\Exception $exception){
+            thinker_error($exception);
             return null;
         }
     }

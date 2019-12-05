@@ -91,12 +91,13 @@ class Logs extends ThinkerController
     /**
      * @title      http
      * @description HTTP请求记录查看
-     * @createtime 2019/11/28 11:09 下午
+     * @createtime 2019/12/5 6:19 下午
+     * @param string $logpath
      * @author     yangyuance
      */
-    public function http()
+    public function http($logpath = "http")
     {
-        $this->_logtable("http", "请求");
+        $this->_logtable("http", "log_".$logpath, strtoupper($logpath)."请求");
     }
 
     /**
@@ -107,18 +108,19 @@ class Logs extends ThinkerController
      */
     public function log()
     {
-        $this->_logtable("log", "错误");
+        $this->_logtable("log", "log", "错误");
     }
 
     /**
      * @title      _logtable
      * @description 查看Log的基础table
-     * @createtime 2019/11/28 11:22 下午
-     * @param $runPath
+     * @createtime 2019/12/5 6:20 下午
+     * @param $url
+     * @param $logCatePath
      * @param $title
      * @author     yangyuance
      */
-    protected function _logtable($runPath, $title)
+    protected function _logtable($url, $logCatePath, $title)
     {
         //初始化参数
         $month = $this->request->param("month", null);
@@ -131,7 +133,7 @@ class Logs extends ThinkerController
             if(is_null($day)){
                 ThinkerAdmin::Send()->table(
                     ThinkerAdmin::File()->getCatelogs(
-                        env("runtime_path") . $runPath . (is_null($month)?'':DS.$month),
+                        env("runtime_path") . $logCatePath . (is_null($month)?'':DS.$month),
                         intval($page),
                         intval($limit)
                     )
@@ -139,7 +141,7 @@ class Logs extends ThinkerController
             }else{
                 ThinkerAdmin::Send()->table(
                     ThinkerAdmin::File()->getLogContent(
-                        env("runtime_path") . $runPath . DS . $month . DS . $day,
+                        env("runtime_path") . $logCatePath . DS . $month . DS . $day,
                         intval($page),
                         intval($limit)
                     )
@@ -149,15 +151,19 @@ class Logs extends ThinkerController
 
         //如果不存在日期，就需要递进文件夹
         if(is_null($day)){
-            ThinkerAdmin::Table(function(ThinkerTable $table) use($month, $runPath){
+            ThinkerAdmin::Table(function(ThinkerTable $table) use($url, $month, $logCatePath){
 
                 //如果存在月份，需要去读取月份的数据
                 if(!is_null($month)){
-                    $table->setId($table->getId() . "_" . $month);
+                    $table->setId($table->getId() . "_" . $month . $logCatePath);
+                }else{
+                    $table->setId($table->getId() . "_" . $logCatePath);
                 }
 
                 $table->restful(
-                    "/thinkeradmin/Logs/".$runPath."?type=ajax" . (is_null($month)?'':'&month='.$month)
+                    "/thinkeradmin/Logs/".$url."?type=ajax&logpath=" .
+                    str_replace("log_", "", $logCatePath) .
+                    (is_null($month)?'':'&month='.$month)
                 );
 
                 $table->columns("name", "名称")->setMinWidth(80);
@@ -171,24 +177,56 @@ class Logs extends ThinkerController
 
                 $table->columns("op", "操作")->button(
                     "查看",
-                    "/thinkeradmin/Logs/".$runPath."?" .
-                    (is_null($month) ? 'month={{d.name}}' : 'month='.$month.'&day={{d.name}}'),
+                    "/thinkeradmin/Logs/".$url."?logpath=" .
+                    str_replace("log_", "", $logCatePath) .
+                    (is_null($month) ? '&month={{d.name}}' : '&month='.$month.'&day={{d.name}}'),
                     "search",
                     "",
                     true
                 )->setWidth(85);
 
-                $table->toolbar();
+                $toolbar = $table->toolbar();
+                $toolbarEvent = $toolbar->event();
+
+                if($url != "log"){
+                    $logCates = ThinkerAdmin::File()->getCatelogs(
+                        env("runtime_path"),
+                        intval(1),
+                        intval(1000)
+                    );
+
+                    for($i = 0; $i < $logCates['count']; $i++){
+                        if(strpos($logCates['data'][$i]['id'], "log_") !== false){
+                            //小写名称
+                            $logName = str_replace("log_", "", $logCates['data'][$i]['id']);
+                            //判断是否当前选项
+                            $isDisabled = $logCatePath == $logCates['data'][$i]['id'];
+
+                            $toolbar->button(
+                                strtoupper($logName)."请求",
+                                $logName."Req",
+                                "list",
+                                $isDisabled ? "layui-btn-disabled" : "",
+                                false,
+                                $isDisabled ? [
+                                    'disabled' => "disabled"
+                                ] : []
+                            );
+                            $toolbarEvent->event($logName."Req", "layui.view.tab.change('/thinkeradmin/Logs/http'+(obj.event=='httpReq'?'':'?logpath='+obj.event.replace('Req','')))");
+                        }
+                    }
+                }
 
             })->send((is_null($month) ? '' : $month).$title."日志");
         }else{
             //存在日期的
-            ThinkerAdmin::Table(function(ThinkerTable $table) use($month, $day, $runPath){
+            ThinkerAdmin::Table(function(ThinkerTable $table) use($url, $month, $day, $logCatePath){
 
-                $table->setId($table->getId() . "_" . $month . "_" . str_replace(".log", "", $day));
+                $table
+                    ->setId($table->getId() . "_" . $month . "_" . $logCatePath . "_" . str_replace(".log", "", $day));
 
                 $table->restful(
-                    "/thinkeradmin/Logs/".$runPath."?type=ajax&month=$month&day=$day"
+                    "/thinkeradmin/Logs/".$url."?type=ajax&logpath=".str_replace("log_", "", $logCatePath)."&month=$month&day=$day"
                 );
 
                 $table->columns("id", "ID")->setWidth(60);
@@ -199,14 +237,14 @@ class Logs extends ThinkerController
 
                 $table->columns("method", "请求方法")->setWidth(80);
 
-                if($runPath == "log"){
+                $table->columns("memory", "使用内存")->setWidth(80);
+
+                $table->columns("reqs", "请求数量")->setWidth(80);
+
+                $table->columns("runtime", "运行时间")->setWidth(80);
+
+                if($url == "log"){
                     $table->columns("error", "错误原因")->setMinWidth(120);
-
-                    $table->columns("memory", "使用内存")->setWidth(80);
-
-                    $table->columns("reqs", "请求数量")->setWidth(80);
-
-                    $table->columns("runtime", "运行时间")->setWidth(80);
 
                     $table->columns("stack", "堆栈")
                         ->setMinWidth(120)->setTemplet("<div>{{ JSON.stringify(d.stack)}}</div>");

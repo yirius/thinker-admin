@@ -117,7 +117,21 @@ HTML;
             'afterRequest' => 'layui.admin.reloadTable();
                                 parent.layui.layer.closeAll();
                                 parent.layui.layer.msg(res.msg);',
-            'errorRequest' => '',
+            'errorRequest' => <<<HTML
+var tableBody = $("[lay-id='{$this->tableIns->getId()}']").find("table").eq(1).find("tbody").find("tr");
+var hasErrorIndex = [];
+for(var i in data){
+    hasErrorIndex.push(parseInt(i));
+}
+tableBody.each(function(n,v){
+    if(hasErrorIndex.indexOf(n) >= 0){
+        $(v).css("color", "red");
+    }else{
+        $(v).css("color", "");
+    }
+});
+HTML
+            ,
             'method' => 'post'
         ], $config);
 
@@ -125,7 +139,7 @@ HTML;
         ThinkerAdmin::script("excel", false, true);
 
         //转义一下字符
-        $parseData = str_replace(["'", "\n"], ["\'", ""], $parseData);
+        $parseData = str_replace(["'", "\n", "\r"], ["\'", "", ""], $parseData);
 
         //监听input的变化
         ThinkerAdmin::script(<<<HTML
@@ -161,9 +175,9 @@ if(resultData.length == 0){
 }
 layer.confirm('是否确定导入'+ resultData.length +'条数据？', function(index) {
     parent.layer.close(index);
-    layui.admin.http.{$config['method']}('{$url}', $.extend({data: JSON.stringify(resultData)}, {$sendData}), function(res){
+    layui.admin.http.{$config['method']}('{$url}', $.extend({data: JSON.stringify(resultData)}, {$sendData}), function(code, msg, data, all){
         {$config['afterRequest']}
-    }, function(res){
+    }, function(code, msg, data, all){
         {$config['errorRequest']}
     });
 });

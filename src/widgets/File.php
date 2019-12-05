@@ -9,11 +9,11 @@ class File extends Widgets
     /**
      * @title      getCatelogs
      * @description
-     * @createtime 2019/11/28 9:43 下午
+     * @createtime 2019/12/5 5:55 下午
      * @param     $path
      * @param     $page
      * @param int $limit
-     * @return \Generator
+     * @return array
      * @author     yangyuance
      */
     public function getCatelogs($path, $page, $limit = 10)

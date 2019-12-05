@@ -27,6 +27,11 @@ class ThinkerRestful extends ThinkerController
     protected $_Alias = null;
 
     /**
+     * @var string
+     */
+    protected $_Field = "";
+
+    /**
      * @var null
      */
     protected $_With = null;
@@ -55,10 +60,11 @@ class ThinkerRestful extends ThinkerController
                     ->setWhere($this->_Where)
                     ->setAlias($this->_Alias)
                     ->setWith($this->_With)
+                    ->setField($this->_Field)
                     ->getResult($this->_UseEachItem ? function($item){
                         $this->_indexEach($item);
                     } : null, $this->_UseQuery ? function(Query $query){
-                        $this->_indexQuery($query);
+                        return $this->_indexQuery($query);
                     } : null)
             );
         }catch (\Exception $exception){
@@ -137,7 +143,7 @@ class ThinkerRestful extends ThinkerController
 
         //触发完成任务
         $this->_afterSave(
-            empty($updateWhere) ? false : true,
+            $updateWhere,
             $saveResult['saveData'],
             $saveResult['result']
         );
@@ -167,12 +173,12 @@ class ThinkerRestful extends ThinkerController
      * @title      afterSave
      * @description
      * @createtime 2019/11/16 8:22 下午
-     * @param       $isUpdate
+     * @param array|null $updateWhere
      * @param array $saveData
      * @param Model $model
      * @author     yangyuance
      */
-    protected function _afterSave($isUpdate, array $saveData, Model $model)
+    protected function _afterSave($updateWhere, array $saveData, Model $model)
     {
 
     }

@@ -68,13 +68,19 @@ abstract class ThinkerLayout
      */
     public function getParentCall()
     {
-        $data = debug_backtrace();
+        $data = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         $useCall = null;
         for($i = 1; $i < count($data); $i++){
             if(!isset($data[$i]['file'])){
-                $useCall = [$data[$i]['class'], $data[$i]['function']];
-                break;
+                if(strpos($data[$i]['function'], "{closure}")){
+                    continue;
+                }else{
+                    $useCall = [$data[$i]['class'], $data[$i]['function']];
+                    break;
+                }
+            }else{
+                continue;
             }
         }
 
@@ -97,7 +103,7 @@ abstract class ThinkerLayout
      */
     public function setId($id)
     {
-        $this->id = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、'], "_", $id);
+        $this->id = str_replace(["'", '"', ' ', '.', '。', ',', '，', ':', '：', '/', '、', '\\', '{', '}'], "_", $id);
 
         return $this;
     }

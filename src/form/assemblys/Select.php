@@ -62,6 +62,25 @@ HTML
     }
 
     /**
+     * @title      search
+     * @description 开启搜索
+     * @createtime 2019/12/2 1:09 下午
+     * @param bool $isSearch
+     * @return $this
+     * @author     yangyuance
+     */
+    public function search($isSearch = true)
+    {
+        if($isSearch){
+            $this->setAttrs("lay-search", '');
+        }else{
+            $this->removeAttr("lay-search");
+        }
+
+        return $this;
+    }
+
+    /**
      * @title render
      * @description render html
      * @createtime 2019/2/24 下午4:25

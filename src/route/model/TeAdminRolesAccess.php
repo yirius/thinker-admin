@@ -66,14 +66,14 @@ class TeAdminRolesAccess extends ThinkerModel
             }
 
             foreach($addGroups as $i => $addGroup){
-                self::save([
+                (new static())->save([
                     'uid' => $userid,
                     'group_id' => $addGroup,
                     'type' => $accessType
                 ]);
             }
         }catch (\Exception $exception){
-
+            thinker_error($exception);
         }
     }
 }

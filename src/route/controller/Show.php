@@ -32,9 +32,9 @@ class Show extends ThinkerController
         ThinkerAdmin::Send()->html(<<<HTML
 <div class="layui-fluid" id="VIEW-index" lay-title="首页">
   <div class="thinker-pad-tb20">
-    <h1 class="thinker-lead">智证宝-智慧公证</h1>
+    <h1 class="thinker-lead">帮运车-仓储管理平台</h1>
     <div class="thinker-ignore thinker-pad-tb10">
-      <p>为您提供银行公证-法院强执等一系列服务</p>
+      <p>仓储管理平台，进行仓储以及车辆管理</p>
     </div>
   </div>
   <div class="layui-row layui-col-space15">

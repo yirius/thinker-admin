@@ -178,13 +178,28 @@ HTML
     public function rulesEdit()
     {
         ThinkerAdmin::Form(function(ThinkerForm $form){
-            $form->select("pid", "上级编号")->options(
-                TeAdminRules::adminSelect()
-                    ->setWhere([
-                        ['type', 'in', [1]]
-                    ])
-                    ->getResult()
-            );
+
+            $options = ThinkerAdmin::Tree()
+                ->setItemEach(function($v){
+                    return [
+                        'text' => (empty($v['pid']) ? "顶层菜单-" : "") . $v['title'] . "-" . $v['name'],
+                        'value' => $v['id']
+                    ];
+                })
+                ->tree((new TeAdminRules)
+                    ->where('type', 'in', [1])
+                    ->select()->toArray());
+
+            $useOptions = [];
+            foreach($options as $i => $v){
+                $useOptions[] = [
+                    'text' => $v['text'],
+                    'value' => $v['value']
+                ];
+                $useOptions[] = $v;
+            }
+
+            $form->select("pid", "上级编号")->options($useOptions)->search();
 
             $form->text("name", "规则英文");
 
@@ -243,6 +258,8 @@ HTML
 
             $table->columns("status", "角色状态")->switchs("status")->setMinWidth(150);
 
+            $table->columns("access_type", "用户类型")->setMinWidth(120);
+
             $table->columns("rules", "规则数量")
                 ->setTemplet("<div>{{d.rules.split(',').length}}种</div>")->setMinWidth(80);
 
@@ -264,16 +281,37 @@ HTML
 
             $form->setValue($id == 0 ? [] : TeAdminRoles::get(['id' => $id]));
 
-            $form->text("title", "规则名称");
+            $form->text("title", "角色名称");
 
             $form->switchs("status", "状态");
 
+            $form->text("access_type", "用户类型");
+
+            if(empty($this->tokenInfo['access_type'])){
+                $canUseRules = TeAdminRules::order("list_order", "desc")->select()->toArray();
+            }else{
+                //判断，如果是其他角色分权限，职能分配自己归属的权限
+                $userGroups = ThinkerAdmin::Auth()
+                    ->setAccessType($this->tokenInfo['access_type'])
+                    ->getGroups($this->tokenInfo['id']);
+
+                //保存用户所属用户组设置的所有权限规则id
+                $ruleids = [];
+                foreach ($userGroups as $userGroup) {
+                    $ruleids = array_merge($ruleids, explode(',', trim($userGroup['rules'], ',')));
+                }
+                //去重，一个用户可能有多个权限组
+                $ruleids = array_unique($ruleids);
+
+                $canUseRules = TeAdminRules::order("list_order", "desc")
+                    ->where('id', 'in', $ruleids)->select()->toArray();
+            }
             //序列化所有的菜单
             $treeData = ThinkerAdmin::Tree()
                 ->setTreeconfig([
                     'sublist' => "children"
                 ])
-                ->tree(TeAdminRules::select()->toArray());
+                ->tree($canUseRules);
 
             $form->tree("rules", "使用规则")->setData($treeData)->setShowCheckbox(true);
 

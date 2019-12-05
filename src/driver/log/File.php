@@ -280,19 +280,19 @@ class File
 
     protected function getDebugLog(&$info, $append, $apart)
     {
-        if ($this->app->isDebug() && $append) {
+//        if ($this->app->isDebug() && $append) {
 
             if ($this->config['json']) {
                 // 获取基本信息
                 $runtime = round(microtime(true) - $this->app->getBeginTime(), 10);
                 $reqs    = $runtime > 0 ? number_format(1 / $runtime, 2) : '∞';
 
-                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024, 2);
+                $memory_use = number_format((memory_get_usage() - $this->app->getBeginMem()) / 1024 / 1024, 2);
 
                 $info = [
-                    'runtime' => number_format($runtime, 6) . 's',
+                    'runtime' => number_format($runtime*10000, 2) . 'ms',
                     'reqs'    => $reqs . 'req/s',
-                    'memory'  => $memory_use . 'kb',
+                    'memory'  => $memory_use . 'Mb',
                     'file'    => count(get_included_files()),
                 ] + $info;
 
@@ -309,6 +309,6 @@ class File
 
                 array_unshift($info, $time_str . $memory_str . $file_load);
             }
-        }
+//        }
     }
 }

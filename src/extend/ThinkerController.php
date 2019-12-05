@@ -104,7 +104,11 @@ class ThinkerController extends Controller
                 $this->checkUrlAuth();
             }
         }
+
+        $this->_init();
     }
+
+    protected function _init(){}
 
     /**
      * @title      getAuth

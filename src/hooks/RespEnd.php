@@ -20,27 +20,74 @@ class RespEnd
         if(config('thinkeradmin.log.http')){
             $nohttp = config('thinkeradmin.log.nohttp');
             if(empty($nohttp)) $nohttp = [];
-            $requestUrl = empty($_SERVER['__REQUESTURL']) ? $_SERVER['PATH_INFO'] : $_SERVER['__REQUESTURL'];
-            $requestUrl = str_replace(".html", "", $requestUrl);
-            //只记录执行http记录的
-            if(!in_array(strtolower($requestUrl), $nohttp)){
-                $logConfig = config("log.");
-                $logConfig['path'] = app()->getRuntimePath() . 'http' . DIRECTORY_SEPARATOR;
 
-                $useTime = ceil((microtime(true) - $_SERVER['__STARTTIME'])*10000);
-
-                try{
-                    Log::init($logConfig)->write(json_encode([
-                        'usetime' => $useTime . "ms",
-                        'usememory' => ceil(memory_get_usage()/1024) . "KB",
-                        'params' => input('param.')
-                    ]), "info", true);
-                }catch (\Exception $exception){
-
+            //获取到当前访问的网址
+            if(empty($_SERVER['__REQUESTURL'])){
+                //不存在thinkerController的参数
+                if(empty($_SERVER['PATH_INFO'])){
+                    $requestUrl = "";
+                }else{
+                    $requestUrl = $_SERVER['PATH_INFO'];
                 }
-                $logConfig['path'] = "";
-                Log::init($logConfig);
+            }else{
+                $requestUrl = $_SERVER['__REQUESTURL'];
+            }
+
+            if(!empty($requestUrl)){
+                $requestUrl = strtolower(str_replace([".html",".html",".php"], "", $requestUrl));
+
+                //取消不记录，需要记录
+                $isHttp = false;
+                //是否不记录
+                $isNoHttp = false;
+                for($i = 0; $i < count($nohttp); $i++){
+                    $noHttpCode = $this->checkRule($requestUrl, $nohttp[$i]);
+                    if($noHttpCode == 2){
+                        $isHttp = true;
+                    }else if($noHttpCode == 1){
+                        $isNoHttp = true;
+                    }
+                }
+
+                //只记录执行http记录的
+                if(!$isNoHttp || $isHttp){
+                    thinker_path_log(input('param.'));
+                }
             }
         }
+    }
+
+    /**
+     * @title      checkRule
+     * @description
+     * @createtime 2019/12/5 5:12 下午
+     * @param $requestUrl
+     * @param $noHttpRule
+     * @return bool|int 1说明nohttp，2说明是取消规则，也就是记录
+     * @author     yangyuance
+     */
+    protected function checkRule($requestUrl, $noHttpRule)
+    {
+        if(substr($noHttpRule, 0, 1) == "!"){
+            //存在全部匹配下的取消，去掉取消符号后找到了规则，说明去需要记录http
+            if($this->checkRule($requestUrl, substr($noHttpRule, 1))){
+                //不记录http，相反，也就是记录
+                return 2;
+            }
+        }else if(strpos($noHttpRule, "*") !== false){
+            //存在全部匹配
+            $noRule = str_replace("*", "", $noHttpRule);
+            //如果不是全部
+            if(strpos($requestUrl, $noRule) !== false){
+                return 1;
+            }
+        }else{
+            //就是直接匹配
+            if($requestUrl == $noHttpRule){
+                return 1;
+            }
+        }
+
+        return false;
     }
 }

@@ -108,7 +108,11 @@ class Upload extends Assembly
             if(!empty($v)){
                 $count = $i + 1;
                 //判断是图片还是其他文件
-                $isImage = getimagesize(strpos($v, "http") !== false ? $v : env("root_path") . "public" . DS . $v);
+                try{
+                    $isImage = getimagesize(strpos($v, "http") !== false ? $v : env("root_path") . "public" . DS . $v);
+                }catch (\Exception $exception){
+                    $isImage = true;
+                }
                 if($isImage){
                     $showHtml = '<img src="'.$v.'" class="img" href="'.$v.'" data-fancybox="">';
                 }else{

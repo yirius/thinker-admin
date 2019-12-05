@@ -26,12 +26,14 @@ abstract class ViewEvent extends ThinkerLayout
             'data' => []
         ], $config);
 
+        if(empty($config['id'])) $config['id'] = "popup_".time();
+        
         $area = json_encode($config['area']);
         $data = json_encode($config['data']);
 
         return <<<HTML
 layui.view.popup({
-    title: '{$title}',
+    title: layui.laytpl('{$title}').render($.extend(obj.data || {}, {$data})),
     area: {$area},
     id: '{$config['id']}',
     success: function(layero, index){
@@ -59,9 +61,13 @@ HTML
      * @return string
      * @author     yangyuance
      */
-    public function _multiverfiy($title, $url, array $sendData = [], $method = "delete", $afterDelete = '')
+    public function _multiverfiy($title, $url, array $sendData = [], $method = "delete", $afterDelete = '', $promptConfig = [])
     {
         $sendData = json_encode($sendData);
+
+        if(empty($promptConfig)) $promptConfig = ['formType' => 1, 'title' => "敏感操作，请验证口令"];
+
+        $promptConfig = json_encode($promptConfig);
 
         return <<<HTML
 var checkStatus = layui.tableplus.checkStatus(obj.config.id);
@@ -69,11 +75,18 @@ if(checkStatus.data.length == 0){
     layui.admin.modal.error("您尚未选择任何条目");
     return;
 }
-parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+checkStatus.ids = [];
+layui.each(checkStatus.data, function(n,v){
+    checkStatus.ids.push(v.id);
+});
+console.log(checkStatus);
+parent.layer.confirm(layui.laytpl('{$title}').render(checkStatus), function(index) {
     parent.layer.close(index);
-    parent.layer.confirm('{$title}', function(index) {
+    parent.layer.prompt({$promptConfig}, function(value, index){
         parent.layer.close(index);
-        layui.admin.http.{$method}('{$url}', $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(code, msg, data, all){
+        var url = layui.laytpl('{$url}').render(checkStatus);
+        console.log(url);
+        layui.admin.http.{$method}(url, $.extend({password: value, data: JSON.stringify(checkStatus.data)}, {$sendData}), function(code, msg, data, all){
             layui.admin.reloadTable();
             {$afterDelete}
         });
@@ -95,16 +108,20 @@ HTML
      * @return string
      * @author     yangyuance
      */
-    public function _verfiy($title, $url, array $sendData = [], $method = "delete", $beforeDelete = '', $afterDelete = '')
+    public function _verfiy($title, $url, array $sendData = [], $method = "delete", $beforeDelete = '', $afterDelete = '', $promptConfig = [])
     {
         $sendData = json_encode($sendData);
 
         $beforeDelete = str_replace(["\n", "\r", "'"], ["","", "\'"], $beforeDelete);
 
+        if(empty($promptConfig)) $promptConfig = ['formType' => 1, 'title' => "敏感操作，请验证口令"];
+
+        $promptConfig = json_encode($promptConfig);
+
         return <<<HTML
-parent.layer.confirm('{$title}', function(index) {
+parent.layer.confirm(layui.laytpl('{$title}').render(obj.data || {}), function(index) {
     parent.layer.close(index);
-    parent.layer.prompt({formType: 1,title: '敏感操作，请验证口令'}, function(value, index){
+    parent.layer.prompt({$promptConfig}, function(value, index){
         parent.layer.close(index);
         var beforeDelete = '{$beforeDelete}', sendData = {};
         if(beforeDelete){
@@ -122,5 +139,26 @@ parent.layer.confirm('{$title}', function(index) {
 });
 HTML
             ;
+    }
+
+    /**
+     * @title      getCheckedIds
+     * @description
+     * @createtime 2019/12/2 4:46 下午
+     * @return string
+     * @author     yangyuance
+     */
+    public function getCheckedIds()
+    {
+        return "var checkStatus = layui.tableplus.checkStatus(obj.config.id);
+if(checkStatus.data.length == 0){
+    layui.admin.modal.error(\"您尚未选择任何条目\");
+    return;
+}
+var ids = [];
+for(var i in checkStatus.data){
+    ids.push(checkStatus.data[i].id);
+}
+obj.data = {id: ids.join(\",\")};";
     }
 }

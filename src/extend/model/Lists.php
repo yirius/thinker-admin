@@ -250,11 +250,12 @@ class Lists extends BaseModel
     {
         $queryObject = $this->getModel()
             ->field($this->paramField)
-            ->where($this->paramWhere)
-            ->order($this->paramOrder);
+            ->where($this->paramWhere);
 
         if(!empty($this->paramAlias)){
-            $queryObject = $queryObject->alias($this->paramAlias);
+            $queryObject = $queryObject->alias($this->paramAlias)->order($this->paramAlias.".".$this->paramOrder);
+        }else{
+            $queryObject = $queryObject->order($this->paramOrder);
         }
 
         if(!empty($this->paramWith)){

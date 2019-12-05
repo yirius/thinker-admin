@@ -22,7 +22,7 @@ class TeAdminLogs extends ThinkerModel
      */
     public static function addLog(array $tokenInfo, $desc, $isLogin = false)
     {
-        $useTime = ceil((microtime(true) - $_SERVER['__STARTTIME'])*10000);
+        $useTime = ceil((microtime(true) - app()->getBeginTime())*10000);
 
         self::insert([
             'userid' => isset($tokenInfo['id']) ? $tokenInfo['id'] : 0,
@@ -50,7 +50,7 @@ class TeAdminLogs extends ThinkerModel
      */
     protected static function getParentCall()
     {
-        $data = debug_backtrace();
+        $data = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         $useCall = "未知函数";
         for($i = 2; $i < count($data); $i++){

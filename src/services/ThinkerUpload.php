@@ -11,7 +11,7 @@ namespace Yirius\Admin\services;
 use think\File;
 use Yirius\Admin\ThinkerAdmin;
 
-class Upload
+class ThinkerUpload
 {
     /**
      * @var array
