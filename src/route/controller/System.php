@@ -285,9 +285,9 @@ HTML
 
             $form->switchs("status", "状态");
 
-            $form->text("access_type", "用户类型");
-
             if(empty($this->tokenInfo['access_type'])){
+                $form->text("access_type", "用户类型");
+
                 $canUseRules = TeAdminRules::order("list_order", "desc")->select()->toArray();
             }else{
                 //判断，如果是其他角色分权限，职能分配自己归属的权限

@@ -48,6 +48,23 @@ class TeAdminRoles extends ThinkerRestful
 
     protected $_NotDelete = [1];
 
+    /**
+     * @title      _beforeSave
+     * @description
+     * @createtime 2019/12/6 2:32 下午
+     * @param array $params
+     * @param       $updateWhere
+     * @return array|mixed
+     * @author     yangyuance
+     */
+    protected function _beforeSave(array $params, $updateWhere)
+    {
+        $params['userid'] = $this->tokenInfo['id'];
+        $params['access_type'] = input('param.access_type', $this->tokenInfo['access_type']);
+
+        return $params;
+    }
+
     protected function _afterSave($isUpdate, array $saveData, Model $model)
     {
         thinker_log($this->tokenInfo, $isUpdate ? "编辑角色信息" : "新增角色信息");

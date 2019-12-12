@@ -6,6 +6,7 @@ namespace Yirius\Admin\route\controller;
 
 use Yirius\Admin\extend\ThinkerController;
 use Yirius\Admin\form\ThinkerInline;
+use Yirius\Admin\layout\ThinkerPage;
 use Yirius\Admin\table\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -259,6 +260,34 @@ class Logs extends ThinkerController
                 $table->toolbar();
 
             })->send($day.$title."日志");
+        }
+    }
+
+    /**
+     * @title      redis
+     * @description
+     * @createtime 2019/12/12 5:34 下午
+     * @author     yangyuance
+     */
+    public function redis()
+    {
+        if(extension_loaded("redis")){
+            $keys = ThinkerAdmin::Redis()->getKeys();
+
+            ThinkerAdmin::Table(function (ThinkerTable $table){
+
+            })->send("Redis监控");
+        }else{
+            ThinkerAdmin::send()->html(
+                (new ThinkerPage(function(ThinkerPage $page){
+                    $page->card()
+                        ->setHeaderLayout("Redis扩展不存在")
+                        ->setBodyLayout(<<<HTML
+请前往<a href="https://github.com/phpredis/phpredis/blob/develop/INSTALL.markdown">https://github.com/phpredis/phpredis/blob/develop/INSTALL.markdown</a>根据自身系统版本下载对应扩展
+HTML
+                        );
+                }))->setTitle("Redis监控")->render()
+            );
         }
     }
 }

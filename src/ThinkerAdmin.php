@@ -12,6 +12,7 @@ use Yirius\Admin\widgets\Cache;
 use Yirius\Admin\widgets\Encrypt;
 use Yirius\Admin\widgets\File;
 use Yirius\Admin\widgets\Http;
+use Yirius\Admin\widgets\Redis;
 use Yirius\Admin\widgets\Send;
 use Yirius\Admin\widgets\Tools;
 use Yirius\Admin\widgets\Tree;
@@ -32,6 +33,7 @@ use Yirius\Admin\widgets\Widgets;
  * @method static Http Http()
  * @method static Encrypt Encrypt()
  * @method static File File()
+ * @method static Redis Redis()
  *
  * @package Yirius\Admin
  */
@@ -52,6 +54,7 @@ class ThinkerAdmin
         'http'     =>   Http::class,
         'encrypt'  =>   Encrypt::class,
         'file'     =>   File::class,
+        'redis'    =>   Redis::class,
     ];
 
     /**
