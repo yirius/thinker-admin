@@ -1,137 +1,198 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: yangyuance
- * Date: 2019/2/20
- * Time: 下午5:24
- */
+
 
 namespace Yirius\Admin\extend\model;
 
+
+use Yirius\Admin\ThinkerAdmin;
+
 class Lists extends BaseModel
 {
-    /**
-     * @var int
-     */
-    private $paramPage = 1;
+    private $alias = "";
+    private $fields = "*";
+    private $page = 1;
+    private $limit = 10;
+    private $sort = 'id';
+    private $order = 'DESC';
 
     /**
-     * limit, default 10
-     * @var int
+     * @var callable
      */
-    private $paramLimit = 10;
+    private $eachClosure = null;
 
+    private $where = [];
+    private $with = [];
     /**
-     * @var string
+     * @var callable
      */
-    private $paramOrder = '';
+    private $parseQuery = null;
 
-    /**
-     * @var array
-     */
-    private $paramWhere = [];
-
-    /**
-     * @var array
-     */
-    private $paramWith = [];
-
-    /**
-     * @var array
-     */
-    private $paramJoin = [];
-
-    /**
-     * @var string
-     */
-    private $paramField = "*";
-
-    /**
-     * @var string
-     */
-    private $paramAlias = "";
-
-    /**
-     * @title afterSetModel
-     * @description
-     * @createtime 2019/3/10 下午4:47
-     * @throws \Exception
-     */
-    protected function afterSetModel()
+    public function __construct($model)
     {
-        //inject order info
-        $this->setOrder(input('param.sort', 'id'), input('param.order', 'desc'));
+        parent::__construct($model);
 
-        //inject page params
-        $this->setPage(input('param.page', 1), input('param.limit', 10));
+        $sort = input("param.sort", false);
+        if(!empty($sort)) {
+            $this->setSort($sort);
+        }
+        $order = input("param.order", false);
+        if(!empty($order)) {
+            $this->setOrder($order);
+        }
+        $page = input("param.page", false);
+        if(!empty($page)) {
+            $this->setPage($page);
+        }
+        $limit = input("param.limit", false);
+        if(!empty($limit)) {
+            $this->setLimit($limit);
+        }
     }
 
     /**
-     * @title setOrder
+     * @title      getResult
      * @description
-     * @createtime 2019/2/27 下午2:21
-     * @param $field
-     * @param null $order
-     * @return $this
-     * @throws \Exception
+     * @createtime 2020/5/27 10:46 下午
+     * @return array|\PDOStatement|string|\think\Collection
+     * @throws \think\db\exception\DataNotFoundException
+     * @throws \think\db\exception\ModelNotFoundException
+     * @throws \think\exception\DbException
+     * @author     yangyuance
      */
-    public function setOrder($field, $order = null)
+    public function getResult()
     {
-        if (is_null($order)) {
-            $this->checkOrderInject($field);
+        $queryObject = $this->getModel()
+            ->field($this->fields)
+            ->where($this->where);
 
-            $this->paramOrder = $field;
-        } else {
-            $this->checkOrderInject($field . " " . $order);
-
-            $this->paramOrder = $field . " " . $order;
+        if(!empty($this->alias)){
+            $queryObject = $queryObject->alias($this->alias)
+                ->order($this->alias.".".$this->sort, $this->order);
+        }else{
+            $queryObject = $queryObject->order($this->sort, $this->order);
         }
+
+        if(!empty($this->with)){
+            $queryObject = $queryObject->with($this->with);
+        }
+
+        //before fetch array, make call
+        if(is_callable($this->parseQuery)){
+            call($this->parseQuery, [$queryObject]);
+        }
+
+        //some error with this Object, so colne one for use
+        $count = (clone $queryObject)->count();
+
+        $selected = $queryObject->page($this->page, $this->limit)->select();
+
+        //if fetchSql
+        if(is_string($selected)){
+            return $selected;
+        }else{
+            //each collections
+            if (is_callable($this->eachClosure)) {
+                $selected->each($eachFuncs);
+            }
+            return [
+                'count' => $count,
+                'data' => $selected->toArray()
+            ];
+        }
+    }
+
+    /**
+     * @title      setAlias
+     * @description
+     * @createtime 2020/5/27 10:33 下午
+     * @param $alias
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setAlias($alias)
+    {
+        $this->alias = $alias;
         return $this;
     }
 
     /**
-     * @title checkOrderInject
+     * @title      setEachClosure
      * @description
-     * @createtime 2019/2/27 下午2:21
-     * @param $order
-     * @throws \Exception
+     * @createtime 2020/5/27 10:40 下午
+     * @param callable $eachClosure
+     * @return $this
+     * @author     yangyuance
      */
-    protected function checkOrderInject($order)
+    public function setEachClosure(callable $eachClosure = null)
     {
-        //judge 'id desc,name asc'
-        if (strpos($order, ",")) {
-            foreach (explode(",", $order) as $i => $v) {
-                $this->checkOrderInject($v);
-            }
-        } else {
-            //judge 'id desc'
-            if (strpos($order, " ")) {
-                $orderExploded = explode(" ", $order);
-                if(strpos($orderExploded[0], ".") === false){
-                    if (!in_array($orderExploded[0], $this->modelFields)) {
-                        throw new \Exception("order field like 'id' not exsit in this table");
-                    }
-                }else{
-                    if (!in_array(explode(".", $orderExploded[0])[1], $this->modelFields)) {
-                        throw new \Exception("order field like 'id' not exsit in this table");
-                    }
-                }
-                if (!in_array($orderExploded[1], ['asc', 'desc'])) {
-                    throw new \Exception("order's order is not asc/desc");
-                }
-            } else {
-                throw new \Exception("order info is not full");
-            }
-        }
+        $this->eachClosure = $eachClosure;
+        return $this;
     }
 
     /**
-     * @title setWhere
+     * @title      setFields
      * @description
-     * @createtime 2019/2/20 下午7:08
-     * @param array $params
-     * @param null $values
+     * @createtime 2020/5/27 10:40 下午
+     * @param $fields
      * @return $this
+     * @author     yangyuance
+     */
+    public function setFields($fields)
+    {
+        $this->fields = $fields;
+        return $this;
+    }
+
+    /**
+     * @title      setPage
+     * @description
+     * @createtime 2020/5/27 10:37 下午
+     * @param $page
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setPage($page)
+    {
+        $this->page = intval($page);
+        return $this;
+    }
+
+    /**
+     * @title      setLimit
+     * @description
+     * @createtime 2020/5/27 10:37 下午
+     * @param $limit
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setLimit($limit)
+    {
+        $this->limit = intval($limit);
+        return $this;
+    }
+
+    /**
+     * @title      setWith
+     * @description
+     * @createtime 2020/5/27 10:37 下午
+     * @param $with
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setWith($with)
+    {
+        $this->with = $with;
+        return $this;
+    }
+
+    /**
+     * @title      setWhere
+     * @description
+     * @createtime 2020/5/27 10:41 下午
+     * @param array $params
+     * @param null  $values
+     * @return $this
+     * @author     yangyuance
      */
     public function setWhere(array $params, $values = null)
     {
@@ -163,132 +224,56 @@ class Lists extends BaseModel
                 }
             }
         }
-        $this->paramWhere = $where;
+        $this->where = $where;
 
         return $this;
     }
 
     /**
-     * @title setPage
-     * @description set model page params
-     * @createtime 2019/2/20 下午6:37
-     * @param int $page
-     * @param int $limit
-     * @return $this
-     */
-    public function setPage($page = 1, $limit = 10)
-    {
-        $this->paramLimit = intval($limit);
-        $this->paramPage = intval($page);
-        return $this;
-    }
-
-    /**
-     * @title setWith
-     * @description set with table
-     * @createtime 2019/2/20 下午7:29
-     * @param $with
-     * @return $this
-     */
-    public function setWith($with)
-    {
-        $this->paramWith = $with;
-        return $this;
-    }
-
-    /**
-     * @title setJoin
+     * @title      setSort
      * @description
-     * @createtime 2019/3/1 上午11:49
-     * @param array $join
+     * @createtime 2020/5/27 10:37 下午
+     * @param $sort
      * @return $this
+     * @author     yangyuance
      */
-    public function setJoin(array $join)
+    public function setSort($sort)
     {
-        $this->paramJoin = $join;
+        if (!in_array($sort, $this->modelFields)) {
+            ThinkerAdmin::response()->msg("order field like 'id' not exsit in this table")->fail();
+        }
+        $this->sort = $sort;
         return $this;
     }
 
     /**
-     * @title setField
+     * @title      setOrder
      * @description
-     * @createtime 2019/2/28 上午11:49
-     * @param $field
+     * @createtime 2020/5/27 10:37 下午
+     * @param $order
      * @return $this
+     * @author     yangyuance
      */
-    public function setField($field)
+    public function setOrder($order)
     {
-        $this->paramField = $field;
+        if(!in_array(strtolower($order), ['asc', 'desc'])) {
+            ThinkerAdmin::response()->msg("order is not asc/desc")->fail();
+        }
+        $this->order = $order;
         return $this;
     }
 
     /**
-     * @title setField
+     * @title      setParseQuery
      * @description
-     * @createtime 2019/2/28 上午11:49
-     * @param $field
+     * @createtime 2020/5/27 10:46 下午
+     * @param callable $parseQuery
      * @return $this
+     * @author     yangyuance
      */
-    public function setAlias($field)
+    public function setParseQuery(callable $parseQuery = null)
     {
-        $this->paramAlias = $field;
+        $this->parseQuery = $parseQuery;
         return $this;
-    }
-
-    /**
-     * @title getResult
-     * @description
-     * @createtime 2019/2/20 下午7:30
-     * @param callable|null $eachFuncs
-     * @param \Closure|null $beforeFetch
-     * @return string|array
-     * @throws \think\db\exception\DataNotFoundException
-     * @throws \think\db\exception\ModelNotFoundException
-     * @throws \think\exception\DbException
-     */
-    public function getResult(callable $eachFuncs = null, \Closure $beforeFetch = null)
-    {
-        $queryObject = $this->getModel()
-            ->field($this->paramField)
-            ->where($this->paramWhere);
-
-        if(!empty($this->paramAlias)){
-            $queryObject = $queryObject->alias($this->paramAlias)->order($this->paramAlias.".".$this->paramOrder);
-        }else{
-            $queryObject = $queryObject->order($this->paramOrder);
-        }
-
-        if(!empty($this->paramWith)){
-            $queryObject = $queryObject->with($this->paramWith);
-        }
-
-        if(!empty($this->paramJoin)){
-            $queryObject = $queryObject->join($this->paramJoin);
-        }
-
-        //before fetch array, make call
-        if(!is_null($beforeFetch)){
-            $queryObject = $beforeFetch($queryObject);
-        }
-
-        //some error with this Object, so colne one for use
-        $count = (clone $queryObject)->count();
-
-        $selected = $queryObject->page($this->paramPage, $this->paramLimit)->select();
-
-        //if fetchSql
-        if(is_string($selected)){
-            return $selected;
-        }else{
-            //each collections
-            if (!is_null($eachFuncs)) {
-                $selected->each($eachFuncs);
-            }
-
-            return [
-                'count' => $count,
-                'data' => $selected->toArray()
-            ];
-        }
     }
 }

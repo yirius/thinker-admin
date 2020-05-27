@@ -5,56 +5,34 @@ namespace Yirius\Admin\extend;
 
 
 use think\Model;
-use Yirius\Admin\extend\model\Delete;
 use Yirius\Admin\extend\model\Lists;
-use Yirius\Admin\extend\model\Save;
-use Yirius\Admin\extend\model\Select;
+use Yirius\Admin\extend\model\Selects;
 
 class ThinkerModel extends Model
 {
     protected $autoWriteTimestamp = 'datetime';
 
     /**
-     * @title adminList
+     * @title      lists
      * @description
-     * @createtime 2019/2/27 下午2:22
+     * @createtime 2020/5/27 10:54 下午
      * @return Lists
+     * @author     yangyuance
      */
-    public static function adminList()
+    public static function lists()
     {
         return (new Lists(new static()));
     }
 
     /**
-     * @title adminDelete
+     * @title      selects
      * @description
-     * @createtime 2019/2/27 下午2:22
-     * @return Delete
+     * @createtime 2020/5/27 10:54 下午
+     * @return Selects
+     * @author     yangyuance
      */
-    public static function adminDelete()
+    public static function selects()
     {
-        return (new Delete(new static()));
-    }
-
-    /**
-     * @title adminSave
-     * @description
-     * @createtime 2019/2/28 下午1:46
-     * @return Save
-     */
-    public static function adminSave()
-    {
-        return (new Save(new static()));
-    }
-
-    /**
-     * @title adminSelect
-     * @description
-     * @createtime 2019/2/28 下午8:05
-     * @return Select
-     */
-    public static function adminSelect()
-    {
-        return (new Select(new static()));
+        return (new Selects(new static()));
     }
 }

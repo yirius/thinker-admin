@@ -4,9 +4,10 @@
 namespace Yirius\Admin\extend;
 
 
-use think\db\Query;
+use think\facade\Cache;
 use think\Model;
-use think\Request;
+use Yirius\Admin\config\ConsConfig;
+use Yirius\Admin\extend\model\Lists;
 use Yirius\Admin\ThinkerAdmin;
 
 class ThinkerRestful extends ThinkerController
@@ -17,388 +18,306 @@ class ThinkerRestful extends ThinkerController
     protected $_UseTable = null;
 
     /**
-     * @var array
+     * @title      getUseTable
+     * @description
+     * @createtime 2020/5/27 10:57 下午
+     * @return Model
+     * @author     yangyuance
      */
+    public function getUseTable() {
+        return new $this->_UseTable();
+    }
+
     protected $_Where = [];
 
-    /**
-     * @var null
-     */
     protected $_Alias = null;
 
-    /**
-     * @var string
-     */
-    protected $_Field = "";
+    protected $_Field = "*";
 
-    /**
-     * @var null
-     */
     protected $_With = null;
 
     /**
-     * @var bool
+     * @var callable
      */
-    protected $_UseEachItem = false;
+    protected $eachClosure = null;
 
     /**
-     * @var bool
+     * @var callable
      */
-    protected $_UseQuery = false;
+    protected $parseQuery = null;
 
     /**
      * @title      index
-     * @description 获取列表信息
-     * @createtime 2019/11/15 7:10 下午
+     * @description GET列表
+     * @createtime 2020/5/27 11:02 下午
      * @author     yangyuance
      */
     public function index()
     {
         try {
-            ThinkerAdmin::Send()->table(
-                ($this->_UseTable)::adminList()
-                    ->setWhere($this->_Where)
-                    ->setAlias($this->_Alias)
-                    ->setWith($this->_With)
-                    ->setField($this->_Field)
-                    ->getResult($this->_UseEachItem ? function($item){
-                        $this->_indexEach($item);
-                    } : null, $this->_UseQuery ? function(Query $query){
-                        return $this->_indexQuery($query);
-                    } : null)
-            );
+            $result = (new Lists($this->getUseTable()))
+                ->setWhere($this->_Where)
+                ->setAlias($this->_Alias)
+                ->setWith($this->_With)
+                ->setFields($this->_Field)
+                ->setEachClosure($this->eachClosure)
+                ->setParseQuery($this->parseQuery)
+                ->getResult();
+
+            ThinkerAdmin::response()->lists($result)->success();
         }catch (\Exception $exception){
-            ThinkerAdmin::Send()->table([], 0, $exception->getMessage());
+            thinker_error($exception);
+            ThinkerAdmin::response()->msg($exception->getMessage())->fail();
         }
     }
 
-    /**
-     * @title      indexEach
-     * @description
-     * @createtime 2019/11/16 6:44 下午
-     * @param $item
-     * @return mixed
-     * @author     yangyuance
-     */
-    protected function _indexEach($item)
-    {
-
-    }
-
-    /**
-     * @title      indexQuery
-     * @description
-     * @createtime 2019/11/16 6:46 下午
-     * @param Query $query
-     * @return Query
-     * @author     yangyuance
-     */
-    protected function _indexQuery(Query $query)
-    {
-        return $query;
-    }
-
-    /**
-     * @var array
-     */
-    protected $_CanEditFields = ['status'];
-
-    /**
-     * @var string
-     */
     protected $_SavedMsg = "保存信息成功";
 
-    /**
-     * @var string
-     */
     protected $_EditedMsg = "编辑信息成功";
 
-    /**
-     * @var array
-     */
     protected $_Validate = [];
 
-    /**
-     * @title      save
-     * @description
-     * @createtime 2019/11/16 8:18 下午
-     * @param Request $request
-     * @param array   $updateWhere
-     * @author     yangyuance
-     */
-    public function save(Request $request, $updateWhere = null)
+    public function save($entity = [])
     {
-        //传递的参数不一定正确
-        $updateWhere = empty($updateWhere) ? [] : $updateWhere;
+        //如果不存在实体，需要去查找
+        if(empty($entity)) {
+            $param = input("param.");
 
-        $param = $request->param();
+            if(!empty($this->_Validate)){
+                $param = ThinkerAdmin::validate()->make(
+                    $param, $this->_Validate[0], $this->_Validate[1]
+                );
+            }
 
-        if(!empty($this->_Validate)){
-            $param = ThinkerAdmin::Validate()->make($param, $this->_Validate[0], $this->_Validate[1]);
+            $entity = [];
+            foreach($this->getModelFields() as $field) {
+                if(isset($param[$field])) {
+                    $entity[$field] = addslashes($param[$field]);
+                }
+            }
         }
 
-        $param = $this->_beforeSave($param, $updateWhere);
+        if(empty($entity)) {
+            ThinkerAdmin::response()->msg("无数据提交，无法保存或修改")->fail();
+        }
 
-        $saveResult = $this->__defaultSave($param, $updateWhere);
+        //前置执行
+        $this->_beforeSave($entity);
 
-        //触发完成任务
-        $this->_afterSave(
-            $updateWhere,
-            $saveResult['saveData'],
-            $saveResult['result']
-        );
+        $isUpdate = [];
+        if(!empty($entity[ConsConfig::$JWT_KEY])) {
+            $isUpdate[ConsConfig::$JWT_KEY] = $entity[ConsConfig::$JWT_KEY];
+        }
 
-        //发送json
-        ThinkerAdmin::Send()->json(
-            $saveResult['saveData'],
-            1,
-            (empty($updateWhere) ? $this->_SavedMsg : $this->_EditedMsg)
-        );
+        $model = $this->getUseTable();
+        if($model->save($entity, $isUpdate)) {
+            $this->_afterSave($model->getData(), $isUpdate);
+
+            ThinkerAdmin::response()
+                ->msg(empty($isUpdate) ? $this->_SavedMsg : $this->_EditedMsg)
+                ->success();
+        }
+
+        ThinkerAdmin::response()->msg("未知错误，保存数据失败，请您重试")->fail();
     }
 
-    /**
-     * @title      beforeSave
-     * @description
-     * @createtime 2019/11/16 7:56 下午
-     * @param array $params
-     * @return mixed
-     * @author     yangyuance
-     */
-    protected function _beforeSave(array $params, $updateWhere)
-    {
-        return $params;
+    protected function _beforeSave(array $entity) {
+        return $entity;
     }
 
-    /**
-     * @title      afterSave
-     * @description
-     * @createtime 2019/11/16 8:22 下午
-     * @param array|null $updateWhere
-     * @param array $saveData
-     * @param Model $model
-     * @author     yangyuance
-     */
-    protected function _afterSave($updateWhere, array $saveData, Model $model)
-    {
+    protected function _afterSave(array $entity, $isUpdate = []) {
 
     }
 
     /**
      * @title      read
-     * @description
-     * @createtime 2019/11/16 8:24 下午
+     * @description 获取数据
+     * @createtime 2020/5/27 11:18 下午
      * @param $id
      * @author     yangyuance
      */
     public function read($id)
     {
-        ThinkerAdmin::Send()->json(
-            ($this->_UseTable)::get(['id' => intval($id)])->toArray()
-        );
+        $entity = $this->getUseTable()->get(['id' => intval($id)])->toArray();
+
+        if(!empty($entity)) {
+            $entity = $this->_beforeRead($entity);
+        }
+
+        ThinkerAdmin::response()->data($entity)->success();
     }
+
+    protected function _beforeRead(array $entity) {
+        return $entity;
+    }
+
+    protected $_CanEditFields = ['status'];
 
     /**
      * @title      update
      * @description
-     * @createtime 2019/11/16 8:24 下午
-     * @param         $id
-     * @param Request $request
+     * @createtime 2020/5/27 11:27 下午
+     * @param        $id
+     * @param null   $__type
+     * @param string $field
+     * @param string $value
      * @author     yangyuance
      */
-    public function update($id, Request $request)
+    public function update($id, $__type = null, $field = "", $value = "")
     {
-        if($request->param("__type") == "field"){
-            $field = $request->param("field");
-            $value = $request->param("value");
+        if(!empty($__type) && $__type == "field") {
             if(in_array($field, $this->_CanEditFields)){
+                $entity = $this->getUseTable()->get(['id' => intval($id)])->toArray();
+                $entity[addslashes($field)] = addslashes($value);
 
-                $value = $this->_beforeUpdate($id, $field, $value);
+                $entity = $this->_beforeUpdate($entity);
 
-                //执行保存方法
-                $saveResult = $this->__defaultSave([
-                    $field => $value
-                ], [
-                    ['id', '=', intval($id)]
-                ]);
+                if($this->getUseTable()->save($entity, ['id' => intval($id)])) {
+                    $this->_afterUpdate($entity);
 
-                //触发完成任务
-                $this->_afterUpdate(
-                    $id,
-                    $field,
-                    $saveResult['saveData'],
-                    $saveResult['result']
-                );
+                    ThinkerAdmin::response()->msg($this->_EditedMsg)->success();
+                }
 
-                //发送json
-                ThinkerAdmin::Send()->json(
-                    $saveResult['saveData'],
-                    1,
-                    $this->_EditedMsg
-                );
-
-            }else{
-                ThinkerAdmin::Send()->json([], 0, lang("field can not edit"));
+                ThinkerAdmin::response()->msg("未知错误，更新失败")->fail();
+            } else {
+                ThinkerAdmin::response()->msg("当前数据不可更新")->fail();
             }
-        }else{
-            //前往修改指定的参数
-            $this->save($request, [
-                ['id', '=', intval($id)]
-            ]);
+        } else {
+            $param = input("param.");
+            if(!empty($this->_Validate)){
+                $param = ThinkerAdmin::validate()->make(
+                    $param, $this->_Validate[0], $this->_Validate[1]
+                );
+            }
+            $entity = [];
+            foreach($this->getModelFields() as $field) {
+                if(isset($param[$field])) {
+                    $entity[$field] = addslashes($param[$field]);
+                }
+            }
+
+            unset($entity['id']);
+            if(empty($entity)) {
+                ThinkerAdmin::response()->msg("无数据提交，无法保存或修改")->fail();
+            }
+            $entity['id'] = intval($id);
+
+            $this->save($entity);
         }
     }
 
-    /**
-     * @title      beforeUpdate
-     * @description
-     * @createtime 2019/11/16 8:29 下午
-     * @param $field
-     * @param $value
-     * @return mixed
-     * @author     yangyuance
-     */
-    protected function _beforeUpdate($id, $field, $value)
+    protected function _beforeUpdate(array $entity)
     {
-        return $value;
+        return $entity;
     }
 
     /**
-     * @title      afterSave
+     * @title      _afterUpdate
      * @description
-     * @createtime 2019/11/16 8:22 下午
-     * @param       $isUpdate
-     * @param array $saveData
-     * @param Model $model
+     * @createtime 2020/5/27 11:25 下午
+     * @param array $entity
      * @author     yangyuance
      */
-    protected function _afterUpdate($id, $field, array $saveData, Model $model)
+    protected function _afterUpdate(array $entity)
     {
 
     }
 
-    /**
-     * @title      _defaultSave
-     * @description
-     * @createtime 2019/11/16 8:32 下午
-     * @param array $saveData
-     * @param array $where
-     * @return array
-     * @author     yangyuance
-     */
-    protected function __defaultSave(array $saveData, array $where = [])
-    {
-        $adminModel = ($this->_UseTable)::adminSave();
-
-        $result = $adminModel->setAdd($saveData)->setWhere($where)->getResult();
-
-        if($result === false){
-            ThinkerAdmin::Send()->json([], 0, $adminModel->getError());
-        }else{
-            return [
-                'saveData' => $adminModel->getAddData(),
-                'result' => $result
-            ];
-        }
-    }
-
-    /**
-     * @var array
-     */
     protected $_NotDelete = [];
 
-    /**
-     * @title      delete
-     * @description
-     * @createtime 2019/11/16 8:52 下午
-     * @param $id
-     * @throws \think\Exception
-     * @throws \think\exception\PDOException
-     * @author     yangyuance
-     */
     public function delete($id)
     {
-        $this->checkLoginPwd();
+        $this->verifyPassword(input('param.password'));
 
-        $this->_beforeDelete([intval($id)]);
+        $id = intval($id);
 
-        $this->__defaultDelete([intval($id)]);
+        if(empty($id) || in_array($id, $this->_NotDelete)) {
+            ThinkerAdmin::response()->msg("无法删除当前数据")->fail();
+        }
+
+        $this->__defaultDelete([$id]);
     }
 
     /**
      * @title      deleteall
      * @description
-     * @createtime 2019/11/16 8:52 下午
-     * @param Request $request
-     * @throws \think\Exception
-     * @throws \think\exception\PDOException
+     * @createtime 2020/5/27 11:32 下午
+     * @param string $data
      * @author     yangyuance
      */
-    public function deleteall(Request $request)
+    public function deleteall($data = "")
     {
-        $this->checkLoginPwd();
+        $this->verifyPassword(input('param.password'));
 
-        $prevdelData = json_decode(input('param.data'), true);
-        $delData = [];
-        foreach($prevdelData as $i => $v){
-            $delData[] = $v['id'];
+        if(empty($data)) {
+            ThinkerAdmin::response()->msg("暂未提交删除数据")->fail();
         }
 
-        $this->_beforeDelete($delData);
+        $prevdelData = json_decode($data, true);
+        $delData = [];
+        foreach($prevdelData as $i => $v){
+            $delData[] = $v[ConsConfig::$JWT_KEY];
+        }
 
         $this->__defaultDelete($delData);
+    }
+
+    protected function __defaultDelete(array $delIds) {
+        $delIds = $this->_beforeDelete($delIds);
+
+        if(empty($delIds)) {
+            ThinkerAdmin::response()->msg("当前存在不可删除数据")->fail();
+        }
+
+        $tList = $this->getUseTable()->whereIn("id", $delIds)->select()->toArray();
+
+        if($this->getUseTable()->whereIn("id", $delIds)->delete()){
+            $this->_afterDelete($tList);
+
+            ThinkerAdmin::response()->msg(lang("delete success"))->success();
+        }
+
+        ThinkerAdmin::response()->msg(lang("not delete all"))->fail();
     }
 
     /**
      * @title      _beforeDelete
      * @description
-     * @createtime 2019/11/16 8:51 下午
+     * @createtime 2020/5/27 11:33 下午
      * @param array $ids
+     * @return array
      * @author     yangyuance
      */
     protected function _beforeDelete(array $ids)
     {
-
+        return $ids;
     }
 
     /**
      * @title      _afterDelete
      * @description
      * @createtime 2019/11/16 8:56 下午
-     * @param array $errorIds
+     * @param array $deledArr
      * @author     yangyuance
      */
-    protected function _afterDelete(array $errorIds)
+    protected function _afterDelete(array $deledArr)
     {
 
     }
 
     /**
-     * @title      __defaultDelete
+     * @title      getModelFields
      * @description
-     * @createtime 2019/11/16 8:42 下午
-     * @param $data
-     * @throws \think\Exception
-     * @throws \think\exception\PDOException
+     * @createtime 2020/5/27 11:06 下午
+     * @return array|mixed
      * @author     yangyuance
      */
-    protected function __defaultDelete($data)
-    {
-        $flag = ($this->_UseTable)::adminDelete()
-            ->delete(is_array($data) ? $data : [$data])
-            ->notDelete($this->_NotDelete)
-            ->getResult();
-
-        if($flag === true){
-            $this->_afterDelete([]);
-
-            ThinkerAdmin::Send()->json([], 1, lang("delete success"));
-        }else if($flag === false){
-            ThinkerAdmin::Send()->json([], 0, lang("delete error"));
-        }else{
-            $this->_afterDelete($flag);
-
-            ThinkerAdmin::Send()->json([], 1, lang("not delete all", [
-                'arr' => join(",", $flag)
-            ]));
+    protected function getModelFields() {
+        $modelFields = Cache::get("table_" . $this->getUseTable()->getName(), null);
+        if(empty($modelFields)) {
+            $modelFields = $this->getUseTable()->getTableFields();
+            Cache::tag("table_fields")->set("table_" . $this->getUseTable()->getName(), $modelFields);
         }
+        return $modelFields;
     }
 }

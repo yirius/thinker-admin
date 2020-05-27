@@ -1,13 +1,13 @@
 <?php
 
+
 namespace Yirius\Admin\extend;
 
-use think\App;
+
 use think\Controller;
-use think\facade\Cache;
-use think\Route;
-use Yirius\Admin\auth\Auth;
-use Yirius\Admin\table\ThinkerTable;
+use Yirius\Admin\admin\model\AdminRulesModel;
+use Yirius\Admin\config\ConsConfig;
+use Yirius\Admin\renders\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
 class ThinkerController extends Controller
@@ -24,36 +24,31 @@ class ThinkerController extends Controller
     protected $tokenInfo = [];
 
     /**
-     * @var Auth
-     */
-    protected $auth = null;
-
-    /**
      * @var string
      */
     protected $urlPath = '';
 
     /**
-     * Table对应的name，方便查找edit/del等参数
-     * @var string
+     * @var string 
      */
-    protected $urlName = '';
+    protected $actionName = '';
 
     /**
-     * @title      initialize
-     * @description
-     * @createtime 2019/11/12 7:11 下午
-     * @author     yangyuance
+     * 用户可执行规则
+     * @var array
      */
+    protected $authRules = [];
+
     protected function initialize()
     {
-        $actionName = $this->request->action();
-        //拼装当前访问的url
-        $this->urlPath = "/".$this->request->module()."/".$this->request->controller()."/".$actionName;
-        //如果不存在action，说明是通过router访问的
-        if(empty($actionName)){
+        $this->actionName = $this->request->action();
+        if(!empty($this->actionName)){
+            //拼装当前访问的url
+            $this->urlPath = "/".$this->request->module()."/".$this->request->controller()."/".$this->actionName;
+        } else {
+            //如果不存在action，说明是通过router访问的
             $dispatch = $this->request->dispatch()->getDispatch();
-            $actionName = $dispatch[count($dispatch)-1];
+            $this->actionName = $dispatch[count($dispatch)-1];
             //释放参数
             $dispatch = null;
 
@@ -61,24 +56,113 @@ class ThinkerController extends Controller
             $routeInfo = $this->request->routeInfo();
             //判断url是否有其他参数
             $this->urlPath = "/".$routeInfo['rule'];
-            //因为restful最后会存在附加id，所以需要判断并去除
-            if(in_array($actionName, ['read', 'update', 'delete']) &&
-                strpos($this->urlPath, "/<id>") >= 0){
-                $this->urlPath = str_replace("/<id>", "", $this->urlPath);
-            }
-            //判断是否有自定义参数
-            if(strpos($this->urlPath, "/<") >= 0){
-                foreach($routeInfo['var'] as $i => $item){
-                    $this->urlPath = str_replace("<".$i.">", $item, $this->urlPath);
+            if(!empty($routeInfo['var'])) {
+                //判断是否有自定义参数
+                if(strpos($this->urlPath, "/<") >= 0){
+                    foreach($routeInfo['var'] as $i => $item){
+                        $this->urlPath = str_replace("<".$i.">", $item, $this->urlPath);
+                    }
                 }
             }
             //释放参数
             $routeInfo = null;
+
+            $urlPath = [];
+            foreach (explode("/", $this->urlPath) as $i => $item) {
+                if($i > 3) {
+                    break;
+                }
+                $urlPath[] = $item;
+            }
+
+            $this->urlPath = join("/", $urlPath);
         }
 
         //记录，以便以后使用
         $_SERVER['__REQUESTURL'] = $this->urlPath;
 
+        //先获取Auth
+        $this->checkAuth();
+
+        $this->_init();
+    }
+
+    protected function _init(){}
+
+    /**
+     * @title      getTokenInfo
+     * @description 解析Token
+     * @createtime 2020/5/27 8:59 下午
+     * @author     yangyuance
+     */
+    protected function getTokenInfo() {
+
+        $this->tokenInfo = ThinkerAdmin::jwt()->getTokenInfo();
+
+        //判断单点登录
+        if(ThinkerAdmin::properties()->getJwt("singleLogin")) {
+            $recordIp = ThinkerAdmin::Cache()
+                ->getAuthCache("loginip", $this->tokenInfo, "");
+
+            if(empty($recordIp)){
+                ThinkerAdmin::Cache()
+                    ->setAuthCache("loginip", $this->tokenInfo, $this->request->ip());
+            }else{
+                if($this->request->ip() != $recordIp){
+                    ThinkerAdmin::response()
+                        ->msg("该账号存在他人登录，您已被强制下线")
+                        ->fail();
+                }
+            }
+        }
+
+        //设置缓存判断当前的token状态, 缓存设置的过期时间
+        ThinkerAdmin::Cache()->setTokenCache(
+            "jwt",
+            $this->tokenInfo,
+            time(),
+            ThinkerAdmin::properties()->getJwt("expiredOperateTime")
+        );
+
+        ThinkerAdmin::cache()->setTokenOperateTime($this->tokenInfo);
+    }
+
+    /**
+     * @title      getAuthRules
+     * @description
+     * @createtime 2020/5/27 9:54 下午
+     * @param array $type
+     * @author     yangyuance
+     */
+    protected function getAuthRules(array $type = [1,2]) {
+        if(!empty($this->tokenInfo)) {
+            $this->authRules = ThinkerAdmin::cache()->getAuthCache(
+                "shirourlrules_" . join("_", $type), $this->tokenInfo, null
+            );
+
+            if(empty($this->authRules)) {
+                $this->authRules = [];
+
+                foreach((new AdminRulesModel())->findUserRules($this->tokenInfo, $type) as $i => $authRule) {
+                    if(!empty($authRule['url'])) {
+                        $this->authRules[] = strtolower($authRule['url']);
+                    }
+                }
+
+                ThinkerAdmin::cache()->setAuthCache(
+                    "shirourlrules_" . join("_", $type), $this->tokenInfo, $this->authRules
+                );
+            }
+        }
+    }
+
+    /**
+     * @title      checkAuth
+     * @description 检验规则
+     * @createtime 2020/5/27 9:31 下午
+     * @author     yangyuance
+     */
+    public function checkAuth() {
         //如果存在only，就是只验证指定规则
         if(isset($this->tokenAuth['only'])){
             $only = array_map(function ($item) {
@@ -91,223 +175,159 @@ class ThinkerController extends Controller
             }, $this->tokenAuth['except']);
         }
 
-        if (isset($only) && !in_array($actionName, $only)) {
+        if (isset($only) && !in_array($this->actionName, $only)) {
             //只验证这些
-            $this->checkUrlAuth();
-        } elseif (isset($except) && in_array($actionName, $except)) {
+            $this->verifyUrlAuth();
+        } elseif (isset($except) && in_array($this->actionName, $except)) {
             //在数组内的不验证，直接过
         } else {
-            if(isset($this->tokenAuth['auth']) && empty($this->tokenAuth['auth'])){
+            if($this->tokenAuth === false){
                 //除非强制设置为false，否则都验证
             }else{
                 //其他情况都需要验证
-                $this->checkUrlAuth();
-            }
-        }
-
-        $this->_init();
-    }
-
-    protected function _init(){}
-
-    /**
-     * @title      getAuth
-     * @description 获取到Auth验证信息
-     * @createtime 2019/11/13 2:12 下午
-     * @author     yangyuance
-     */
-    protected function getAuth()
-    {
-        if(is_null($this->auth)){
-            $tokenName = config('thinkeradmin.auth.token_name');
-            $headerToken = $this->request->header($tokenName, false);
-            $paramToken = input('param.' . $tokenName, false);
-
-            if($headerToken || $paramToken){
-                //获取TokenInfo，然后判断一下如果是1002的返回码，就
-                $this->tokenInfo = ThinkerAdmin::Jwt()
-                    ->setExpiredCall(function($payload, $err){
-                        $err = null;
-                        $lastUseTime = ThinkerAdmin::Cache()->getTokenCache("jwt", [
-                            'id' => $payload->payload->id,
-                            'access_type' => $payload->payload->access_type
-                        ], 0);
-
-                        if(time() - $lastUseTime <= config("thinkeradmin.jwt.expired_operate_time")){
-                            //如果还没超过操作时间
-                            $lastUseTime = null;
-                            $tokenData = [];
-                            foreach($payload->payload as $key => $item){
-                                $tokenData[$key] = $item;
-                            }
-
-                            //重新序列化参数
-                            $tokenData[config('thinkeradmin.auth.token_name')] =
-                                ThinkerAdmin::jwt()->encode($tokenData);
-
-                            //发送重新注册token的参数
-                            ThinkerAdmin::Send()->json(
-                                $tokenData,
-                                config("thinkeradmin.jwt.reexpired_code"),
-                                lang("authorization has expired")
-                            );
-                        } else {
-                            $lastUseTime = null;
-                            ThinkerAdmin::Send()->json(
-                                [],
-                                config("thinkeradmin.jwt.expired_code"),
-                                lang("authorization has expired")
-                            );
-                        }
-                    })
-                    ->decode($headerToken ? $headerToken : $paramToken);
-
-                //判断登录的ip是否一致
-                if(config('thinkeradmin.auth.singleLogin')){
-                    $recordIp = ThinkerAdmin::Cache()
-                        ->getAuthCache("loginip", $this->tokenInfo, "");
-                    if(empty($recordIp)){
-                        ThinkerAdmin::Cache()
-                            ->setAuthCache("loginip", $this->tokenInfo, $this->request->ip());
-                    }else{
-                        if($this->request->ip() != $recordIp){
-                            ThinkerAdmin::Send()->json([], 0, "该账号存在他人登录，您已被强制下线");
-                        }
-                    }
-                }
-
-                //设置缓存判断当前的token状态, 缓存设置的过期时间
-                ThinkerAdmin::Cache()->setTokenCache(
-                    "jwt",
-                    $this->tokenInfo,
-                    time(),
-                    config("thinkeradmin.jwt.expired_operate_time")
-                );
-
-                $this->auth = ThinkerAdmin::Auth()->setAccessType($this->tokenInfo['access_type']);
-            }else{
-                ThinkerAdmin::Send()->json([], 0, "不存在Auth信息，无法验证身份");
+                $this->verifyUrlAuth();
             }
         }
     }
 
     /**
-     * @title      checkAuth
-     * @description 检查权限
-     * @createtime 2019/11/12 7:12 下午
-     * @param $actionName
-     * @author     yangyuance
-     */
-    protected function checkUrlAuth()
-    {
-        //首先获取Auth信息
-        $this->getAuth();
-
-        $this->urlName = $this->auth->checkUrl($this->urlPath, $this->tokenInfo['id'], [1,2]);
-
-        if($this->urlName === false){
-            ThinkerAdmin::Send()->json([], 0, "Auth信息失败: 您暂无权限访问");
-        }
-    }
-
-    /**
-     * @title      checkLoginPwd
+     * @title      verifyUrlAuth
      * @description
-     * @createtime 2019/11/16 8:44 下午
-     * @param bool $password
+     * @createtime 2020/5/27 9:55 下午
      * @author     yangyuance
      */
-    protected function checkLoginPwd($password = false)
-    {
-        //首先获取Auth信息
-        $this->getAuth();
+    public function verifyUrlAuth() {
+        //找到Token信息
+        $this->getTokenInfo();
 
-        $password = $this->request->param("password", $password);
-        if(empty($password)) {
-            ThinkerAdmin::Send()->json([], 0, lang("empty password"));
-        }
+        //找到规则信息
+        $this->getAuthRules();
 
-        //获取用户信息
-        $userInfo = $this->auth->getUser($this->tokenInfo['id'], "id");
-
-        //如果不存在用户
-        if(empty($userInfo)){
-            ThinkerAdmin::Send()->json([], 0, "用户名或密码错误");
-        }
-
-        //判断能否登录
-        if(isset($userInfo['status']) && $userInfo['status'] == 0){
-            ThinkerAdmin::Send()->json([], 0, "用户无法登录使用，请您联系管理员");
-        }
-
-
-        //有一个状态参数
-        $resultData = true;
-
-        if($this->tokenInfo['access_type'] === 0){
-            //总后台登录,使用自定义的算法
-            if ($userInfo['password'] != sha1($password.$userInfo['salt'])) {
-                $resultData = false;
+        if(!empty($this->authRules)) {
+            if(!in_array(strtolower($this->urlPath), $this->authRules)) {
+                ThinkerAdmin::response()
+                    ->msg("Auth信息失败: 您无法访问当前界面")
+                    ->fail();
             }
-        }else{
-            //判断是否存在自定义登录方法
-            $login_verfiy_func = config("thinkeradmin.auth.login_verfiy_func");
-            if($login_verfiy_func instanceof \Closure){
-                $resultData = call($login_verfiy_func, [
-                    ['password' => $password], $userInfo, $this->tokenInfo['access_type']
-                ]);
-            }else{
-                if ($userInfo['password'] != sha1($password.$userInfo['salt'])) {
-                    $resultData = false;
+        } else {
+            ThinkerAdmin::response()
+                ->msg("您无法在缺少鉴权的情况下访问")
+                ->fail();
+        }
+    }
+
+    /**
+     * @title      getRulesMap
+     * @description
+     * @createtime 2020/5/27 10:08 下午
+     * @return array|mixed
+     * @author     yangyuance
+     */
+    protected function getRulesMap() {
+        $rulesMap = ThinkerAdmin::cache()->getAuthCache(
+            "rules_map", $this->tokenInfo, null
+        );
+
+        if(empty($rulesMap)) {
+            $rulesMap = [];
+            foreach((new AdminRulesModel())->findUserRules($this->tokenInfo) as $i => $rule) {
+                if(!empty($rule['url'])) {
+                    $rulesMap[$rule['url']] = $rule['name'];
                 }
+
+                $rulesMap[$rule['name']] = empty($rule['url']) ? "" : $rule['url'];
+            }
+
+            ThinkerAdmin::cache()->setAuthCache(
+                "rules_map", $this->tokenInfo, $rulesMap
+            );
+        }
+
+        return $rulesMap;
+    }
+
+    /**
+     * @title      checkRuleName
+     * @description
+     * @createtime 2020/5/27 10:13 下午
+     * @param array $ruleNames
+     * @return array
+     * @author     yangyuance
+     */
+    protected function checkRuleName(array $ruleNames) {
+        $rulesMap = $this->getRulesMap();
+
+        $booleans = [];
+
+        if(isset($rulesMap[strtolower($this->urlPath)])) {
+            $prefixName = $rulesMap[strtolower($this->urlPath)];
+
+            foreach ($ruleNames as $name) {
+                $booleans[] = isset($rulesMap[$prefixName.$name]);
             }
         }
 
-        if($resultData === false){
-            ThinkerAdmin::Send()->json([], 0, lang("incorrect username or password"));
-        }
+        return $booleans;
     }
 
     /**
      * @title      renderTableRule
      * @description
-     * @createtime 2019/11/28 3:43 下午
+     * @createtime 2020/5/27 10:01 下午
      * @param ThinkerTable $table
      * @param string       $title
-     * @return \Yirius\Admin\table\ThinkerTableCols
+     * @return mixed
      * @author     yangyuance
      */
     protected function renderTableRule(ThinkerTable $table, $title = "操作")
     {
         //按钮是否存在
-        $isShowAdd = $this->auth->checkRule($this->urlName.":add", $this->tokenInfo['id'], [3]);
-        $isShowDelete = $this->auth->checkRule($this->urlName.":del", $this->tokenInfo['id'], [3]);
-        $isShowEdit = $this->auth->checkRule($this->urlName.":edit", $this->tokenInfo['id'], [3]);
+        $booleans = $this->checkRuleName([":add", ":del", ":edit"]);
 
-        //实例化操作栏
-        $opColumn = $table->columns("op", $title);
+        if(!empty($booleans)) {
+            //存在其中一个
+            if(!empty($booleans[0]) || !empty($booleans[1]) || !empty($booleans[2])) {
+                $columns = $table->columns("op", $title);
 
-        //判断后方按钮
-        if($isShowEdit && $isShowDelete){
-            $opColumn->edit()->delete()->setWidth(145);
-            $table->colsEvent()->edit()->delete();
-        }elseif($isShowEdit){
-            $opColumn->edit()->setWidth(81);
-            $table->colsEvent()->edit();
-        }elseif($isShowDelete){
-            $opColumn->delete()->setWidth(81);
-            $table->colsEvent()->delete();
+                //判断后方按钮
+                if(!empty($booleans[1]) || !empty($booleans[2])){
+                    $columns->edit()->delete()->setWidth(145);
+                    $table->colsEvent()->edit()->delete();
+                } else if(!empty($booleans[2])){
+                    $columns->edit()->setWidth(81);
+                    $table->colsEvent()->edit();
+                } else if(!empty($booleans[1])){
+                    $columns->delete()->setWidth(81);
+                    $table->colsEvent()->delete();
+                }
+
+
+                //判断上方按钮
+                if(!empty($booleans[0]) || !empty($booleans[1])){
+                    $table->toolbar()->add()->delete()->event()->add()->delete();
+                } else if(!empty($booleans[0])){
+                    $table->toolbar()->add()->event()->add();
+                } else if(!empty($booleans[1])){
+                    $table->toolbar()->delete()->event()->delete();
+                }
+
+                return $columns;
+            }
         }
 
-        //判断上方按钮
-        if($isShowAdd && $isShowDelete){
-            $table->toolbar()->add()->delete()->event()->add()->delete();
-        }elseif($isShowAdd){
-            $table->toolbar()->add()->event()->add();
-        }elseif($isShowDelete){
-            $table->toolbar()->delete()->event()->delete();
-        }
+        return null;
+    }
 
-        return $opColumn;
+    /**
+     * @title      verifyPassword
+     * @description
+     * @createtime 2020/5/27 10:17 下午
+     * @param $password
+     * @author     yangyuance
+     */
+    protected function verifyPassword($password) {
+        if(empty($password) || !ThinkerAdmin::jwt()->verifyPassword($password)) {
+            ThinkerAdmin::response()->msg(lang("incorrect username or password"))->fail();
+        }
     }
 }

@@ -4,7 +4,10 @@
 namespace Yirius\Admin\extend\model;
 
 
+use think\facade\Cache;
 use think\Model;
+use Yirius\Admin\extend\ThinkerModel;
+use Yirius\Admin\ThinkerAdmin;
 
 abstract class BaseModel
 {
@@ -12,40 +15,29 @@ abstract class BaseModel
      * @var Model
      */
     protected $model;
-
-    /**
-     * model has fields
-     * @var array
-     */
     protected $modelFields = [];
 
-    /**
-     * ModelList constructor.
-     * @param Model $model
-     */
-    public function __construct(Model $model = null)
+    public function __construct(Model $model)
     {
-        if (!is_null($model)) {
-            $this->setModel($model);
-        }
+        $this->setModel($model);
     }
 
     /**
-     * @title setModel
+     * @title      setModel
      * @description
-     * @createtime 2019/2/20 下午5:40
+     * @createtime 2020/5/27 10:27 下午
      * @param $model
      * @return $this
+     * @author     yangyuance
      */
-    public function setModel(Model $model)
+    public function setModel($model)
     {
         $this->model = $model;
-
-        //save fields
-        $this->modelFields = $this->model->getTableFields();
-
-        $this->afterSetModel();
-
+        $this->modelFields = Cache::get("table_" . $this->model->getName(), null);
+        if(empty($this->modelFields)) {
+            $this->modelFields = $this->model->getTableFields();
+            Cache::tag("table_fields")->set("table_" . $this->model->getName(), $this->modelFields);
+        }
         return $this;
     }
 
@@ -57,18 +49,5 @@ abstract class BaseModel
         return $this->model;
     }
 
-    /**
-     * @title afterSetModel
-     * @description
-     * @createtime 2019/2/20 下午11:49
-     */
-    protected function afterSetModel(){}
-
-    /**
-     * @title getResult
-     * @description get total result
-     * @createtime 2019/2/28 上午11:51
-     * @return mixed
-     */
-    abstract public function getResult();
+    public abstract function getResult();
 }

@@ -1,7 +1,7 @@
 {
     "name": "yirius/thinker-admin",
     "description": "use few line php code to create an administrator view",
-    "version": "2.0.3",
+    "version": "3.0.0",
     "license": "MIT",
     "authors": [
         {
@@ -15,7 +15,7 @@
         "ext-gd": "*",
         "ext-openssl":"*",
         "topthink/framework": "5.1.*",
-        "firebase/php-jwt": "*",
+        "lcobucci/jwt": "3.3.*",
         "topthink/think-captcha": "2.0.*",
         "topthink/think-migration": "*",
         "hisune/echarts-php": "*"

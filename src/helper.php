@@ -7,24 +7,27 @@
  */
 
 
+use think\facade\Lang;
+use think\facade\Route;
+
 defined("DS") or define("DS", DIRECTORY_SEPARATOR);//目录分割的缩写
 defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包的地址
 
 //load lang
-\think\facade\Lang::load(dirname(__DIR__) . DS . "lang" . DS . \think\facade\Lang::detect() . ".php");
+Lang::load(dirname(__DIR__) . DS . "lang" . DS . Lang::detect() . ".php");
 
 //add delete all
-\think\facade\Route::rest("deleteall", ['delete', '', 'deleteall']);
+Route::rest("deleteall", ['delete', '', 'deleteall']);
 
-//预定义所有的
-\think\facade\Route::resource(
+//Restful路由
+Route::resource(
     "restful/thinkeradmin/:restful",
-    "\\Yirius\Admin\\route\\restful\\:restful"
+    "\\Yirius\Admin\\admin\\restful\\:restful"
 );
 //便捷路由访问相关模块api
-\think\facade\Route::any(
+Route::any(
     "thinkeradmin/:controllername/:controlleraction",
-    "\\Yirius\Admin\\route\\controller\\:controllername@:controlleraction"
+    "\\Yirius\Admin\\admin\\controller\\:controllername@:controlleraction"
 );
 
 //加入以下console
@@ -35,7 +38,7 @@ defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包�
 ]);
 
 //注册钩子
-\think\facade\Hook::add('response_end', '\\Yirius\\Admin\\hooks\\RespEnd');
+\think\facade\Hook::add('response_end', '\\Yirius\\Admin\\support\\hooks\\RespEnd');
 
 /**
  * 初始化记录错误

@@ -4,38 +4,37 @@
 namespace Yirius\Admin;
 
 
-use Yirius\Admin\auth\Auth;
-use Yirius\Admin\auth\Jwt;
-use Yirius\Admin\form\ThinkerForm;
-use Yirius\Admin\table\ThinkerTable;
-use Yirius\Admin\widgets\Cache;
-use Yirius\Admin\widgets\Encrypt;
-use Yirius\Admin\widgets\File;
-use Yirius\Admin\widgets\Http;
-use Yirius\Admin\widgets\Redis;
-use Yirius\Admin\widgets\Send;
-use Yirius\Admin\widgets\Tools;
-use Yirius\Admin\widgets\Tree;
-use Yirius\Admin\widgets\Validate;
-use Yirius\Admin\widgets\Widgets;
+use Yirius\Admin\config\ThinkerProperties;
+use Yirius\Admin\renders\ThinkerForm;
+use Yirius\Admin\renders\ThinkerTable;
+use Yirius\Admin\services\RedisService;
+use Yirius\Admin\services\UploadService;
+use Yirius\Admin\widgets\ThinkerCache;
+use Yirius\Admin\widgets\ThinkerEncrypt;
+use Yirius\Admin\widgets\ThinkerFile;
+use Yirius\Admin\widgets\ThinkerHttp;
+use Yirius\Admin\widgets\ThinkerJwt;
+use Yirius\Admin\widgets\ThinkerResponse;
+use Yirius\Admin\widgets\ThinkerTools;
+use Yirius\Admin\widgets\ThinkerTree;
+use Yirius\Admin\widgets\ThinkerValidate;
 
 /**
  * Class ThinkerAdmin
- *
- * 以下是widgets
- * @method static Send Send()
- * @method static Validate Validate()
- * @method static Tree Tree()
- * @method static Auth Auth()
- * @method static Jwt Jwt()
- * @method static Cache Cache()
- * @method static Tools Tools()
- * @method static Http Http()
- * @method static Encrypt Encrypt()
- * @method static File File()
- * @method static Redis Redis()
- *
  * @package Yirius\Admin
+ * @method static ThinkerCache cache()
+ * @method static ThinkerEncrypt encrypt()
+ * @method static ThinkerFile file()
+ * @method static ThinkerJwt jwt()
+ * @method static ThinkerResponse response()
+ * @method static ThinkerTools tools()
+ * @method static ThinkerTree tree()
+ * @method static ThinkerValidate validate()
+ *
+ * @method static RedisService redis()
+ * @method static UploadService upload()
+ *
+ * @method static ThinkerProperties properties()
  */
 class ThinkerAdmin
 {
@@ -44,18 +43,56 @@ class ThinkerAdmin
      */
     protected static $extends = [
         //widgets添加
-        'send'     =>   Send::class,
-        'validate' =>   Validate::class,
-        'tree'     =>   Tree::class,
-        'auth'     =>   Auth::class,
-        'jwt'      =>   Jwt::class,
-        'cache'    =>   Cache::class,
-        'tools'    =>   Tools::class,
-        'http'     =>   Http::class,
-        'encrypt'  =>   Encrypt::class,
-        'file'     =>   File::class,
-        'redis'    =>   Redis::class,
+        'cache'      =>   ThinkerCache::class,
+        'encrypt'    =>   ThinkerEncrypt::class,
+        'file'       =>   ThinkerFile::class,
+        'jwt'        =>   ThinkerJwt::class,
+        'response'   =>   ThinkerResponse::class,
+        'tools'      =>   ThinkerTools::class,
+        'tree'       =>   ThinkerTree::class,
+        'validate'   =>   ThinkerValidate::class,
+
+        //服务
+        'redis'      =>   RedisService::class,
+        'upload'     =>   UploadService::class,
+
+        //配置
+        'properties' =>   ThinkerProperties::class
     ];
+
+    protected static $instanceExtends = [];
+
+    /**
+     * @title      http
+     * @description
+     * @createtime 2020/5/27 12:57 下午
+     * @return ThinkerHttp
+     * @author     yangyuance
+     */
+    public function http() {
+        return new ThinkerHttp();
+    }
+
+    private static $classMethod = null;
+
+    /**
+     * @title      setClassMethod
+     * @description
+     * @createtime 2020/5/27 1:33 下午
+     * @param $classMethod
+     * @author     yangyuance
+     */
+    public static function setClassMethod($classMethod) {
+        self::$classMethod = $classMethod;
+    }
+
+    /**
+     * @return null
+     */
+    public static function getClassMethod()
+    {
+        return self::$classMethod;
+    }
 
     /**
      *
@@ -75,25 +112,6 @@ class ThinkerAdmin
         'file' => [],
         'style' => []
     ];
-
-    /**
-     * @title      extend
-     * @description 继承新的类库
-     * @createtime 2019/11/13 11:05 下午
-     * @param      $name
-     * @param null $class
-     * @author     yangyuance
-     */
-    public static function extend($name, $class = null)
-    {
-        if(is_array($name)){
-            static::$extends = array_merge(static::$extends, array_change_key_case($name, CASE_LOWER));
-        }else{
-            if(!is_null($class)){
-                static::$extends[strtolower($name)] = $class;
-            }
-        }
-    }
 
     /**
      * @title      Table
@@ -188,29 +206,14 @@ class ThinkerAdmin
      */
     public static function __callStatic($name, $arguments)
     {
-        if(isset(static::$extends[strtolower($name)])){
-            //获取到父类名称，判断是否一个widget
-            $parentClassName = get_parent_class(static::$extends[strtolower($name)]);
-
-            //判断是否存在该类
-            if($parentClassName == "Yirius\\Admin\\widgets\\Widgets"){
-                unset($parentClassName);
-                return static::$extends[strtolower($name)]::getInstance(
-                    isset($arguments[0]) ? $arguments[0] : null
-                );
-            }else{
-                unset($parentClassName);
-                //否则是其他的参数
-                $newClass = (new static::$extends[strtolower($name)]);
-                //存在的话，判断参数
-                if(method_exists($newClass, "setArguments")){
-                    $newClass->setArguments($arguments);
-                }
-                //返回实例化
-                return $newClass;
+        $name = strtolower($name);
+        if(isset(self::$extends[$name])){
+            if(!isset(self::$instanceExtends[$name])) {
+                self::$instanceExtends[$name] = new self::$extends[$name]($arguments);
             }
+            return self::$instanceExtends[$name];
         }else{
-            return null;
+            (new ThinkerResponse())->msg("执行ThinkerAdmin方法".$name."错误")->fail();
         }
     }
 }
