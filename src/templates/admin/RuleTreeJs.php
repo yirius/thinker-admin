@@ -8,6 +8,8 @@ use Yirius\Admin\templates\Templates;
 
 class RuleTreeJs extends Templates
 {
+    protected $args = ["id", "url", "defaultData"];
+
     /**
      * @title      render
      * @description
@@ -23,12 +25,12 @@ if(type == "add"){
 }else{
     if(type == "update"){
         if(typeof obj.data.value == "undefined") {
-            layui.form.val("tree_rules", {id: 0, text: obj.data.text, pid: obj.data.pid, name: "", title: "", status: 1, type: 1, url: "", icon: "", listOrder: 1000});
-            layui.iconplus.checkIcon("tree_rules_icon", "", "fontClass");
+            layui.form.val("{$this->getConfig("id")}", {$this->getConfig("defaultData")});
+            layui.iconplus && layui.iconplus.checkIcon("{$this->getConfig("id")}_icon", "", "fontClass");
         } else {
-            layui.http.get("/restful/thinkeradmin/TeAdminRules/" + obj.data.value, {}, function(data, msg){
-                layui.form.val("tree_rules", data);
-                layui.iconplus.checkIcon("tree_rules_icon", data.icon, "fontClass");
+            layui.http.get("{$this->getConfig("url")}/" + obj.data.value, {}, function(data, msg){
+                layui.form.val("{$this->getConfig("id")}", data);
+                layui.iconplus && layui.iconplus.checkIcon("{$this->getConfig("id")}_icon", data.icon, "fontClass");
             });
         }
     }else if(type == "del"){
@@ -39,7 +41,7 @@ if(type == "add"){
                 parent.layer.close(index);
                 parent.layer.confirm('是否确认要删除该用户规则？', function(index) {
                     parent.layer.close(index);
-                    var url = layui.laytpl("/restful/thinkeradmin/TeAdminRules{{parseInt(d.value)?'/'+d.value:''}}").render(obj.data || {});
+                    var url = layui.laytpl("{$this->getConfig("url")}{{parseInt(d.value)?'/'+d.value:''}}").render(obj.data || {});
                     layui.http.delete(url, {password: layui.md5(value)}, function(res){
                         $(obj.elem).remove();
                     });

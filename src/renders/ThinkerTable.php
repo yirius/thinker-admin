@@ -222,6 +222,14 @@ class ThinkerTable extends LayoutAbstract
     }
 
     /**
+     * @return mixed
+     */
+    public function getSearch()
+    {
+        return $this->search;
+    }
+
+    /**
      * @title      toolbar
      * @description
      * @createtime 2020/5/27 2:25 下午
@@ -311,8 +319,11 @@ class ThinkerTable extends LayoutAbstract
             }))->setTitle($title)->render();
         } else {
             return (new ThinkerPage(function(ThinkerPage $thinkerPage) use($callable){
-                $thinkerPage->card()->addBodyLayout($this)
-                    ->addCardHeaderClass("padding-tb-sm");
+                $thinkerPage
+                    ->card()
+                    ->addBodyLayout($this)
+                    ->addHeaderLayout($this->getSearch())
+                    ->addCardHeaderClass("thinker-pad-tb20 padding-tb-sm");
             }))->setTitle($title)->render();
         }
     }

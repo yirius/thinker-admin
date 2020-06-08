@@ -9,6 +9,7 @@
 
 use think\facade\Lang;
 use think\facade\Route;
+use Yirius\Admin\admin\model\AdminLogsModel;
 
 defined("DS") or define("DS", DIRECTORY_SEPARATOR);//目录分割的缩写
 defined("THINKER_ROOT") or define("THINKER_ROOT", __DIR__);//当前composer包的地址
@@ -18,17 +19,28 @@ Lang::load(dirname(__DIR__) . DS . "lang" . DS . Lang::detect() . ".php");
 
 //add delete all
 Route::rest("deleteall", ['delete', '', 'deleteall']);
+Route::rest("json", ['get', '/json/:id/:field', 'json']);
+Route::rest("jsonput", ['put', '/json/:id/:field', 'jsonput']);
+
+$prefixName = "\\Yirius\Admin\\admin\\";
 
 //Restful路由
-Route::resource(
-    "restful/thinkeradmin/:restful",
-    "\\Yirius\Admin\\admin\\restful\\:restful"
-);
-//便捷路由访问相关模块api
-Route::any(
-    "thinkeradmin/:controllername/:controlleraction",
-    "\\Yirius\Admin\\admin\\controller\\:controllername@:controlleraction"
-);
+Route::group("restful/thinkeradmin", function() use($prefixName){
+    Route::any("/TeAdminRules/quickadd", $prefixName."restful\\TeAdminRules@quickadd");
+});
+Route::resource("restful/thinkeradmin/:restful", $prefixName."restful\\:restful");
+
+//加入指定分组
+Route::group("thinkeradmin", function() use($prefixName){
+    Route::any("Admin/:controlleraction", $prefixName."controller\\Admin@:controlleraction");
+    Route::any("admin/:controlleraction", $prefixName."controller\\Admin@:controlleraction");
+
+    Route::any("System/:controlleraction", $prefixName."controller\\System@:controlleraction");
+    Route::any("system/:controlleraction", $prefixName."controller\\System@:controlleraction");
+
+    Route::any("Log/:controlleraction", $prefixName."controller\\Log@:controlleraction");
+    Route::any("log/:controlleraction", $prefixName."controller\\Log@:controlleraction");
+});
 
 //加入以下console
 \think\Console::addDefaultCommands([
@@ -61,7 +73,7 @@ if(!function_exists("thinker_error")){
 if(!function_exists("thinker_log")){
     function thinker_log(array $tokenInfo, $desc, $isLogin = false)
     {
-        \Yirius\Admin\route\model\TeAdminLogs::addLog($tokenInfo, $desc, $isLogin);
+        AdminLogsModel::addLog($tokenInfo, $desc, $isLogin);
     }
 }
 

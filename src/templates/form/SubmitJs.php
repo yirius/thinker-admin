@@ -28,11 +28,19 @@ layui.form.on("submit({$this->getConfig("idName")})", function (obj) {
             obj.field[v.name] = v.dataset.notuse;
         }
     });
+    
     //判断tree的参数，去掉
     var treeChecks = $(obj.form).find('input[name^="layuiTreeCheck_"]');
     layui.each(treeChecks, function(n,v){
         if(obj.field[v.name]){
             delete obj.field[v.name];
+        }
+    });
+    
+    //判断富文本编辑器
+    $(obj.form).find("[lay-tinymce]").each(function(n, v){
+        if(tinyMCE.editors[v.id]) {
+            obj.field[v.name] = tinyMCE.editors[v.id].getContent();
         }
     });
 

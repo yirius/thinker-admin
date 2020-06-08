@@ -50,6 +50,8 @@ class Upload extends Assembly
         $this->setName($this->getField())
             ->setUrl("./thinkeradmin/admin/upload")->addAttr("lay-upload", "");
 
+        $this->setButtonText($text);
+
         $this->addClass("layui-btn")
             ->addClass("layui-btn-sm")
             ->addClass("margin-top-xs")
@@ -69,6 +71,30 @@ class Upload extends Assembly
         return $this->setUrl("./thinkeradmin/admin/upload?isimage=0")->setAccept("file")->setText("文件上传");
     }
 
+    protected $buttonText = "";
+
+    /**
+     * @title      setButtonText
+     * @description
+     * @createtime 2020/5/31 9:10 下午
+     * @param $buttonText
+     * @return $this
+     * @author     yangyuance
+     */
+    public function setButtonText($buttonText)
+    {
+        $this->buttonText = $buttonText;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getButtonText()
+    {
+        return $this->buttonText;
+    }
+
     /**
      * @title       render
      * @description 每一个组件需要继承渲染接口
@@ -78,9 +104,16 @@ class Upload extends Assembly
      */
     public function render()
     {
+        $attrs = $this->getAttrs();
+
+        $result = [];
+        foreach($attrs as $i => $attr) {
+            $result[] = (in_array($i, $this->attrsFields) ? 'data-' . $i : $i) . '="' . $attr . '"';
+        }
+
         return $this->getLabel() . "\n" .
             "<div class=\"layui-input-block\">\n" .
-            "    <a class=\"" . $this->getClassString() . "\" id=\"" . $this->getId() . "\" lay-filter=\"" . $this->getId() . "\" name=\"" . $this->getField() . "\" " . $this->getAttrString() . ">" . $this->getText() . "</a>\n" .
+            "    <a class=\"" . $this->getClassString() . "\" id=\"" . $this->getId() . "\" lay-filter=\"" . $this->getId() . "\" name=\"" . $this->getField() . "\" " . join(" ", $result) . ">" . $this->getButtonText() . "</a>\n" .
             "    " . $this->getButtonHtml() . "\n" .
             "</div>";
     }

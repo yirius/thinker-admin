@@ -144,7 +144,6 @@ class ThinkerResponse
      */
     public function html($data)
     {
-        response($data, 200, $this->header, "html")->send();
-        exit();
+        return response($data, 200, $this->header, "html");
     }
 }

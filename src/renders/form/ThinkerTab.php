@@ -25,6 +25,14 @@ class ThinkerTab extends ThinkerAssemblys
         return $this;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
     public function __construct(callable $closure = null, $useValue = [])
     {
         parent::__construct();

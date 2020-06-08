@@ -182,7 +182,7 @@ class ThinkerPage extends LayoutAbstract
             return "layui.link(layui.cache.base.'css/".$value.".css?v='.layui.conf.v);";
         }, $runStyle['file']));
 
-        return <<<HTML
+        return ThinkerAdmin::response()->html(<<<HTML
 {$breadcrumb}
 <div class="layui-fluid {$this->getClassString()}" id="{$this->getId()}_page" lay-title="{$this->title}" {$this->getAttrString()}>
 {$layouts}
@@ -205,7 +205,7 @@ layui.use({$useFiles}, function(){
 });
 </script>
 HTML
-            ;
+        );
     }
 
 }

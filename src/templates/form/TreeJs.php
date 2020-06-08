@@ -4,6 +4,7 @@
 namespace Yirius\Admin\templates\form;
 
 
+use Yirius\Admin\renders\form\assemblys\Tree;
 use Yirius\Admin\templates\Templates;
 
 class TreeJs extends Templates
@@ -19,10 +20,15 @@ class TreeJs extends Templates
      */
     public function render()
     {
+        /**
+         * @var Tree
+         */
+        $tree = $this->getConfig("tree");
+
         return <<<HTML
 ;(function(){
-    var currentEleTree = document.querySelector("#@tree.getId()"), isLoaded = false,
-        currentTreeInput = layui.jquery("#@tree.getId()_input"), config = @raw(tree.getConfigString());
+    var currentEleTree = document.querySelector("#{$tree->getId()}"), isLoaded = false,
+        currentTreeInput = layui.jquery("#{$tree->getId()}_input"), config = {$tree->getConfigString()};
 
     var checkedValue = [], _eachChecked = function(data){
         layui.each(data, function(n, v){
@@ -62,30 +68,30 @@ class TreeJs extends Templates
     }
 
     currentEleTree['{$this->getConfig("useJsName")}'] = layui['{$this->getConfig("useJsName")}'].render($.extend({
-        elem: "#@tree.getId()",
-        id: "@tree.getId()",
+        elem: "#{$tree->getId()}",
+        id: "{$tree->getId()}",
         click: function(obj){
-            @raw(tree.getClickEvent())
+            {$tree->getClickEvent()}
         },
         oncheck: function(obj){
             if(isLoaded){
                 checkedValue = [];
-                _eachChecked(layui['{$this->getConfig("useJsName")}'].getChecked('@tree.getId()'));
+                _eachChecked(layui['{$this->getConfig("useJsName")}'].getChecked('{$tree->getId()}'));
                 currentTreeInput.val(checkedValue.join(","));
-                @raw(tree.getCheckedEvent())
+                {$tree->getCheckedEvent()}
             }
         },
         beforeOperate: function(type, obj){
-            @raw(tree.getBeforeOperateEvent())
+            {$tree->getBeforeOperateEvent()}
         },
         operate: function(obj){
-            @raw(tree.getOperateEvent())
+            {$tree->getOperateEvent()}
         }
     }, config));
 
     //赋值
     if(checkedValue.length > 0) {
-        layui['{$this->getConfig("useJsName")}'].setChecked('@tree.getId()', checkedValue);
+        layui['{$this->getConfig("useJsName")}'].setChecked('{$tree->getId()}', checkedValue);
     }
 //防止错误触发
     isLoaded = true;

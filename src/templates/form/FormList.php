@@ -9,6 +9,7 @@ use Yirius\Admin\ThinkerAdmin;
 /**
  * Class FormList
  * @package Yirius\Admin\templates\form
+ * @method SelectDateJs SelectDateJs();
  * @method IconPickerJs IconPickerJs();
  * @method OnEventJs OnEventJs();
  * @method SubmitJs SubmitJs();
@@ -17,6 +18,7 @@ use Yirius\Admin\ThinkerAdmin;
 class FormList
 {
     private $classList = [
+        "selectdatejs" => SelectDateJs::class,
         "iconpickerjs" => IconPickerJs::class,
         "oneventjs" => OnEventJs::class,
         "submitjs" => SubmitJs::class,

@@ -40,7 +40,7 @@ class Transfer extends DataAssembly
      */
     public function render()
     {
-        $this->setDataField((array) $this->getData());
+        $this->setData($this->setDataField((array) $this->getData()));
 
         ThinkerAdmin::script(";(function(){\n" .
             "var currentEleTransfer = document.querySelector(\"#".$this->getId()."\"), \n" .

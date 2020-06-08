@@ -5,6 +5,7 @@ namespace Yirius\Admin\renders\form\assemblys;
 
 
 use Yirius\Admin\renders\form\Assembly;
+use Yirius\Admin\templates\TemplateList;
 use Yirius\Admin\ThinkerAdmin;
 
 /**
@@ -31,6 +32,7 @@ use Yirius\Admin\ThinkerAdmin;
  * @method SelectPlus setShowCount(int $showCount);
  * @method SelectPlus setSize($size); large / medium / small / mini
  * @method SelectPlus setDisabled(bool $disabled);
+ * @method SelectPlus setAutoRow(bool $autoRow);
  */
 class SelectPlus extends Assembly
 {
@@ -38,7 +40,7 @@ class SelectPlus extends Assembly
         "content", "tips", "empty", "filterable", "searchTips", "delay",
         "remoteSearch", "direction", "style", "height", "pageing", "pageSize",
         "pageEmptyShow", "pageRemote", "radio", "repeat", "clickClose", "max",
-        "showCount", "size", "disabled"
+        "showCount", "size", "disabled", "autoRow"
     ];
 
     protected $data = [];
@@ -90,7 +92,7 @@ class SelectPlus extends Assembly
 
     public function radio($radio = true)
     {
-        return $this->setRadio($radio);
+        return $this->setModel("{label:{type:'text'}}")->setRadio($radio);
     }
 
     public function search()
@@ -234,6 +236,20 @@ class SelectPlus extends Assembly
     }
 
     /**
+     * 设置日期多选
+     * @var bool
+     */
+    private $dateMultiply = false;
+
+    public function setDateMultiply() {
+        $this->dateMultiply = true;
+        return $this
+            ->setContent("<div id='".$this->getId()."_laydate'></div>")
+            ->setHeight("auto")->setAutoRow(true)
+            ->setOn("if(!data.isAdd){dateSelect(window.".$this->getId()."_laydate.getValue('value'))}");
+    }
+
+    /**
      * @title       render
      * @description 每一个组件需要继承渲染接口
      * @createtime  2020/5/27 1:58 下午
@@ -246,7 +262,7 @@ class SelectPlus extends Assembly
         $value = $this->getValue();
         $_Value = "[]";
         if(!empty($value)) {
-            $_Value = "[".$value."]";
+            $_Value = "['".$value."']";
         }
 
         $data = empty($this->data) ? "[]" : json_encode($this->data);
@@ -274,6 +290,12 @@ class SelectPlus extends Assembly
             "    " . $this->tree .
             "    " . $this->cascader .
             "}, ".$this->getConfigString()."));");
+
+        if($this->dateMultiply) {
+            ThinkerAdmin::script(TemplateList::form()->SelectDateJs()->templates([
+                $this->getId()
+            ])->render());
+        }
 
         return $this->getLabel() . "\n" .
             "<div class=\"".$this->getClassString()."\">\n" .

@@ -4,6 +4,7 @@
 namespace Yirius\Admin\admin\login;
 
 
+use think\facade\Validate;
 use Yirius\Admin\admin\model\AdminMemberModel;
 use Yirius\Admin\support\abstracts\LoginAbstract;
 use Yirius\Admin\ThinkerAdmin;
@@ -24,7 +25,7 @@ class AdminLogin extends LoginAbstract
      */
     public function getUser($id)
     {
-        if(is_numeric($id)) {
+        if(is_numeric($id) && !Validate::is($id, "mobile")) {
             return AdminMemberModel::get(['id' => intval($id)])->toArray();
         } else {
             return AdminMemberModel::where("username|phone", "=", $id)->find()->toArray();

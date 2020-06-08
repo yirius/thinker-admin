@@ -92,7 +92,7 @@ class Lists extends BaseModel
         }else{
             //each collections
             if (is_callable($this->eachClosure)) {
-                $selected->each($eachFuncs);
+                $selected->each($this->eachClosure);
             }
             return [
                 'count' => $count,

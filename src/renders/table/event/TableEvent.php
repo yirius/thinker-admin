@@ -5,6 +5,7 @@ namespace Yirius\Admin\renders\table\event;
 
 
 use Yirius\Admin\renders\ThinkerTable;
+use Yirius\Admin\ThinkerAdmin;
 
 class TableEvent extends ViewEvent
 {

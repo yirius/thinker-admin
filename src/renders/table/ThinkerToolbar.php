@@ -67,7 +67,7 @@ class ThinkerToolbar extends LayoutAbstract
         }
 
         return $this->toolbar(
-            empty($ifTpl) ? $button->xs()->render() : '{{# '.$ifTpl.'{ }}'.$button->xs()->render().'{{# } }}'
+            empty($ifTpl) ? $button->sm()->render() : '{{# '.$ifTpl.'{ }}'.$button->sm()->render().'{{# } }}'
         );
     }
 

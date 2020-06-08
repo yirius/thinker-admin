@@ -35,7 +35,7 @@ class ThinkerCard extends LayoutAbstract
      * @return $this
      * @author     yangyuance
      */
-    public function addHeaderLayout(LayoutAbstract $headerLayout) {
+    public function addHeaderLayout(LayoutAbstract $headerLayout = null) {
         if($headerLayout != null) {
             $this->headerLayout[] = $headerLayout;
         }
@@ -50,7 +50,7 @@ class ThinkerCard extends LayoutAbstract
      * @return $this
      * @author     yangyuance
      */
-    public function addBodyLayout(LayoutAbstract $bodyLayout) {
+    public function addBodyLayout(LayoutAbstract $bodyLayout = null) {
         if($bodyLayout != null) {
             $this->bodyLayout[] = $bodyLayout;
         }

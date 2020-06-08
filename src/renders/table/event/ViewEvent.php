@@ -54,7 +54,7 @@ abstract class ViewEvent extends LayoutAbstract
         $beforeDelete = empty($beforeDelete) ? "" : str_replace(["\n", "\r", "'"], "", $beforeDelete);
         $afterDelete = empty($afterDelete) ? "" : str_replace(["\n", "\r", "'"], "", $afterDelete);
 
-        $promptConfig = array_merge(['formType' => 1, 'title' => "敏感操作，请验证口令"], $promptConfig);
+        $promptConfig = array_merge(['formType' => 1, 'title' => "敏感操作，请验证口令"], empty($promptConfig) ? [] : $promptConfig);
 
         return TemplateList::table()->event()->VerifyJs()->templates([
             $title, $url, $method,

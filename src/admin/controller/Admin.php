@@ -30,7 +30,13 @@ class Admin extends ThinkerController
         return (new Captcha(ThinkerAdmin::properties()->getCaptcha()))->entry();
     }
 
-
+    /**
+     * @title      login
+     * @description
+     * @createtime 2020/5/28 12:30 下午
+     * @param Request $request
+     * @author     yangyuance
+     */
     public function login(Request $request)
     {
         //验证信息
@@ -169,7 +175,7 @@ class Admin extends ThinkerController
                 ThinkerAdmin::response()->msg("旧密码不正确，无法更改")->fail();
             }
         } else {
-            ThinkerAdmin::form(function (ThinkerForm $thinkerForm) {
+            return ThinkerAdmin::form(function (ThinkerForm $thinkerForm) {
                 $thinkerForm->password("oldpwd", "旧密码");
 
                 $thinkerForm->password("password", "新密码");

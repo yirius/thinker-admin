@@ -56,6 +56,14 @@ class Tree extends DataAssembly
     }
 
     /**
+     * @return string
+     */
+    public function getClickEvent()
+    {
+        return $this->clickEvent;
+    }
+
+    /**
      * @title      setCheckedEvent
      * @description
      * @createtime 2020/5/27 4:23 下午
@@ -68,6 +76,14 @@ class Tree extends DataAssembly
         $this->checkedEvent = $checkedEvent;
 
         return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCheckedEvent()
+    {
+        return $this->checkedEvent;
     }
 
     /**
@@ -86,6 +102,14 @@ class Tree extends DataAssembly
     }
 
     /**
+     * @return string
+     */
+    public function getOperateEvent()
+    {
+        return $this->operateEvent;
+    }
+
+    /**
      * @title      setBeforeOperateEvent
      * @description
      * @createtime 2020/5/27 4:23 下午
@@ -101,6 +125,14 @@ class Tree extends DataAssembly
     }
 
     /**
+     * @return string
+     */
+    public function getBeforeOperateEvent()
+    {
+        return $this->beforeOperateEvent;
+    }
+
+    /**
      * @title       render
      * @description 每一个组件需要继承渲染接口
      * @createtime  2020/5/27 1:58 下午
@@ -109,12 +141,12 @@ class Tree extends DataAssembly
      */
     public function render()
     {
-        $this->setDataField((array) $this->getData());
+        $this->setData($this->setDataField((array) $this->getData()));
 
         $name = explode("\\", get_class($this));
 
         ThinkerAdmin::script(TemplateList::form()->TreeJs()->templates([
-            $name[count($name) - 1], $this
+            strtolower($name[count($name) - 1]), $this
         ])->render());
 
         $_Value = join(",", (array) $this->getValue());

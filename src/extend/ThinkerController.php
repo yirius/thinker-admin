@@ -7,6 +7,7 @@ namespace Yirius\Admin\extend;
 use think\Controller;
 use Yirius\Admin\admin\model\AdminRulesModel;
 use Yirius\Admin\config\ConsConfig;
+use Yirius\Admin\renders\table\ThinkerColumns;
 use Yirius\Admin\renders\ThinkerTable;
 use Yirius\Admin\ThinkerAdmin;
 
@@ -66,16 +67,6 @@ class ThinkerController extends Controller
             }
             //释放参数
             $routeInfo = null;
-
-            $urlPath = [];
-            foreach (explode("/", $this->urlPath) as $i => $item) {
-                if($i > 3) {
-                    break;
-                }
-                $urlPath[] = $item;
-            }
-
-            $this->urlPath = join("/", $urlPath);
         }
 
         //记录，以便以后使用
@@ -204,7 +195,17 @@ class ThinkerController extends Controller
         $this->getAuthRules();
 
         if(!empty($this->authRules)) {
-            if(!in_array(strtolower($this->urlPath), $this->authRules)) {
+            $isPass = false;$urlArr = [];
+            foreach (explode("/", strtolower($this->urlPath)) as $i => $v) {
+                $urlArr[] = $v;
+                if(count($urlArr) > 2) {
+                    if(in_array(strtolower(join("/", $urlArr)), $this->authRules)) {
+                        $isPass = true;
+                        break;
+                    }
+                }
+            }
+            if(!$isPass) {
                 ThinkerAdmin::response()
                     ->msg("Auth信息失败: 您无法访问当前界面")
                     ->fail();
@@ -232,10 +233,10 @@ class ThinkerController extends Controller
             $rulesMap = [];
             foreach((new AdminRulesModel())->findUserRules($this->tokenInfo) as $i => $rule) {
                 if(!empty($rule['url'])) {
-                    $rulesMap[$rule['url']] = $rule['name'];
+                    $rulesMap[strtolower($rule['url'])] = strtolower($rule['name']);
                 }
 
-                $rulesMap[$rule['name']] = empty($rule['url']) ? "" : $rule['url'];
+                $rulesMap[strtolower($rule['name'])] = empty($rule['url']) ? "" : strtolower($rule['url']);
             }
 
             ThinkerAdmin::cache()->setAuthCache(
@@ -276,7 +277,7 @@ class ThinkerController extends Controller
      * @createtime 2020/5/27 10:01 下午
      * @param ThinkerTable $table
      * @param string       $title
-     * @return mixed
+     * @return ThinkerColumns
      * @author     yangyuance
      */
     protected function renderTableRule(ThinkerTable $table, $title = "操作")

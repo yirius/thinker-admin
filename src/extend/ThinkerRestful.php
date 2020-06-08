@@ -9,6 +9,7 @@ use think\Model;
 use Yirius\Admin\config\ConsConfig;
 use Yirius\Admin\extend\model\Lists;
 use Yirius\Admin\ThinkerAdmin;
+use Yirius\Admin\utils\JsonUtil;
 
 class ThinkerRestful extends ThinkerController
 {
@@ -81,20 +82,7 @@ class ThinkerRestful extends ThinkerController
     {
         //如果不存在实体，需要去查找
         if(empty($entity)) {
-            $param = input("param.");
-
-            if(!empty($this->_Validate)){
-                $param = ThinkerAdmin::validate()->make(
-                    $param, $this->_Validate[0], $this->_Validate[1]
-                );
-            }
-
-            $entity = [];
-            foreach($this->getModelFields() as $field) {
-                if(isset($param[$field])) {
-                    $entity[$field] = addslashes($param[$field]);
-                }
-            }
+            $entity = $this->fillEntity(input("param."));
         }
 
         if(empty($entity)) {
@@ -102,7 +90,8 @@ class ThinkerRestful extends ThinkerController
         }
 
         //前置执行
-        $this->_beforeSave($entity);
+        $saveEntity = $this->_beforeSave($entity);
+        if(!empty($saveEntity)) $entity = $saveEntity;
 
         $isUpdate = [];
         if(!empty($entity[ConsConfig::$JWT_KEY])) {
@@ -121,7 +110,7 @@ class ThinkerRestful extends ThinkerController
         ThinkerAdmin::response()->msg("未知错误，保存数据失败，请您重试")->fail();
     }
 
-    protected function _beforeSave(array $entity) {
+    protected function _beforeSave(array &$entity) {
         return $entity;
     }
 
@@ -149,6 +138,22 @@ class ThinkerRestful extends ThinkerController
 
     protected function _beforeRead(array $entity) {
         return $entity;
+    }
+
+    /** 相关JSON字段的读取和添加
+     * @var array
+     */
+    protected $jsonObjectFields = [];
+
+    public function json($id, $field) {
+        $fieldData = $this->getUseTable()->get(intval($id))->getData($field);
+        if(isset($this->jsonObjectFields[$field])) {
+            $retult = JsonUtil::fieldToObject($fieldData);
+        } else {
+            $retult = JsonUtil::fieldToArray($fieldData);
+        }
+
+        ThinkerAdmin::response()->data($retult)->success();
     }
 
     protected $_CanEditFields = ['status'];
@@ -183,18 +188,7 @@ class ThinkerRestful extends ThinkerController
                 ThinkerAdmin::response()->msg("当前数据不可更新")->fail();
             }
         } else {
-            $param = input("param.");
-            if(!empty($this->_Validate)){
-                $param = ThinkerAdmin::validate()->make(
-                    $param, $this->_Validate[0], $this->_Validate[1]
-                );
-            }
-            $entity = [];
-            foreach($this->getModelFields() as $field) {
-                if(isset($param[$field])) {
-                    $entity[$field] = addslashes($param[$field]);
-                }
-            }
+            $entity = $this->fillEntity(input("param."));
 
             unset($entity['id']);
             if(empty($entity)) {
@@ -303,6 +297,34 @@ class ThinkerRestful extends ThinkerController
     protected function _afterDelete(array $deledArr)
     {
 
+    }
+
+    /**
+     * @title      fillEntity
+     * @description
+     * @createtime 2020/5/29 2:48 下午
+     * @param array $param
+     * @return array
+     * @author     yangyuance
+     */
+    protected function fillEntity(array $param, $needValidate = true) {
+
+        if(!empty($this->_Validate) && $needValidate){
+            $param = ThinkerAdmin::validate()->make(
+                $param, $this->_Validate[0], $this->_Validate[1]
+            );
+        }
+
+        $entity = [];
+        foreach($this->getModelFields() as $field) {
+            if(isset($param[$field])) {
+                if(is_array($param[$field])) {
+                    $param[$field] = join(",", array_filter($param[$field]));
+                }
+                $entity[$field] = addslashes($param[$field]);
+            }
+        }
+        return $entity;
     }
 
     /**

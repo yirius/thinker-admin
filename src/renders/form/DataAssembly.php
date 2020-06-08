@@ -55,19 +55,21 @@ abstract class DataAssembly extends Assembly
         foreach ($textValues as $i => $textValue) {
             if(!empty($textValue['value'])) {
                 if(in_array($textValue['value'], $this->listValues)) {
-                    $textValue['checked'] = true;
+                    $textValues[$i]['checked'] = true;
                 }
                 if(in_array($textValue['value'], $spread)) {
-                    $textValue['spread'] = true;
+                    $textValues[$i]['spread'] = true;
                 }
                 if(in_array($textValue['value'], $disabled)) {
-                    $textValue['disabled'] = true;
+                    $textValues[$i]['disabled'] = true;
                 }
             }
 
-            if(!empty($textValue['childs'])) {
-                $this->setDataField($textValue['childs']);
+            if(!empty($textValues[$i]['childs'])) {
+                $this->setDataField($textValues[$i]['childs']);
             }
         }
+
+        return $textValues;
     }
 }

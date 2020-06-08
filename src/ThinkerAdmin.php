@@ -121,7 +121,7 @@ class ThinkerAdmin
      * @return ThinkerTable
      * @author     yangyuance
      */
-    public static function Table(callable $callback = null)
+    public static function table(callable $callback = null)
     {
         return (new ThinkerTable($callback));
     }
@@ -134,7 +134,7 @@ class ThinkerAdmin
      * @return ThinkerForm
      * @author     yangyuance
      */
-    public static function Form(callable $callback = null)
+    public static function form(callable $callback = null)
     {
         return (new ThinkerForm($callback));
     }
